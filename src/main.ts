@@ -4,6 +4,21 @@ import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module'
 import { initializeAPMAgent } from './utils/monitoring/apm.init'
 
+import { custom } from 'openid-client'
+import https from 'https'
+
+// configure openid-client HTTP layer globally (runs once at startup)
+const httpsAgent = new https.Agent({
+  keepAlive: true,
+  maxSockets: 100,
+  maxFreeSockets: 20
+})
+
+custom.setHttpOptionsDefaults({
+  timeout: 15000, // default was 3500ms
+  agent: httpsAgent
+})
+
 initializeAPMAgent()
 
 async function bootstrap(): Promise<void> {
