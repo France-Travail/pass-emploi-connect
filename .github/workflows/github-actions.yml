@@ -56,7 +56,7 @@ jobs:
           TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED: ${{ secrets.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED }}
           CLIENT_WEB_ERROR_CALLBACK: ${{ secrets.CLIENT_WEB_ERROR_CALLBACK }}
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           projectBaseDir: .
         env:
