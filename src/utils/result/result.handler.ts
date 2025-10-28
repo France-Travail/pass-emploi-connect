@@ -23,5 +23,11 @@ export function redirectFailure(
   if (failure.error.email) {
     url += `&email=${failure.error.email}`
   }
+  if (failure.error.nom) {
+    url += `&nom=${failure.error.nom}`
+  }
+  if (failure.error.prenom) {
+    url += `&prenom=${failure.error.prenom}`
+  }
   response.redirect(HttpStatus.TEMPORARY_REDIRECT, url)
 }

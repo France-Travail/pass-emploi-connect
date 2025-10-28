@@ -70,7 +70,9 @@ export class PassEmploiAPIClient {
       return failure(
         new UtilisateurNonTraitable(
           e.response?.data?.reason ?? e.response?.data?.code,
-          e.response?.data?.email
+          e.response?.data?.email,
+          passEmploiUser.nom,
+          passEmploiUser.prenom
         )
       )
     }
