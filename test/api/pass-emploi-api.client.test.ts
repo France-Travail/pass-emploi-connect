@@ -2,10 +2,7 @@ import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
 import * as nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
-import {
-  UtilisateurNonTraitable,
-  NonTrouveError
-} from '../../src/utils/result/error'
+import { NonTrouveError } from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
@@ -51,45 +48,69 @@ describe('PassEmploiAPIClient', () => {
     })
     it("retourne une failure quand l'appel d'API échoue avec un code NonTraitable connu", async () => {
       // Given
+      const utilisateur = unPassEmploiUser({
+        prenom: 'Bruno',
+        nom: 'Dumont',
+        email: 'dumont@octo.com'
+      })
       nock('https://api.pass-emploi.fr')
         .put(
           '/auth/users/un-sub',
-          unPassEmploiUser() as unknown as nock.RequestBodyMatcher
+          utilisateur as unknown as nock.RequestBodyMatcher
         )
-        .reply(422, { reason: 'UTILISATEUR_INEXISTANT' })
+        .reply(422, {
+          reason: 'UTILISATEUR_INEXISTANT',
+          email: utilisateur.email
+        })
         .isDone()
 
       // When
-      const response = await passEmploiAPIClient.putUser(
-        'un-sub',
-        unPassEmploiUser()
-      )
+
+      const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
 
       // Then
-      expect(response).to.deep.equal(
-        failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
-      )
+      expect(response).to.deep.equal({
+        _isSuccess: false,
+        error: {
+          code: 'UTILISATEUR_NON_TRAITABLE',
+          email: 'dumont@octo.com',
+          message: 'Utilisateur non traitable',
+          nom: 'Dumont',
+          prenom: 'Bruno',
+          reason: 'UTILISATEUR_INEXISTANT'
+        }
+      })
     })
     it("retourne une failure quand l'appel d'API échoue avec un code NonTraitable inconnu", async () => {
       // Given
+      const utilisateur = unPassEmploiUser({
+        prenom: 'Bruno',
+        nom: 'Dumont',
+        email: 'dumont@octo.com'
+      })
       nock('https://api.pass-emploi.fr')
         .put(
           '/auth/users/un-sub',
-          unPassEmploiUser() as unknown as nock.RequestBodyMatcher
+          utilisateur as unknown as nock.RequestBodyMatcher
         )
-        .reply(422, { code: 'INCONNU' })
+        .reply(422, { code: 'INCONNU', email: utilisateur.email })
         .isDone()
 
       // When
-      const response = await passEmploiAPIClient.putUser(
-        'un-sub',
-        unPassEmploiUser()
-      )
+      const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
 
       // Then
-      expect(response).to.deep.equal(
-        failure(new UtilisateurNonTraitable('INCONNU'))
-      )
+      expect(response).to.deep.equal({
+        _isSuccess: false,
+        error: {
+          code: 'UTILISATEUR_NON_TRAITABLE',
+          email: 'dumont@octo.com',
+          message: 'Utilisateur non traitable',
+          nom: 'Dumont',
+          prenom: 'Bruno',
+          reason: 'INCONNU'
+        }
+      })
     })
   })
   describe('getUser', () => {
