@@ -3,6 +3,8 @@ export interface DomainError {
   readonly message: string
   readonly reason?: string
   readonly email?: string
+  readonly nom?: string
+  readonly prenom?: string
 }
 
 export class AuthError implements DomainError {
@@ -44,10 +46,14 @@ export class UtilisateurNonTraitable implements DomainError {
   readonly message: string
   readonly reason?: string
   readonly email?: string
+  readonly nom?: string
+  readonly prenom?: string
 
-  constructor(reason?: string, email?: string) {
+  constructor(reason?: string, email?: string, nom?: string, prenom?: string) {
     this.message = 'Utilisateur non traitable'
     this.reason = reason
     this.email = email
+    this.nom = nom
+    this.prenom = prenom
   }
 }
