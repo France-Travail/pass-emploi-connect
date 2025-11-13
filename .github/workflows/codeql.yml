@@ -36,7 +36,7 @@ jobs:
           source-root: src  # 🔍 Analyse uniquement le dossier `src`
 
       - name: Install dependencies with Yarn
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build project with Yarn
         run: yarn build

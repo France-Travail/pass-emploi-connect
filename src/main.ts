@@ -5,7 +5,7 @@ import { AppModule } from './app.module'
 import { initializeAPMAgent } from './utils/monitoring/apm.init'
 
 import { custom } from 'openid-client'
-import https from 'https'
+import * as https from 'node:https'
 
 // configure openid-client HTTP layer globally (runs once at startup)
 const httpsAgent = new https.Agent({
