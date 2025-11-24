@@ -42,6 +42,9 @@ export class OidcService {
     this.logger = new Logger('OidcService')
     this.apmService = getAPMInstance()
 
+    const accessTokenTtl = this.configService.get<number>(
+      'oidc.acessTokenTtlSeconds'
+    )
     this.oidc = new this.opm.Provider(oidcPort, {
       routes: {
         authorization: '/protocol/openid-connect/auth',
@@ -62,8 +65,8 @@ export class OidcService {
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
-        AccessToken: 60 * 30,
-        IdToken: 60 * 30,
+        AccessToken: accessTokenTtl,
+        IdToken: accessTokenTtl, // Dans l'App Mobile, la validité de l'AccessToken est liée à celle de l'IdToken -> todo: à changer
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
         Interaction: 60 * 60
       },
