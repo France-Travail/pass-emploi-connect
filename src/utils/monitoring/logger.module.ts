@@ -21,7 +21,7 @@ export const configureLoggerModule = (): DynamicModule =>
             return false
           }
         },
-        redact: ['req.headers.authorization', 'req.headers["x-api-key"]'],
+        redact: ['req.headers["x-api-key"]'],
         formatters: {
           level(label): object {
             return { level: label }
