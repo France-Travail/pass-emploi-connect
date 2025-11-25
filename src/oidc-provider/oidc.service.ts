@@ -20,6 +20,7 @@ import * as sanitizeHtml from 'sanitize-html'
 import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { buildError } from '../utils/monitoring/logger.module'
 
 @Injectable()
 export class OidcService {
@@ -395,55 +396,45 @@ export class OidcService {
 
     this.oidc.on('grant.error', (ctx, error) => {
       this.logger.error(
-        `Grant error: ${
-          error.message || error.error || 'Unknown error'
-        } oidcBody[${ctx.oidc?.body}]`,
         {
+          ctx: ctx.toJSON?.() ?? ctx,
           error: error.error,
           error_description: error.error_description,
-          statusCode: error.statusCode || error.status,
-          grantType: ctx.oidc?.body?.grant_type,
-          clientId: ctx.oidc?.body?.client_id,
-          scope: ctx.oidc?.body?.scope,
-          hasRefreshToken: !!ctx.oidc?.body?.refresh_token,
-          hasCode: !!ctx.oidc?.body?.code,
-          body: JSON.stringify(ctx.oidc?.body),
-          params: JSON.stringify(ctx.oidc?.params),
-          authorizationPresent: !!ctx.request.headers.authorization,
-          err: error.stack
-        }
+          error_detail: error.error_detail,
+          error_stack: error.stack
+        },
+        'Grant error'
       )
     })
 
     this.oidc.on('grant.success', ctx => {
-      this.logger.log('Grant success', {
-        grantType: ctx.oidc.body?.grant_type,
-        clientId: ctx.oidc.body?.client_id,
-        scope: ctx.oidc.body?.scope,
-        hasRefreshToken: !!ctx.oidc.body?.refresh_token,
-        hasCode: !!ctx.oidc.body?.code,
-        body: JSON.stringify(ctx.oidc?.body)
-      })
+      this.logger.log({ ctx: ctx.toJSON?.() ?? ctx }, 'Grant success')
     })
 
     // Log toutes les erreurs OIDC
     this.oidc.on('server_error', (ctx, error) => {
-      this.logger.error('OIDC server_error', {
-        error: error.message,
-        stack: error.stack,
-        statusCode: ctx.status,
-        body: ctx.oidc?.body,
-        params: ctx.oidc?.params
-      })
+      this.logger.error(
+        {
+          ctx: ctx.toJSON?.() ?? ctx,
+          error_message: error.message,
+          error_stack: error.stack,
+          error_name: error.name
+        },
+        'OIDC server_error'
+      )
     })
 
     // Log les erreurs d'authorization
     this.oidc.on('authorization.error', (ctx, error) => {
-      this.logger.error('OIDC authorization.error', {
-        error: error.message,
-        body: ctx.oidc?.body,
-        params: ctx.oidc?.params
-      })
+      this.logger.error(
+        {
+          ctx: ctx.toJSON?.() ?? ctx,
+          error_message: error.message,
+          error_stack: error.stack,
+          error_name: error.name
+        },
+        'OIDC authorization error'
+      )
     })
   }
 
