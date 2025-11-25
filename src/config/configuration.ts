@@ -45,6 +45,7 @@ const IDP_CONSEILLER_DEPT_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 const IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
+const OIDC_ACCESS_TOKEN_TTL_SECONDS = 60 * 30
 
 export default () => {
   const configuration: Configuration = {
@@ -200,6 +201,11 @@ export default () => {
           Number(process.env.IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE) ||
           IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE
       }
+    },
+    oidc: {
+      acessTokenTtlSeconds:
+        Number(process.env.OIDC_ACCESS_TOKEN_TTL_SECONDS) ||
+        OIDC_ACCESS_TOKEN_TTL_SECONDS
     }
   }
 
