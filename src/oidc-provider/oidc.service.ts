@@ -392,6 +392,59 @@ export class OidcService {
     )
 
     this.oidc.proxy = true
+
+    this.oidc.on('grant.error', (ctx, error) => {
+      this.logger.error(
+        `Grant error: ${
+          error.message || error.error || 'Unknown error'
+        } oidcBody[${ctx.oidc?.body}]`,
+        {
+          error: error.error,
+          error_description: error.error_description,
+          statusCode: error.statusCode || error.status,
+          grantType: ctx.oidc?.body?.grant_type,
+          clientId: ctx.oidc?.body?.client_id,
+          scope: ctx.oidc?.body?.scope,
+          hasRefreshToken: !!ctx.oidc?.body?.refresh_token,
+          hasCode: !!ctx.oidc?.body?.code,
+          body: JSON.stringify(ctx.oidc?.body),
+          params: JSON.stringify(ctx.oidc?.params),
+          authorizationPresent: !!ctx.request.headers.authorization,
+          err: error.stack
+        }
+      )
+    })
+
+    this.oidc.on('grant.success', ctx => {
+      this.logger.log('Grant success', {
+        grantType: ctx.oidc.body?.grant_type,
+        clientId: ctx.oidc.body?.client_id,
+        scope: ctx.oidc.body?.scope,
+        hasRefreshToken: !!ctx.oidc.body?.refresh_token,
+        hasCode: !!ctx.oidc.body?.code,
+        body: JSON.stringify(ctx.oidc?.body)
+      })
+    })
+
+    // Log toutes les erreurs OIDC
+    this.oidc.on('server_error', (ctx, error) => {
+      this.logger.error('OIDC server_error', {
+        error: error.message,
+        stack: error.stack,
+        statusCode: ctx.status,
+        body: ctx.oidc?.body,
+        params: ctx.oidc?.params
+      })
+    })
+
+    // Log les erreurs d'authorization
+    this.oidc.on('authorization.error', (ctx, error) => {
+      this.logger.error('OIDC authorization.error', {
+        error: error.message,
+        body: ctx.oidc?.body,
+        params: ctx.oidc?.params
+      })
+    })
   }
 
   // Below are the methods that you can use to interact with the oidc-provider library
