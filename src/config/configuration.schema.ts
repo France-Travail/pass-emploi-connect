@@ -131,6 +131,6 @@ export const configurationSchema = Joi.object({
     })
   }).required(),
   oidc: Joi.object({
-    acessTokenTtlSeconds: Joi.number().required()
+    acessTokenTtlSeconds: Joi.number()
   })
 })
