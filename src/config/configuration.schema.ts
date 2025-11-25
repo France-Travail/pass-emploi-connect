@@ -129,5 +129,8 @@ export const configurationSchema = Joi.object({
       accessTokenMaxAge: Joi.number().required(),
       refreshTokenMaxAge: Joi.number().required()
     })
-  }).required()
+  }).required(),
+  oidc: Joi.object({
+    acessTokenTtlSeconds: Joi.number().required()
+  })
 })
