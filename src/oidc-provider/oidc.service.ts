@@ -4,7 +4,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { ErrorOut, JWKS } from 'oidc-provider'
+import { ErrorOut, JWKS, KoaContextWithOIDC } from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
@@ -394,47 +394,50 @@ export class OidcService {
 
     this.oidc.proxy = true
 
-    this.oidc.on('grant.error', (ctx, error) => {
-      this.logger.error(
-        {
+    // debug décos
+    const oidcEvents = [
+      'grant.error',
+      'grant.revoked',
+      'server_error',
+      'authorization.error',
+      'end_session.error',
+      'introspection.error',
+      'backchannel.error',
+      'pushed_authorization_request.error',
+      'registration_create.error',
+      'registration_read.error',
+      'registration_update.error',
+      'registration_delete.error',
+      'revocation.error',
+      'userinfo.error',
+      'jwks.error',
+      'discovery.error',
+      'refresh_token.destroyed',
+      'refresh_token.saved',
+      'refresh_token.consumed'
+    ]
+    oidcEvents.forEach(eventName => {
+      // @ts-ignore
+      this.oidc.on(eventName, (ctx: KoaContextWithOIDC, error?: Error) => {
+        const isError = !!error
+        const logData = {
+          event: eventName,
           ctx: ctx.toJSON?.() ?? ctx,
-          error: error.error,
-          error_description: error.error_description,
-          error_detail: error.error_detail,
-          error_stack: error.stack
-        },
-        'Grant error'
-      )
-    })
+          ctx_oidc_params: ctx?.oidc?.params,
+          ctx_access_token: ctx?.oidc?.accessToken,
+          ...(isError && {
+            error_message: error.message,
+            error_stack: error.stack,
+            error_name: error.name
+          })
+        }
 
-    this.oidc.on('grant.success', ctx => {
-      this.logger.log({ ctx: ctx.toJSON?.() ?? ctx }, 'Grant success')
-    })
-
-    // Log toutes les erreurs OIDC
-    this.oidc.on('server_error', (ctx, error) => {
-      this.logger.error(
-        {
-          ctx: ctx.toJSON?.() ?? ctx,
-          error_message: error.message,
-          error_stack: error.stack,
-          error_name: error.name
-        },
-        'OIDC server_error'
-      )
-    })
-
-    // Log les erreurs d'authorization
-    this.oidc.on('authorization.error', (ctx, error) => {
-      this.logger.error(
-        {
-          ctx: ctx.toJSON?.() ?? ctx,
-          error_message: error.message,
-          error_stack: error.stack,
-          error_name: error.name
-        },
-        'OIDC authorization error'
-      )
+        if (isError) {
+          this.logger.error(logData, `OIDC Event: ${eventName}`)
+        } else {
+          this.logger.log(logData, `OIDC Event: ${eventName}`)
+        }
+      })
     })
   }
 
