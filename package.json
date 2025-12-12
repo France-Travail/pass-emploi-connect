@@ -95,6 +95,7 @@
     "lint-staged": "^16.0.0",
     "mocha": "^11.0.0",
     "nock": "^14.0.0",
+    "npm-check-updates": "^19.2.0",
     "nyc": "^17.0.0",
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",
@@ -112,6 +113,7 @@
   },
   "packageManager": "yarn@4.9.3",
   "resolutions": {
-    "cross-spawn": "7.0.6"
+    "cross-spawn": "7.0.6",
+    "glob": "^9.3.5"
   }
 }
