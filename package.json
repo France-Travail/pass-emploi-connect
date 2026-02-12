@@ -72,7 +72,7 @@
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
     "@salesforce/ts-sinon": "^1.4.19",
-    "@swc/cli": "^0.7.0",
+    "@swc/cli": "^0.8.0",
     "@swc/core": "^1.4.0",
     "@types/chai-as-promised": "^7.1.8",
     "@types/dirty-chai": "^2.0.4",
