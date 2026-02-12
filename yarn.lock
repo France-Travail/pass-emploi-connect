@@ -1158,11 +1158,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:11.1.12":
-  version: 11.1.12
-  resolution: "@nestjs/platform-express@npm:11.1.12"
+"@nestjs/platform-express@npm:11.1.13":
+  version: 11.1.13
+  resolution: "@nestjs/platform-express@npm:11.1.13"
   dependencies:
-    cors: "npm:2.8.5"
+    cors: "npm:2.8.6"
     express: "npm:5.2.1"
     multer: "npm:2.0.2"
     path-to-regexp: "npm:8.3.0"
@@ -1170,7 +1170,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^11.0.0
     "@nestjs/core": ^11.0.0
-  checksum: 10/0f341afaa83922e7a28972c0421f4976212aabcf5b4642becb4ddbc657fb24bc8e3e908ba6af61b8d5f36d39907ef7aafb097b0f3b42b747cd8a359ecd7637a9
+  checksum: 10/f1e3515ea3d9cd3ec31a80b7bdb777864724bfa44bbc8b5779a5a52aceea1f9e76e7f41cefd8e34fb521dbaf8ada408ecf06db5878b11849dd90dbb431b3b8b4
   languageName: node
   linkType: hard
 
@@ -3780,13 +3780,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cors@npm:2.8.5":
-  version: 2.8.5
-  resolution: "cors@npm:2.8.5"
+"cors@npm:2.8.6":
+  version: 2.8.6
+  resolution: "cors@npm:2.8.6"
   dependencies:
     object-assign: "npm:^4"
     vary: "npm:^1"
-  checksum: 10/66e88e08edee7cbce9d92b4d28a2028c88772a4c73e02f143ed8ca76789f9b59444eed6b1c167139e76fa662998c151322720093ba229f9941365ada5a6fc2c6
+  checksum: 10/aa7174305b21ceb90f9c84f4eaa32f04432d333addbfdc0d1eb7310393c48902e5364aada5ac2f5d054528d63b3179238444475426fcb74e1e345077de485727
   languageName: node
   linkType: hard
 
@@ -7255,7 +7255,7 @@ __metadata:
     "@nestjs/common": "npm:^11.0.0"
     "@nestjs/config": "npm:^4.0.0"
     "@nestjs/core": "npm:^11.0.0"
-    "@nestjs/platform-express": "npm:11.1.12"
+    "@nestjs/platform-express": "npm:11.1.13"
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/swagger": "npm:^11.0.0"
     "@nestjs/terminus": "npm:^11.0.0"
