@@ -1554,9 +1554,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/cli@npm:^0.7.0":
-  version: 0.7.10
-  resolution: "@swc/cli@npm:0.7.10"
+"@swc/cli@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@swc/cli@npm:0.8.0"
   dependencies:
     "@swc/counter": "npm:^0.1.3"
     "@xhmikosr/bin-wrapper": "npm:^13.0.5"
@@ -1569,7 +1569,7 @@ __metadata:
     tinyglobby: "npm:^0.2.13"
   peerDependencies:
     "@swc/core": ^1.2.66
-    chokidar: ^4.0.1
+    chokidar: ^5.0.0
   peerDependenciesMeta:
     chokidar:
       optional: true
@@ -1577,7 +1577,7 @@ __metadata:
     spack: bin/spack.js
     swc: bin/swc.js
     swcx: bin/swcx.js
-  checksum: 10/bb5ae65b6766bcdb645e2ccbe28d97ec899eae2e39f7eb0bb51159c5675aac06a0552ca77d5c97efb57432a9e71efdd36b6a63439ae71919edd24b9967bed663
+  checksum: 10/cbaa81df940c9229fe5ac8e5fe65bc81dd882aad621dd51119288b2998d7a95cae6d179aab596308674a3de05ffe12c53f54012409b3665790b31c33beba40e9
   languageName: node
   linkType: hard
 
@@ -7261,7 +7261,7 @@ __metadata:
     "@nestjs/terminus": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.0"
     "@salesforce/ts-sinon": "npm:^1.4.19"
-    "@swc/cli": "npm:^0.7.0"
+    "@swc/cli": "npm:^0.8.0"
     "@swc/core": "npm:^1.4.0"
     "@types/chai-as-promised": "npm:^7.1.8"
     "@types/dirty-chai": "npm:^2.0.4"
