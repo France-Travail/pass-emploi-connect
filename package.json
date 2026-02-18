@@ -22,6 +22,8 @@
     "cover:report": "nyc report --reporter=lcovonly",
     "test": "yarn cover && yarn cover:report",
     "test:ci": "nyc --reporter=lcovonly mocha 'test/**/*.test.ts' --exit --timeout 10000",
+    "seed:migration-test": "ts-node -r tsconfig-paths/register src/scripts/seed-migration-test.ts",
+    "cleanup:migration-test": "ts-node -r tsconfig-paths/register src/scripts/cleanup-migration-test.ts",
     "generate-key-pair": "node scripts/generate-key-pair.mjs",
     "release:patch": "scripts/release-version.sh patch",
     "release:minor": "scripts/release-version.sh minor",
