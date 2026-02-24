@@ -79,7 +79,7 @@
     "@types/chai-as-promised": "^7.1.8",
     "@types/dirty-chai": "^2.0.4",
     "@types/sinon": "^17.0.3",
-    "@types/sinon-chai": "^3.2.12",
+    "@types/sinon-chai": "^4.0.0",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -101,7 +101,7 @@
     "nyc": "^17.0.0",
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",
-    "sinon-chai": "^3.7.0",
+    "sinon-chai": "^4.0.1",
     "supertest": "^7.2.2"
   },
   "lint-staged": {
