@@ -42,7 +42,7 @@
     "@types/express": "^5.0.0",
     "@types/luxon": "^3.4.2",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.16",
+    "@types/node": "^25.3.0",
     "@types/oidc-provider": "^9.0.0",
     "@types/pino-multi-stream": "^5.1.6",
     "@types/sanitize-html": "^2.11.0",
