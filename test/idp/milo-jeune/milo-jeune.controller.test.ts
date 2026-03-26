@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import * as request from 'supertest'
+import request from 'supertest'
 import { MiloJeuneService } from '../../../src/idp/milo-jeune/milo-jeune.service'
 import { AuthError } from '../../../src/utils/result/error'
 import {

@@ -29,7 +29,7 @@ export const RedisProvider = {
       return redisInstance
     } catch (e) {
       logger.error(buildError('Error connecting to the Redis', e))
-      apmService.captureError(e)
+      apmService.captureError(e instanceof Error ? e : new Error(String(e)))
       throw e
     }
   }

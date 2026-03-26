@@ -16,7 +16,7 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
-import * as sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html'
 import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
@@ -401,7 +401,9 @@ export class OidcService {
       return this.oidc.callback()
     } catch (e) {
       this.logger.error(e)
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       throw e
     }
   }

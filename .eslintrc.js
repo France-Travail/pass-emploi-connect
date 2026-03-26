@@ -36,14 +36,7 @@ module.exports = {
     '@typescript-eslint/no-useless-constructor': 'error',
     'no-redeclare': 'off',
     '@typescript-eslint/no-redeclare': 'error',
-    semi: 'off',
     '@typescript-eslint/no-namespace': 'off',
-    '@typescript-eslint/semi': [
-      'error',
-      'never',
-      { beforeStatementContinuationChars: 'always' }
-    ],
-    '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-explicit-any': 'error',

@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { AxiosError } from 'axios'
 import * as APM from 'elastic-apm-node'
 import { firstValueFrom } from 'rxjs'
 import { Account } from '../domain/account'
@@ -66,11 +67,18 @@ export class PassEmploiAPIClient {
       return success(user)
     } catch (e) {
       this.logger.error(buildError('Erreur PUT User', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
+      const axiosError = e as AxiosError<{
+        reason?: string
+        code?: string
+        email?: string
+      }>
       return failure(
         new UtilisateurNonTraitable(
-          e.response?.data?.reason ?? e.response?.data?.code,
-          e.response?.data?.email,
+          axiosError.response?.data?.reason ?? axiosError.response?.data?.code,
+          axiosError.response?.data?.email,
           passEmploiUser.nom,
           passEmploiUser.prenom
         )
@@ -105,7 +113,9 @@ export class PassEmploiAPIClient {
       return success(user)
     } catch (e) {
       this.logger.error(buildError('Erreur GET User', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       return failure(new NonTrouveError('Utilisateur', account.sub))
     }
   }
