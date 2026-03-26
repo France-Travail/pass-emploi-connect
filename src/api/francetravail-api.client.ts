@@ -53,7 +53,9 @@ export class FrancetravailAPIClient {
       this.logger.error(
         buildError('Erreur lors de la récupération des coordonnées FT', e)
       )
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       return failure(new NonTrouveError('Coordonnées FT'))
     }
   }

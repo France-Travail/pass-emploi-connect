@@ -2,15 +2,20 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "target": "es2019",
+    "paths": {
+      "src/*": ["./src/*"],
+      "test/*": ["./test/*"]
+    },
     "outDir": "./dist",
-    "baseUrl": "./",
     "sourceMap": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -20,7 +25,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "types": ["mocha", "node"]
   },
   "ts-node": {
     "files": true

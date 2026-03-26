@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
-import * as nock from 'nock'
+import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { NonTrouveError } from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'

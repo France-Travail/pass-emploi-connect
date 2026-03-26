@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
-import * as request from 'supertest'
+import request from 'supertest'
 import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import {
   emptySuccess,

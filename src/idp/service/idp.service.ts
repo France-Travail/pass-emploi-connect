@@ -84,7 +84,9 @@ export abstract class IdpService {
       const url = this.client.authorizationUrl(params)
       return success(url)
     } catch (e) {
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       this.logger.error(
         buildError(`Authorize error ${this.userType} ${this.userStructure}`, e)
       )
@@ -214,7 +216,9 @@ export abstract class IdpService {
       await this.oidcService.interactionFinished(request, response, result)
       return emptySuccess()
     } catch (e) {
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       this.logger.error({
         message: 'Callback error',
         err: e,

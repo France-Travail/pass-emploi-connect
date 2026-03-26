@@ -26,7 +26,9 @@ export class DeleteAccountUsecase {
       return emptySuccess()
     } catch (e) {
       this.logger.error(buildError('Erreur suppression tokens utilisateur', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       return failure(new AuthError('DELETE_TOKENS'))
     }
   }

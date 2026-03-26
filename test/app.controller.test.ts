@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import * as request from 'supertest'
+import request from 'supertest'
 import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing'
 import { StubbedClass, expect } from './test-utils'
 import { DeleteAccountUsecase } from '../src/account/delete-account.usecase'

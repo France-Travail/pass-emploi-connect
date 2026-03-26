@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import * as request from 'supertest'
+import request from 'supertest'
 import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
 import {
   emptySuccess,

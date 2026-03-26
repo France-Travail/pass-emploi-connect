@@ -2,7 +2,6 @@ import { DynamicModule } from '@nestjs/common'
 import { IncomingMessage } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import { ReqId } from 'pino-http'
-import { Request } from 'express'
 import * as uuid from 'uuid'
 import { getAPMInstance } from './apm.init'
 import { MixinFn } from 'pino'
@@ -34,8 +33,8 @@ export const configureLoggerModule = (): DynamicModule =>
           // @ts-ignore
           return !Object.keys(currentTraceIds).length ? {} : { currentTraceIds }
         },
-        genReqId: (request: Request): ReqId =>
-          request.header('X-Request-ID') ?? uuid.v4()
+        genReqId: (request: IncomingMessage): ReqId =>
+          (request.headers['x-request-id'] as string | undefined) ?? uuid.v4()
       }
     ]
   })
@@ -45,10 +44,11 @@ export interface LogError {
   err?: Error | string
 }
 
-export function buildError(message: string, error: Error): LogError {
+export function buildError(message: string, error: unknown): LogError {
+  const err = error instanceof Error ? error : undefined
   return {
     message,
-    err: isEnumerable(error) ? error : error.stack
+    err: err ? (isEnumerable(err) ? err : err.stack) : String(error)
   }
 }
 

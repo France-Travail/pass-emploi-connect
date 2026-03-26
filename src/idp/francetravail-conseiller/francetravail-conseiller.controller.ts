@@ -10,9 +10,9 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
-import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
-import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
+import { FrancetravailConseillerAccompagnementIntensifService } from './francetravail-conseiller-accompagnement-intensif.service'
+import { FrancetravailConseillerAccompagnementGlobalService } from './francetravail-conseiller-accompagnement-global.service'
+import { FrancetravailConseillerEquipEmploiRecrutService } from './francetravail-conseiller-equip-emploi-recrut.service'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'

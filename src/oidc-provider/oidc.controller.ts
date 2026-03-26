@@ -27,7 +27,9 @@ export class OidcController {
       return this.callback(req, res)
     } catch (e) {
       this.logger.error(e)
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       throw e
     }
   }

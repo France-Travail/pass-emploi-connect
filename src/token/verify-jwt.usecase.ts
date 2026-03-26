@@ -40,7 +40,8 @@ export class ValidateJWTUsecase {
         }
         return success(payload)
       } catch (e) {
-        error.code = e.code ?? errors.JWKSNoMatchingKey.code
+        error.code =
+          (e as { code?: string }).code ?? errors.JWKSNoMatchingKey.code
       }
     }
     return failure(error)

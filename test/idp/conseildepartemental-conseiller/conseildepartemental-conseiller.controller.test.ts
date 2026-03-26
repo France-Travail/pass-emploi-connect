@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import * as request from 'supertest'
+import request from 'supertest'
 import { ConseilDepartementalConseillerService } from 'src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
 import { AuthError } from 'src/utils/result/error'
 import { emptySuccess, failure, success } from 'src/utils/result/result'

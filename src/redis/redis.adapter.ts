@@ -88,7 +88,9 @@ export class RedisAdapter implements Adapter {
       await multi.exec() // execute the transaction, committing the changes
     } catch (e) {
       this.logger.error(buildError('REDIS UPSERT ERROR', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
     }
   }
 
@@ -113,7 +115,9 @@ export class RedisAdapter implements Adapter {
       }
     } catch (e) {
       this.logger.error(buildError('REDIS FIND ERROR', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       throw e
     }
   }

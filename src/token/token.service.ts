@@ -51,7 +51,9 @@ export class TokenService {
         }
         return this.fromSavedTokenToTokenData(savedTokenData)
       } catch (e) {
-        this.apmService.captureError(e)
+        this.apmService.captureError(
+          e instanceof Error ? e : new Error(String(e))
+        )
         this.logger.error(buildError('get token invalid data format', e))
       }
     }

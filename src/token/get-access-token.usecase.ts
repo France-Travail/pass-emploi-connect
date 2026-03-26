@@ -47,7 +47,9 @@ export class GetAccessTokenUsecase {
       return this.refreshAccessTokenWithLock(query.account)
     } catch (e) {
       this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       return failure(new NonTrouveError('AcessToken'))
     }
   }
@@ -136,7 +138,9 @@ export class GetAccessTokenUsecase {
           e
         )
       )
-      this.apmService.captureError(e)
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
       return failure(
         new AuthError(
           `ERROR_REFRESH_TOKEN_IDP_${account.type}_${account.structure}`
