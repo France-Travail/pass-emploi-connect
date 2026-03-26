@@ -85,7 +85,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "chai": "^4.4.1",
     "chai-as-promised": "^7.1.2",
-    "chai-exclude": "^2.1.0",
+    "chai-exclude": "^3.0.1",
     "dirty-chai": "^2.0.1",
     "dotvault": "^0.0.9",
     "eslint": "^7.32.0",
