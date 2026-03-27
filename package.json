@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
-    "@salesforce/ts-sinon": "^1.4.19",
+    "@salesforce/ts-sinon": "^1.4.33",
     "@swc/cli": "^0.8.0",
     "@swc/core": "^1.4.0",
     "@types/chai-as-promised": "^7.1.8",
@@ -97,7 +97,7 @@
     "lint-staged": "^16.0.0",
     "mocha": "^11.0.0",
     "nock": "^14.0.0",
-    "npm-check-updates": "^19.2.0",
+    "npm-check-updates": "^19.6.6",
     "nyc": "^17.0.0",
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",

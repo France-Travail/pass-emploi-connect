@@ -1418,14 +1418,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@salesforce/ts-sinon@npm:^1.4.19":
-  version: 1.4.31
-  resolution: "@salesforce/ts-sinon@npm:1.4.31"
+"@salesforce/ts-sinon@npm:^1.4.33":
+  version: 1.4.33
+  resolution: "@salesforce/ts-sinon@npm:1.4.33"
   dependencies:
     "@salesforce/ts-types": "npm:^2.0.12"
     sinon: "npm:^5.1.1"
     tslib: "npm:^2.8.1"
-  checksum: 10/f449603f221dc99555044d992e5b26689bb487e4e2375f16ff5e6204218cdf985b84eff083cf49a50b78447c0527ce9c8e192ba0268e35eb07881a3e71e428ab
+  checksum: 10/d47abf938bbcbf4ff25ce865ac96c5f1982ab6931be8286a5517b5376af278a963a952b0805887831dbb54ca3b74dd7446f0e0270aad17bb3d9645b40b55c9ba
   languageName: node
   linkType: hard
 
@@ -6857,13 +6857,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-check-updates@npm:^19.2.0":
-  version: 19.6.5
-  resolution: "npm-check-updates@npm:19.6.5"
+"npm-check-updates@npm:^19.6.6":
+  version: 19.6.6
+  resolution: "npm-check-updates@npm:19.6.6"
   bin:
     ncu: build/cli.js
     npm-check-updates: build/cli.js
-  checksum: 10/ffd623f2c1e823520e0989da7cfa54d30a00401657308ebe02be70f5621b2ee890ff1b114c770ddc76d67fe487cf80700f7e70850cdcab74f0b10e7eae0b2357
+  checksum: 10/c03f17af9b2a74b425f41653caf56703efbd14a5b5e337582a8be8e1e5f3b7bc0ff088b3d049e91c5d59c6a30eb3c7772d98152e191a495c3685ed3d41f4a191
   languageName: node
   linkType: hard
 
@@ -7224,7 +7224,7 @@ __metadata:
     "@nestjs/swagger": "npm:^11.0.0"
     "@nestjs/terminus": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.0"
-    "@salesforce/ts-sinon": "npm:^1.4.19"
+    "@salesforce/ts-sinon": "npm:^1.4.33"
     "@swc/cli": "npm:^0.8.0"
     "@swc/core": "npm:^1.4.0"
     "@types/chai-as-promised": "npm:^7.1.8"
@@ -7265,7 +7265,7 @@ __metadata:
     mocha: "npm:^11.0.0"
     nestjs-pino: "npm:^4.0.0"
     nock: "npm:^14.0.0"
-    npm-check-updates: "npm:^19.2.0"
+    npm-check-updates: "npm:^19.6.6"
     nyc: "npm:^17.0.0"
     oidc-provider: "npm:^9.2.0"
     openid-client: "npm:^5.6.5"
