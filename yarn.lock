@@ -1151,19 +1151,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:11.1.13":
-  version: 11.1.13
-  resolution: "@nestjs/platform-express@npm:11.1.13"
+"@nestjs/platform-express@npm:11.1.17":
+  version: 11.1.17
+  resolution: "@nestjs/platform-express@npm:11.1.17"
   dependencies:
     cors: "npm:2.8.6"
     express: "npm:5.2.1"
-    multer: "npm:2.0.2"
+    multer: "npm:2.1.1"
     path-to-regexp: "npm:8.3.0"
     tslib: "npm:2.8.1"
   peerDependencies:
     "@nestjs/common": ^11.0.0
     "@nestjs/core": ^11.0.0
-  checksum: 10/f1e3515ea3d9cd3ec31a80b7bdb777864724bfa44bbc8b5779a5a52aceea1f9e76e7f41cefd8e34fb521dbaf8ada408ecf06db5878b11849dd90dbb431b3b8b4
+  checksum: 10/a5ed648f6797ebd153299c71b07d0ffc83f7891bc88d8a13fca5de77d772ee83ba45bfc9c7a6ba72496f3f078025b32d7f793ea7088542ef142cd42fe12cdd9c
   languageName: node
   linkType: hard
 
@@ -2996,14 +2996,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.13.5":
-  version: 1.13.6
-  resolution: "axios@npm:1.13.6"
+"axios@npm:^1.14.0":
+  version: 1.14.0
+  resolution: "axios@npm:1.14.0"
   dependencies:
     follow-redirects: "npm:^1.15.11"
     form-data: "npm:^4.0.5"
-    proxy-from-env: "npm:^1.1.0"
-  checksum: 10/a7ed83c2af3ef21d64609df0f85e76893a915a864c5934df69241001d0578082d6521a0c730bf37518ee458821b5695957cb10db9fc705f2a8996c8686ea7a89
+    proxy-from-env: "npm:^2.1.0"
+  checksum: 10/c3444e9e3da1714916e4ddd7cda05bb41a5d5d80e3e27b099a116439684c63f2280c88503d1acd65841698b63af0b542b4d5780454e28fd0aed2d783ef90943e
   languageName: node
   linkType: hard
 
@@ -6636,17 +6636,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:^0.5.6":
-  version: 0.5.6
-  resolution: "mkdirp@npm:0.5.6"
-  dependencies:
-    minimist: "npm:^1.2.6"
-  bin:
-    mkdirp: bin/cmd.js
-  checksum: 10/0c91b721bb12c3f9af4b77ebf73604baf350e64d80df91754dc509491ae93bf238581e59c7188360cec7cb62fc4100959245a42cfe01834efedc5e9d068376c2
-  languageName: node
-  linkType: hard
-
 "mocha@npm:^11.0.0":
   version: 11.7.5
   resolution: "mocha@npm:11.7.5"
@@ -6700,18 +6689,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"multer@npm:2.0.2":
-  version: 2.0.2
-  resolution: "multer@npm:2.0.2"
+"multer@npm:2.1.1":
+  version: 2.1.1
+  resolution: "multer@npm:2.1.1"
   dependencies:
     append-field: "npm:^1.0.0"
     busboy: "npm:^1.6.0"
     concat-stream: "npm:^2.0.0"
-    mkdirp: "npm:^0.5.6"
-    object-assign: "npm:^4.1.1"
     type-is: "npm:^1.6.18"
-    xtend: "npm:^4.0.2"
-  checksum: 10/4bdcb07138cf72f93adc08a0dc27c058faab9f6721067a58f394fa546d73d11b7f100cdd66e733d649d184f9d1b402065f6888b31ec427409f056ee92c4367a6
+  checksum: 10/fb22868caaed37d725715c14c60b740b81665265da3a026bb61954414f65b99f76b360128413b8a2a7cc1a95ecae28a42bf831fe172bb79682d19ec105b556bd
   languageName: node
   linkType: hard
 
@@ -6913,7 +6899,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4, object-assign@npm:^4.1.1":
+"object-assign@npm:^4":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: 10/fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -7219,7 +7205,7 @@ __metadata:
     "@nestjs/common": "npm:^11.0.0"
     "@nestjs/config": "npm:^4.0.0"
     "@nestjs/core": "npm:^11.0.0"
-    "@nestjs/platform-express": "npm:11.1.13"
+    "@nestjs/platform-express": "npm:11.1.17"
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/swagger": "npm:^11.0.0"
     "@nestjs/terminus": "npm:^11.0.0"
@@ -7242,7 +7228,7 @@ __metadata:
     "@types/uuid": "npm:^10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"
     "@typescript-eslint/parser": "npm:^8.0.0"
-    axios: "npm:^1.13.5"
+    axios: "npm:^1.14.0"
     chai: "npm:^4.4.1"
     chai-as-promised: "npm:^7.1.2"
     chai-exclude: "npm:^2.1.0"
@@ -7560,10 +7546,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-from-env@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "proxy-from-env@npm:1.1.0"
-  checksum: 10/f0bb4a87cfd18f77bc2fba23ae49c3b378fb35143af16cc478171c623eebe181678f09439707ad80081d340d1593cd54a33a0113f3ccb3f4bc9451488780ee23
+"proxy-from-env@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "proxy-from-env@npm:2.1.0"
+  checksum: 10/fbbaf4dab2a6231dc9e394903a5f66f20475e36b734335790b46feb9da07c37d6b32e2c02e3e2ea4d4b23774c53d8562e5b7cc73282cb43f4a597b7eacaee2ee
   languageName: node
   linkType: hard
 
@@ -9345,13 +9331,6 @@ __metadata:
     signal-exit: "npm:^3.0.2"
     typedarray-to-buffer: "npm:^3.1.5"
   checksum: 10/0955ab94308b74d32bc252afe69d8b42ba4b8a28b8d79f399f3f405969f82623f981e35d13129a52aa2973450f342107c06d86047572637584e85a1c0c246bf3
-  languageName: node
-  linkType: hard
-
-"xtend@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "xtend@npm:4.0.2"
-  checksum: 10/ac5dfa738b21f6e7f0dd6e65e1b3155036d68104e67e5d5d1bde74892e327d7e5636a076f625599dc394330a731861e87343ff184b0047fef1360a7ec0a5a36a
   languageName: node
   linkType: hard
 
