@@ -6,7 +6,7 @@ on:
 
 jobs:
   security-alerts:
-    uses: France-Travail/pass-emploi-tools/.github/workflows/security-alerts.yml@645baca94d9825a7502bc1b143097cc8a9c6b707
+    uses: France-Travail/pass-emploi-tools/.github/workflows/security-alerts.yml@7285f3a11fc6aaa352a5b3aa436adf7ff80f5764
     with:
       repo-name: 'pass-emploi-connect'
     secrets:
