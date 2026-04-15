@@ -27,6 +27,7 @@
     "types": ["mocha", "node"]
   },
   "ts-node": {
-    "files": true
+    "files": true,
+    "esm": true
   }
 }

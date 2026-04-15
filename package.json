@@ -102,13 +102,14 @@
     "sinon": "^21.0.0",
     "sinon-chai": "^3.7.0",
     "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0"
   },
   "lint-staged": {
     "*.ts": "yarn lint:fix"
   },
   "mocha": {
-    "import": "tsx/esm"
+    "loader": "ts-node/esm"
   },
   "packageManager": "yarn@4.9.3",
   "resolutions": {
