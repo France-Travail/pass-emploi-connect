@@ -1,4 +1,4 @@
-import * as Joi from 'joi'
+import Joi from 'joi'
 
 export const configurationSchema = Joi.object({
   environment: Joi.string().valid('prod', 'staging').required(),

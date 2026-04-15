@@ -1,5 +1,5 @@
 /* eslint-disable */
-import * as Joi from 'joi'
+import Joi from 'joi'
 import { configurationSchema } from './configuration.schema.js'
 
 type ClientIdentifier = 'web' | 'app' | 'api' | 'swagger'
