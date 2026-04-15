@@ -109,7 +109,7 @@
     "*.ts": "yarn lint:fix"
   },
   "mocha": {
-    "loader": "ts-node/esm"
+    "import": "./register.mjs"
   },
   "packageManager": "yarn@4.9.3",
   "resolutions": {
