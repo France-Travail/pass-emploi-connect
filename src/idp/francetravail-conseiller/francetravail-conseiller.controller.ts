@@ -9,7 +9,7 @@ import {
   Req,
   Res
 } from '@nestjs/common'
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { FrancetravailConseillerAccompagnementIntensifService } from './francetravail-conseiller-accompagnement-intensif.service.js'
 import { FrancetravailConseillerAccompagnementGlobalService } from './francetravail-conseiller-accompagnement-global.service.js'
 import { FrancetravailConseillerEquipEmploiRecrutService } from './francetravail-conseiller-equip-emploi-recrut.service.js'

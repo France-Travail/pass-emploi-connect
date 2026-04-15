@@ -12,8 +12,10 @@ import {
 import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 import { buildError } from '../utils/monitoring/logger.module.js'
 import { AuthError, NonTrouveError } from '../utils/result/error.js'
-import { failure, Result, success } from '../utils/result/result.js'
-import { TokenData, TokenService, TokenType } from './token.service.js'
+import { failure, success } from '../utils/result/result.js'
+import type { Result } from '../utils/result/result.js'
+import { TokenService, TokenType } from './token.service.js'
+import type { TokenData } from './token.service.js'
 import * as uuid from 'uuid'
 
 interface Inputs {

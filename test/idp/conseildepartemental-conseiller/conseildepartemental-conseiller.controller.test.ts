@@ -1,10 +1,16 @@
-import { HttpStatus, INestApplication } from '@nestjs/common'
+import { HttpStatus } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { ConseilDepartementalConseillerService } from 'src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
-import { AuthError } from 'src/utils/result/error'
-import { emptySuccess, failure, success } from 'src/utils/result/result'
-import { expect, StubbedClass } from 'test/test-utils'
-import { getApplicationWithStubbedDependencies } from 'test/test-utils/module-for-testing'
+import { ConseilDepartementalConseillerService } from '../../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service.js'
+import { AuthError } from '../../../src/utils/result/error.js'
+import {
+  emptySuccess,
+  failure,
+  success
+} from '../../../src/utils/result/result.js'
+import { expect } from '../../test-utils/index.js'
+import type { StubbedClass } from '../../test-utils/index.js'
+import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
 
 describe('MiloConseillerController', () => {
   let conseilDepartementalConseillerService: StubbedClass<ConseilDepartementalConseillerService>

@@ -6,7 +6,8 @@ import { firstValueFrom } from 'rxjs'
 import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 import { buildError } from '../utils/monitoring/logger.module.js'
 import { NonTrouveError } from '../utils/result/error.js'
-import { Result, failure, success } from '../utils/result/result.js'
+import { failure, success } from '../utils/result/result.js'
+import type { Result } from '../utils/result/result.js'
 
 export interface CoordonneesFT {
   nom: string

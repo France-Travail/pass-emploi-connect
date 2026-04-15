@@ -1,7 +1,9 @@
-import { HttpStatus, INestApplication } from '@nestjs/common'
+import { HttpStatus } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing.js'
-import { StubbedClass, expect } from './test-utils.js'
+import { expect } from './test-utils/index.js'
+import type { StubbedClass } from './test-utils/index.js'
 import { DeleteAccountUsecase } from '../src/account/delete-account.usecase.js'
 import { emptySuccess } from '../src/utils/result/result.js'
 

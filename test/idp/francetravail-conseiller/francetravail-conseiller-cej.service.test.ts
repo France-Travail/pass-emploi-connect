@@ -1,17 +1,14 @@
-import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
-import { Request, Response } from 'express'
+import { stubInterface } from '@salesforce/ts-sinon'
+import type { StubbedType } from '@salesforce/ts-sinon'
+import type { Request, Response } from 'express'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client.js'
 import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service.js'
 import { OidcService } from '../../../src/oidc-provider/oidc.service.js'
 import { TokenService } from '../../../src/token/token.service.js'
 import { AuthError } from '../../../src/utils/result/error.js'
 import { failure, success } from '../../../src/utils/result/result.js'
-import {
-  createSandbox,
-  expect,
-  StubbedClass,
-  stubClass
-} from '../../test-utils.js'
+import { createSandbox, expect, stubClass } from '../../test-utils/index.js'
+import type { StubbedClass } from '../../test-utils/index.js'
 import { testConfig } from '../../test-utils/module-for-testing.js'
 
 describe('FrancetravailConseillerCEJService', () => {

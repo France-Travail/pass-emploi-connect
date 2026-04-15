@@ -1,4 +1,5 @@
-import { HttpStatus, INestApplication } from '@nestjs/common'
+import { HttpStatus } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service.js'
 import {
@@ -6,7 +7,8 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result.js'
-import { StubbedClass, expect } from '../../test-utils.js'
+import { expect } from '../../test-utils/index.js'
+import type { StubbedClass } from '../../test-utils/index.js'
 import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
 import { FrancetravailBRSAService } from '../../../src/idp/francetravail-jeune/francetravail-brsa.service.js'
 import { FrancetravailAIJService } from '../../../src/idp/francetravail-jeune/francetravail-aij.service.js'

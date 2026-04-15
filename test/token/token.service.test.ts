@@ -2,12 +2,10 @@ import { expect } from 'chai'
 import { DateService } from '../../src/utils/date.service.js'
 import { Account } from '../../src/domain/account.js'
 import { RedisClient } from '../../src/redis/redis.client.js'
-import {
-  TokenData,
-  TokenService,
-  TokenType
-} from '../../src/token/token.service.js'
-import { StubbedClass, stubClass } from '../test-utils.js'
+import { TokenService, TokenType } from '../../src/token/token.service.js'
+import type { TokenData } from '../../src/token/token.service.js'
+import { stubClass } from '../test-utils/index.js'
+import type { StubbedClass } from '../test-utils/index.js'
 import { unAccount, uneDatetime } from '../test-utils/fixtures.js'
 
 describe('TokenService', () => {

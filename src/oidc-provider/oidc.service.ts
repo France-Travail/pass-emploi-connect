@@ -4,17 +4,14 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import { Redis } from 'ioredis'
-import { ErrorOut, JWKS } from 'oidc-provider'
+import type { ErrorOut, JWKS } from 'oidc-provider'
 import { Account } from '../domain/account.js'
 import { User } from '../domain/user.js'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client.js'
 import { RedisAdapter } from '../redis/redis.adapter.js'
 import { RedisInjectionToken } from '../redis/redis.provider.js'
-import {
-  OIDC_PROVIDER_MODULE,
-  OidcProviderModule,
-  Provider
-} from './provider.js'
+import { OIDC_PROVIDER_MODULE } from './provider.js'
+import type { OidcProviderModule, Provider } from './provider.js'
 import {
   TokenExchangeGrant,
   grantType as tokenExchangeGrantType,

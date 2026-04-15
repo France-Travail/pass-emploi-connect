@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config'
-import { ClientAuthMethod } from 'oidc-provider'
+import type { ClientAuthMethod } from 'oidc-provider'
 import { ClientMetadata, IssuerMetadata } from 'openid-client'
 import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration.js'
 import { User } from '../../domain/user.js'

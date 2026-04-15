@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
-import { Request, Response } from 'express'
-import { InteractionResults } from 'oidc-provider'
+import type { Request, Response } from 'express'
+import type { InteractionResults } from 'oidc-provider'
 import {
   AuthorizationParameters,
   BaseClient,

@@ -1,7 +1,8 @@
-import { HttpStatus, INestApplication } from '@nestjs/common'
-import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
-import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
-import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
+import { HttpStatus } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
+import { FrancetravailConseillerAccompagnementGlobalService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service.js'
+import { FrancetravailConseillerAccompagnementIntensifService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service.js'
+import { FrancetravailConseillerEquipEmploiRecrutService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service.js'
 import request from 'supertest'
 import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service.js'
 import {
@@ -9,7 +10,8 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result.js'
-import { StubbedClass, expect } from '../../test-utils.js'
+import { expect } from '../../test-utils/index.js'
+import type { StubbedClass } from '../../test-utils/index.js'
 import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
 import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service.js'
 import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service.js'

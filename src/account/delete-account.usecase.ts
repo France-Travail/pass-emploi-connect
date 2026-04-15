@@ -4,7 +4,8 @@ import { RedisClient } from '../redis/redis.client.js'
 import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 import { buildError } from '../utils/monitoring/logger.module.js'
 import { AuthError } from '../utils/result/error.js'
-import { Result, emptySuccess, failure } from '../utils/result/result.js'
+import { emptySuccess, failure } from '../utils/result/result.js'
+import type { Result } from '../utils/result/result.js'
 
 interface Inputs {
   idAuth: string

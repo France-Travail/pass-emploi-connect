@@ -8,7 +8,7 @@ import {
   Req,
   Res
 } from '@nestjs/common'
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result.js'
 import { redirectFailure } from '../../utils/result/result.handler.js'
 import { MiloJeuneService } from './milo-jeune.service.js'

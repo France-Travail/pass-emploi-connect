@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Logger } from '@nestjs/common'
 import { Redis } from 'ioredis'
-import { Adapter, AdapterPayload } from 'oidc-provider'
+import type { Adapter, AdapterPayload } from 'oidc-provider'
 // @ts-expect-error - loadash
 import * as isEmpty from 'lodash.isempty'
 import { getAPMInstance } from '../utils/monitoring/apm.init.js'

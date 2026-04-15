@@ -12,7 +12,8 @@ import {
   NonTrouveError,
   UtilisateurNonTraitable
 } from '../utils/result/error.js'
-import { Result, failure, success } from '../utils/result/result.js'
+import { failure, success } from '../utils/result/result.js'
+import type { Result } from '../utils/result/result.js'
 
 export interface PassEmploiUser {
   nom?: string

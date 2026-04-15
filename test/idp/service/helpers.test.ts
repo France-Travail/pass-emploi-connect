@@ -4,7 +4,7 @@ import {
   createIdpIssuerConfig,
   getIdpConfig
 } from '../../../src/idp/service/helpers.js'
-import { expect } from '../../test-utils.js'
+import { expect } from '../../test-utils/index.js'
 import { testConfig } from '../../test-utils/module-for-testing.js'
 
 describe('Helpers', () => {

@@ -1,5 +1,5 @@
 import { Controller, All, Req, Res, Logger } from '@nestjs/common'
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { OidcService } from './oidc.service.js'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init.js'
