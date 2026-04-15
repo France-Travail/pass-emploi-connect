@@ -1,8 +1,11 @@
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { Settings } from 'luxon'
 import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module.js'
 import { initializeAPMAgent } from './utils/monitoring/apm.init.js'
+
+Settings.throwOnInvalid = true
 
 import { custom } from 'openid-client'
 import * as https from 'node:https'

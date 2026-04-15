@@ -27,7 +27,7 @@ export class AppController {
 
   @Get('health')
   @HealthCheck()
-  check(): ReturnType<HealthCheckService['check']> {
+  check(): Promise<unknown> {
     return this.health.check([])
   }
 

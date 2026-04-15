@@ -23,8 +23,8 @@
     "cover:report": "nyc report --reporter=lcovonly",
     "test": "yarn cover && yarn cover:report",
     "test:ci": "nyc --reporter=lcovonly mocha 'test/**/*.test.ts' --exit --timeout 10000",
-    "seed:migration-test": "ts-node -r tsconfig-paths/register src/scripts/seed-migration-test.ts",
-    "cleanup:migration-test": "ts-node -r tsconfig-paths/register src/scripts/cleanup-migration-test.ts",
+    "seed:migration-test": "tsx src/scripts/seed-migration-test.ts",
+    "cleanup:migration-test": "tsx src/scripts/cleanup-migration-test.ts",
     "generate-key-pair": "node scripts/generate-key-pair.mjs",
     "release:patch": "scripts/release-version.sh patch",
     "release:minor": "scripts/release-version.sh minor",
@@ -67,8 +67,6 @@
     "supertest": "^7.0.0",
     "swagger-ui-express": "^5.0.0",
     "ts-loader": "^9.5.1",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.2",
     "uuid": "13.0.0"
   },
@@ -103,16 +101,14 @@
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",
     "sinon-chai": "^3.7.0",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0"
   },
   "lint-staged": {
     "*.ts": "yarn lint:fix"
   },
   "mocha": {
-    "loader": "ts-node/esm",
-    "require": [
-      "tsconfig-paths/register"
-    ]
+    "import": "tsx/esm"
   },
   "packageManager": "yarn@4.9.3",
   "resolutions": {
