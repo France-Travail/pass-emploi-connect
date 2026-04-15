@@ -407,6 +407,7 @@ Temporary Items
 .env
 dist
 *.tsbuildinfo
+src/**/*.js
 .webpack
 .serverless/**/*.zip
 
