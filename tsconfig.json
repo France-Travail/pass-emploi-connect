@@ -4,8 +4,12 @@
     "moduleResolution": "NodeNext",
     "target": "ES2022",
     "paths": {
-      "src/*": ["./src/*"],
-      "test/*": ["./test/*"]
+      "src/*": [
+        "./src/*"
+      ],
+      "test/*": [
+        "./test/*"
+      ]
     },
     "outDir": "./dist",
     "sourceMap": true,
@@ -24,7 +28,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true,
     "noUnusedLocals": false,
-    "types": ["mocha", "node"]
+    "types": [
+      "mocha",
+      "node"
+    ]
   },
   "ts-node": {
     "files": true,

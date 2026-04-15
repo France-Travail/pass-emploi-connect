@@ -11,7 +11,7 @@ import type { StubbedClass } from './types.js'
 import { stubInterface } from '@salesforce/ts-sinon'
 import type { StubbedType } from '@salesforce/ts-sinon'
 import * as apm from 'elastic-apm-node'
-import { setAPMInstance } from '../../src/utils/monitoring/apm.init.js'
+import { setAPMInstance } from 'src/utils/monitoring/apm.init.js'
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
