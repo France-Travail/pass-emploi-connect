@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Logger } from '@nestjs/common'
-import Redis from 'ioredis'
+import { Redis } from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
 // @ts-expect-error - loadash
 import * as isEmpty from 'lodash.isempty'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 import * as APM from 'elastic-apm-node'
-import { buildError } from '../utils/monitoring/logger.module'
+import { buildError } from '../utils/monitoring/logger.module.js'
 
 const grantable = new Set([
   'AccessToken',

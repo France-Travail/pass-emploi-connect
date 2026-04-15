@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.1.3",
   "license": "CEJ",
+  "type": "module",
   "engines": {
     "node": "22.14.0"
   },
@@ -108,8 +109,8 @@
     "*.ts": "yarn lint:fix"
   },
   "mocha": {
+    "loader": "ts-node/esm",
     "require": [
-      "ts-node/register",
       "tsconfig-paths/register"
     ]
   },

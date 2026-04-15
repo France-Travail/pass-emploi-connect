@@ -3,23 +3,27 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
-import Redis from 'ioredis'
+import { Redis } from 'ioredis'
 import { ErrorOut, JWKS } from 'oidc-provider'
-import { Account } from '../domain/account'
-import { User } from '../domain/user'
-import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
-import { RedisAdapter } from '../redis/redis.adapter'
-import { RedisInjectionToken } from '../redis/redis.provider'
-import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
+import { Account } from '../domain/account.js'
+import { User } from '../domain/user.js'
+import { PassEmploiAPIClient } from '../api/pass-emploi-api.client.js'
+import { RedisAdapter } from '../redis/redis.adapter.js'
+import { RedisInjectionToken } from '../redis/redis.provider.js'
+import {
+  OIDC_PROVIDER_MODULE,
+  OidcProviderModule,
+  Provider
+} from './provider.js'
 import {
   TokenExchangeGrant,
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters
-} from './token-exchange.grant'
+} from './token-exchange.grant.js'
 import sanitizeHtml from 'sanitize-html'
-import { isFailure } from '../utils/result/result'
+import { isFailure } from '../utils/result/result.js'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 
 @Injectable()
 export class OidcService {

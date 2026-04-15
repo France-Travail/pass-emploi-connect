@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import Redis from 'ioredis'
-import { buildError } from '../utils/monitoring/logger.module'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { Redis } from 'ioredis'
+import { buildError } from '../utils/monitoring/logger.module.js'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 
 export const RedisInjectionToken = 'RedisClient'
 

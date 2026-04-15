@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "target": "es2019",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
     "paths": {
       "src/*": ["./src/*"],
       "test/*": ["./test/*"]
@@ -15,7 +14,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -29,6 +27,7 @@
     "types": ["mocha", "node"]
   },
   "ts-node": {
+    "esm": true,
     "files": true
   }
 }

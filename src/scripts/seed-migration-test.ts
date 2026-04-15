@@ -1,10 +1,10 @@
 import { Logger, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import Redis from 'ioredis'
-import configuration from '../config/configuration'
-import { RedisInjectionToken, RedisProvider } from '../redis/redis.provider'
-import { initializeAPMAgent } from '../utils/monitoring/apm.init'
+import { Redis } from 'ioredis'
+import configuration from '../config/configuration.js'
+import { RedisInjectionToken, RedisProvider } from '../redis/redis.provider.js'
+import { initializeAPMAgent } from '../utils/monitoring/apm.init.js'
 
 const DEFAULT_NB_JEUNES = 1000
 const TTL_SECONDS = 86400

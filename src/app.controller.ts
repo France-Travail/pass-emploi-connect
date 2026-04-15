@@ -7,12 +7,11 @@ import {
   Param,
   UseGuards
 } from '@nestjs/common'
-import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception'
+import { InternalServerErrorException } from '@nestjs/common'
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
-import { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface'
-import { DeleteAccountUsecase } from './account/delete-account.usecase'
-import { ApiKeyAuthGuard } from './guards/api-key.auth-guard'
-import { isFailure } from './utils/result/result'
+import { DeleteAccountUsecase } from './account/delete-account.usecase.js'
+import { ApiKeyAuthGuard } from './guards/api-key.auth-guard.js'
+import { isFailure } from './utils/result/result.js'
 
 @Controller()
 export class AppController {
@@ -28,7 +27,7 @@ export class AppController {
 
   @Get('health')
   @HealthCheck()
-  check(): Promise<HealthCheckResult> {
+  check(): ReturnType<HealthCheckService['check']> {
     return this.health.check([])
   }
 
@@ -40,7 +39,7 @@ export class AppController {
       idAuth
     })
     if (isFailure(result)) {
-      throw new RuntimeException(result.error.message)
+      throw new InternalServerErrorException(result.error.message)
     }
   }
 }
