@@ -10,13 +10,13 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { isFailure } from '../../utils/result/result'
-import { redirectFailure } from '../../utils/result/result.handler'
-import { FrancetravailAIJService } from './francetravail-aij.service'
-import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
-import { FrancetravailBRSAService } from './francetravail-brsa.service'
-import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
-import { User } from '../../domain/user'
+import { isFailure } from '../../utils/result/result.js'
+import { redirectFailure } from '../../utils/result/result.handler.js'
+import { FrancetravailAIJService } from './francetravail-aij.service.js'
+import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service.js'
+import { FrancetravailBRSAService } from './francetravail-brsa.service.js'
+import { FrancetravailJeuneCEJService } from './francetravail-jeune.service.js'
+import { User } from '../../domain/user.js'
 
 @Controller()
 export class FrancetravailJeuneController {

@@ -1,21 +1,21 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
+import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service.js'
 import {
   emptySuccess,
   failure,
   success
-} from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
-import { FrancetravailBRSAService } from '../../../src/idp/francetravail-jeune/francetravail-brsa.service'
-import { FrancetravailAIJService } from '../../../src/idp/francetravail-jeune/francetravail-aij.service'
+} from '../../../src/utils/result/result.js'
+import { StubbedClass, expect } from '../../test-utils.js'
+import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
+import { FrancetravailBRSAService } from '../../../src/idp/francetravail-jeune/francetravail-brsa.service.js'
+import { FrancetravailAIJService } from '../../../src/idp/francetravail-jeune/francetravail-aij.service.js'
 import {
   AuthError,
   UtilisateurNonTraitable,
   NonTrouveError
-} from '../../../src/utils/result/error'
-import { FrancetravailBeneficiaireService } from '../../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
+} from '../../../src/utils/result/error.js'
+import { FrancetravailBeneficiaireService } from '../../../src/idp/francetravail-jeune/francetravail-beneficiaire.service.js'
 
 describe('FrancetravailJeuneController', () => {
   let francetravailJeuneCEJService: StubbedClass<FrancetravailJeuneCEJService>

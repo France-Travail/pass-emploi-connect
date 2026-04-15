@@ -1,9 +1,9 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing'
-import { StubbedClass, expect } from './test-utils'
-import { DeleteAccountUsecase } from '../src/account/delete-account.usecase'
-import { emptySuccess } from '../src/utils/result/result'
+import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing.js'
+import { StubbedClass, expect } from './test-utils.js'
+import { DeleteAccountUsecase } from '../src/account/delete-account.usecase.js'
+import { emptySuccess } from '../src/utils/result/result.js'
 
 describe('AppController', () => {
   let deleteAccountUsecase: StubbedClass<DeleteAccountUsecase>

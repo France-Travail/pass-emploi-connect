@@ -2,18 +2,18 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Issuer } from 'openid-client'
-import { IdpConfig } from '../config/configuration'
-import { Account } from '../domain/account'
+import { IdpConfig } from '../config/configuration.js'
+import { Account } from '../domain/account.js'
 import {
   createIdpClientConfig,
   createIdpIssuerConfig,
   getIdpConfig
-} from '../idp/service/helpers'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
-import { AuthError, NonTrouveError } from '../utils/result/error'
-import { failure, Result, success } from '../utils/result/result'
-import { TokenData, TokenService, TokenType } from './token.service'
+} from '../idp/service/helpers.js'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
+import { buildError } from '../utils/monitoring/logger.module.js'
+import { AuthError, NonTrouveError } from '../utils/result/error.js'
+import { failure, Result, success } from '../utils/result/result.js'
+import { TokenData, TokenService, TokenType } from './token.service.js'
 import * as uuid from 'uuid'
 
 interface Inputs {

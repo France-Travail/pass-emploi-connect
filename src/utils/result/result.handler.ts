@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common'
 import { Response } from 'express'
-import { Failure } from './result'
-import { User } from '../../domain/user'
+import { Failure } from './result.js'
+import { User } from '../../domain/user.js'
 
 export function redirectFailure(
   response: Response,

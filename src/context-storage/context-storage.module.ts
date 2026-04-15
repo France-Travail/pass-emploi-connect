@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 
-import { ContextStorage } from './context-storage.provider'
-import { RedisProvider } from '../redis/redis.provider'
-import { RedisClient } from '../redis/redis.client'
+import { ContextStorage } from './context-storage.provider.js'
+import { RedisProvider } from '../redis/redis.provider.js'
+import { RedisClient } from '../redis/redis.client.js'
 import { ConfigModule } from '@nestjs/config'
 
 @Module({

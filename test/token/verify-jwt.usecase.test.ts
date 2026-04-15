@@ -1,13 +1,13 @@
 import { expect } from 'chai'
-import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
-import { unJwtPayloadValide, uneDatetime } from '../test-utils/fixtures'
-import { testConfig } from '../test-utils/module-for-testing'
-import { StubbedClass, stubClass } from '../test-utils'
-import { DateService } from '../../src/utils/date.service'
+import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase.js'
+import { unJwtPayloadValide, uneDatetime } from '../test-utils/fixtures.js'
+import { testConfig } from '../test-utils/module-for-testing.js'
+import { StubbedClass, stubClass } from '../test-utils.js'
+import { DateService } from '../../src/utils/date.service.js'
 import { errors } from 'jose'
 import { DateTime } from 'luxon'
-import { failure, success } from '../../src/utils/result/result'
-import { JWTError } from '../../src/utils/result/error'
+import { failure, success } from '../../src/utils/result/result.js'
+import { JWTError } from '../../src/utils/result/error.js'
 
 describe('ValidateJWTUsecase', () => {
   let validateJWTUsecase: ValidateJWTUsecase

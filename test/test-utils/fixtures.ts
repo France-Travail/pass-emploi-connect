@@ -1,8 +1,8 @@
 import { JWTPayload } from 'jose'
-import { Account } from '../../src/domain/account'
-import { User } from '../../src/domain/user'
-import { PassEmploiUser } from '../../src/api/pass-emploi-api.client'
-import { TokenData } from '../../src/token/token.service'
+import { Account } from '../../src/domain/account.js'
+import { User } from '../../src/domain/user.js'
+import { PassEmploiUser } from '../../src/api/pass-emploi-api.client.js'
+import { TokenData } from '../../src/token/token.service.js'
 import { DateTime } from 'luxon'
 
 export const uneDatetime = (): DateTime =>

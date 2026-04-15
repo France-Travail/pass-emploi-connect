@@ -9,10 +9,10 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { isFailure } from '../../utils/result/result'
-import { redirectFailure } from '../../utils/result/result.handler'
-import { MiloConseillerService } from './milo-conseiller.service'
-import { User } from '../../domain/user'
+import { isFailure } from '../../utils/result/result.js'
+import { redirectFailure } from '../../utils/result/result.handler.js'
+import { MiloConseillerService } from './milo-conseiller.service.js'
+import { User } from '../../domain/user.js'
 
 @Controller()
 export class MiloConseillerController {

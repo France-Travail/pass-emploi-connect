@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config'
 import { ClientAuthMethod } from 'oidc-provider'
 import { ClientMetadata, IssuerMetadata } from 'openid-client'
-import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
-import { User } from '../../domain/user'
-import { OidcService } from '../../oidc-provider/oidc.service'
+import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration.js'
+import { User } from '../../domain/user.js'
+import { OidcService } from '../../oidc-provider/oidc.service.js'
 
 export async function generateNewGrantId(
   configService: ConfigService,

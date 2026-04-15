@@ -4,12 +4,15 @@ import { ConfigService } from '@nestjs/config'
 import { AxiosError } from 'axios'
 import * as APM from 'elastic-apm-node'
 import { firstValueFrom } from 'rxjs'
-import { Account } from '../domain/account'
-import { User } from '../domain/user'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
-import { NonTrouveError, UtilisateurNonTraitable } from '../utils/result/error'
-import { Result, failure, success } from '../utils/result/result'
+import { Account } from '../domain/account.js'
+import { User } from '../domain/user.js'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
+import { buildError } from '../utils/monitoring/logger.module.js'
+import {
+  NonTrouveError,
+  UtilisateurNonTraitable
+} from '../utils/result/error.js'
+import { Result, failure, success } from '../utils/result/result.js'
 
 export interface PassEmploiUser {
   nom?: string

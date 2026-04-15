@@ -3,10 +3,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { firstValueFrom } from 'rxjs'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
-import { NonTrouveError } from '../utils/result/error'
-import { Result, failure, success } from '../utils/result/result'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
+import { buildError } from '../utils/monitoring/logger.module.js'
+import { NonTrouveError } from '../utils/result/error.js'
+import { Result, failure, success } from '../utils/result/result.js'
 
 export interface CoordonneesFT {
   nom: string

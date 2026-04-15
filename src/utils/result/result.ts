@@ -1,4 +1,4 @@
-import { DomainError } from './error'
+import { DomainError } from './error.js'
 
 export type Result<Data = void> = Success<Data> | Failure
 export type Success<Data = void> = { _isSuccess: true; data: Data }

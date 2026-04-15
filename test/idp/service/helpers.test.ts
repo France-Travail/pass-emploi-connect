@@ -1,11 +1,11 @@
-import { User } from '../../../src/domain/user'
+import { User } from '../../../src/domain/user.js'
 import {
   createIdpClientConfig,
   createIdpIssuerConfig,
   getIdpConfig
-} from '../../../src/idp/service/helpers'
-import { expect } from '../../test-utils'
-import { testConfig } from '../../test-utils/module-for-testing'
+} from '../../../src/idp/service/helpers.js'
+import { expect } from '../../test-utils.js'
+import { testConfig } from '../../test-utils/module-for-testing.js'
 
 describe('Helpers', () => {
   const configService = testConfig()

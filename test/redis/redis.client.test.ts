@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Redis } from 'ioredis'
-import { RedisClient } from '../../src/redis/redis.client'
-import { StubbedClass, stubClass } from '../test-utils'
+import { RedisClient } from '../../src/redis/redis.client.js'
+import { StubbedClass, stubClass } from '../test-utils.js'
 
 describe('RedisClient', () => {
   let redisClient: RedisClient

@@ -1,6 +1,6 @@
 /* eslint-disable */
 import * as Joi from 'joi'
-import { configurationSchema } from './configuration.schema'
+import { configurationSchema } from './configuration.schema.js'
 
 type ClientIdentifier = 'web' | 'app' | 'api' | 'swagger'
 type Client = Record<ClientIdentifier, unknown>

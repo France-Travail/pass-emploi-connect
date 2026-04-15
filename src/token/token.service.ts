@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import * as APM from 'elastic-apm-node'
-import { Account } from '../domain/account'
-import { RedisClient } from '../redis/redis.client'
-import { DateService } from '../utils/date.service'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
+import { Account } from '../domain/account.js'
+import { RedisClient } from '../redis/redis.client.js'
+import { DateService } from '../utils/date.service.js'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
+import { buildError } from '../utils/monitoring/logger.module.js'
 
 export enum TokenType {
   ACCESS = 'access_token',

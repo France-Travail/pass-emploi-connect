@@ -6,10 +6,10 @@ import dirtyChai from 'dirty-chai'
 import { createSandbox } from 'sinon'
 import * as sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { StubbedClass, stubClass } from './types'
+import { StubbedClass, stubClass } from './types.js'
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import * as apm from 'elastic-apm-node'
-import { setAPMInstance } from '../../src/utils/monitoring/apm.init'
+import { setAPMInstance } from '../../src/utils/monitoring/apm.init.js'
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)

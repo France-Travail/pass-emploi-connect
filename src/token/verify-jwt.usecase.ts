@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config'
 import { JWK, JWTPayload, errors, importJWK, jwtVerify } from 'jose'
 import { DateTime } from 'luxon'
 import { JWKS } from 'oidc-provider'
-import { DateService } from '../utils/date.service'
-import { JWTError } from '../utils/result/error'
-import { Result, failure, success } from '../utils/result/result'
+import { DateService } from '../utils/date.service.js'
+import { JWTError } from '../utils/result/error.js'
+import { Result, failure, success } from '../utils/result/result.js'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
 
 interface Inputs {
   token: string

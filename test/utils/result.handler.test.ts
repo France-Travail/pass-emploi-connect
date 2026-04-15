@@ -2,9 +2,9 @@ import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Response } from 'express'
 import { HttpStatus } from '@nestjs/common'
 import { createSandbox, expect } from 'test/test-utils'
-import { redirectFailure } from '../../src/utils/result/result.handler'
-import { Failure } from '../../src/utils/result/result'
-import { User } from '../../src/domain/user'
+import { redirectFailure } from '../../src/utils/result/result.handler.js'
+import { Failure } from '../../src/utils/result/result.js'
+import { User } from '../../src/domain/user.js'
 
 describe('redirectFailure', () => {
   let response: StubbedType<Response>

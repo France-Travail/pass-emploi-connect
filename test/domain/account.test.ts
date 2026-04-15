@@ -1,6 +1,6 @@
-import { Account } from '../../src/domain/account'
-import { unAccount } from '../test-utils/fixtures'
-import { expect } from '../test-utils'
+import { Account } from '../../src/domain/account.js'
+import { unAccount } from '../test-utils/fixtures.js'
+import { expect } from '../test-utils.js'
 
 describe('Account', () => {
   describe('fromAccountToAccountId', () => {

@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
-import { TokenService, TokenType } from '../../src/token/token.service'
-import { AuthError, NonTrouveError } from '../../src/utils/result/error'
-import { failure, success } from '../../src/utils/result/result'
-import { StubbedClass, stubClass } from '../test-utils'
-import { unAccount } from '../test-utils/fixtures'
-import { testConfig } from '../test-utils/module-for-testing'
+import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase.js'
+import { TokenService, TokenType } from '../../src/token/token.service.js'
+import { AuthError, NonTrouveError } from '../../src/utils/result/error.js'
+import { failure, success } from '../../src/utils/result/result.js'
+import { StubbedClass, stubClass } from '../test-utils.js'
+import { unAccount } from '../test-utils/fixtures.js'
+import { testConfig } from '../test-utils/module-for-testing.js'
 
 describe('GetAccessTokenUsecase', () => {
   let getAccessTokenUsecase: GetAccessTokenUsecase

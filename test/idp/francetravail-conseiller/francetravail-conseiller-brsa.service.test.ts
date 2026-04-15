@@ -1,18 +1,18 @@
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Request, Response } from 'express'
-import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
-import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
-import { OidcService } from '../../../src/oidc-provider/oidc.service'
-import { TokenService } from '../../../src/token/token.service'
-import { AuthError } from '../../../src/utils/result/error'
-import { failure, success } from '../../../src/utils/result/result'
+import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client.js'
+import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service.js'
+import { OidcService } from '../../../src/oidc-provider/oidc.service.js'
+import { TokenService } from '../../../src/token/token.service.js'
+import { AuthError } from '../../../src/utils/result/error.js'
+import { failure, success } from '../../../src/utils/result/result.js'
 import {
   createSandbox,
   expect,
   StubbedClass,
   stubClass
-} from '../../test-utils'
-import { testConfig } from '../../test-utils/module-for-testing'
+} from '../../test-utils.js'
+import { testConfig } from '../../test-utils/module-for-testing.js'
 
 describe('FrancetravailConseillerBRSAService', () => {
   let francetravailConseillerBRSAService: FrancetravailConseillerBRSAService

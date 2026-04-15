@@ -5,9 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  UseGuards
+  UseGuards,
+  InternalServerErrorException
 } from '@nestjs/common'
-import { InternalServerErrorException } from '@nestjs/common'
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
 import { DeleteAccountUsecase } from './account/delete-account.usecase.js'
 import { ApiKeyAuthGuard } from './guards/api-key.auth-guard.js'

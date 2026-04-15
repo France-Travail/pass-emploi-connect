@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { Logger } from 'nestjs-pino'
-import { AppModule } from './app.module'
-import { initializeAPMAgent } from './utils/monitoring/apm.init'
+import { AppModule } from './app.module.js'
+import { initializeAPMAgent } from './utils/monitoring/apm.init.js'
 
 import { custom } from 'openid-client'
 import * as https from 'node:https'

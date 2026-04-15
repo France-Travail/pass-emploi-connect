@@ -9,20 +9,20 @@ import {
   Issuer,
   UserinfoResponse
 } from 'openid-client'
-import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
-import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
-import { IdpConfig } from '../../config/configuration'
-import { Account } from '../../domain/account'
+import { FrancetravailAPIClient } from '../../api/francetravail-api.client.js'
+import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client.js'
+import { IdpConfig } from '../../config/configuration.js'
+import { Account } from '../../domain/account.js'
 import {
   User,
   estBeneficiaireFTConnect,
   estConseillerDept
-} from '../../domain/user'
-import { OidcService } from '../../oidc-provider/oidc.service'
-import { TokenService, TokenType } from '../../token/token.service'
-import { getAPMInstance } from '../../utils/monitoring/apm.init'
-import { buildError } from '../../utils/monitoring/logger.module'
-import { AuthError } from '../../utils/result/error'
+} from '../../domain/user.js'
+import { OidcService } from '../../oidc-provider/oidc.service.js'
+import { TokenService, TokenType } from '../../token/token.service.js'
+import { getAPMInstance } from '../../utils/monitoring/apm.init.js'
+import { buildError } from '../../utils/monitoring/logger.module.js'
+import { AuthError } from '../../utils/result/error.js'
 import {
   Result,
   emptySuccess,
@@ -30,13 +30,13 @@ import {
   isFailure,
   isSuccess,
   success
-} from '../../utils/result/result'
+} from '../../utils/result/result.js'
 import {
   createIdpClientConfig,
   createIdpIssuerConfig,
   generateNewGrantId,
   getIdpConfig
-} from './helpers'
+} from './helpers.js'
 
 export abstract class IdpService {
   private idpName: string

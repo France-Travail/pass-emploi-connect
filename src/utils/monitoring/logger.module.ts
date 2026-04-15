@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import { ReqId } from 'pino-http'
 import * as uuid from 'uuid'
-import { getAPMInstance } from './apm.init'
+import { getAPMInstance } from './apm.init.js'
 import { MixinFn } from 'pino'
 
 export const configureLoggerModule = (): DynamicModule =>

@@ -1,11 +1,11 @@
 import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
 import nock from 'nock'
-import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
-import { NonTrouveError } from '../../src/utils/result/error'
-import { failure, success } from '../../src/utils/result/result'
-import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
-import { testConfig } from '../test-utils/module-for-testing'
+import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client.js'
+import { NonTrouveError } from '../../src/utils/result/error.js'
+import { failure, success } from '../../src/utils/result/result.js'
+import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures.js'
+import { testConfig } from '../test-utils/module-for-testing.js'
 
 describe('PassEmploiAPIClient', () => {
   let passEmploiAPIClient: PassEmploiAPIClient

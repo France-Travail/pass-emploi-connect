@@ -1,19 +1,19 @@
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Request, Response } from 'express'
-import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client'
-import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
-import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
-import { OidcService } from '../../../src/oidc-provider/oidc.service'
-import { TokenService } from '../../../src/token/token.service'
-import { AuthError } from '../../../src/utils/result/error'
-import { failure, success } from '../../../src/utils/result/result'
+import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client.js'
+import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client.js'
+import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service.js'
+import { OidcService } from '../../../src/oidc-provider/oidc.service.js'
+import { TokenService } from '../../../src/token/token.service.js'
+import { AuthError } from '../../../src/utils/result/error.js'
+import { failure, success } from '../../../src/utils/result/result.js'
 import {
   createSandbox,
   expect,
   StubbedClass,
   stubClass
-} from '../../test-utils'
-import { testConfig } from '../../test-utils/module-for-testing'
+} from '../../test-utils.js'
+import { testConfig } from '../../test-utils/module-for-testing.js'
 
 describe('FrancetravailJeuneCEJService', () => {
   let francetravailJeuneCEJService: FrancetravailJeuneCEJService

@@ -1,10 +1,10 @@
 import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
 import nock from 'nock'
-import { FrancetravailAPIClient } from '../../src/api/francetravail-api.client'
-import { failure, success } from '../../src/utils/result/result'
-import { testConfig } from '../test-utils/module-for-testing'
-import { NonTrouveError } from '../../src/utils/result/error'
+import { FrancetravailAPIClient } from '../../src/api/francetravail-api.client.js'
+import { failure, success } from '../../src/utils/result/result.js'
+import { testConfig } from '../test-utils/module-for-testing.js'
+import { NonTrouveError } from '../../src/utils/result/error.js'
 
 describe('FrancetravailAPIClient', () => {
   let francetravailAPIClient: FrancetravailAPIClient

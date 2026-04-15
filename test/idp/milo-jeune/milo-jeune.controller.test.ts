@@ -1,14 +1,14 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { MiloJeuneService } from '../../../src/idp/milo-jeune/milo-jeune.service'
-import { AuthError } from '../../../src/utils/result/error'
+import { MiloJeuneService } from '../../../src/idp/milo-jeune/milo-jeune.service.js'
+import { AuthError } from '../../../src/utils/result/error.js'
 import {
   emptySuccess,
   failure,
   success
-} from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+} from '../../../src/utils/result/result.js'
+import { StubbedClass, expect } from '../../test-utils.js'
+import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
 
 describe('MiloJeuneController', () => {
   let miloJeuneService: StubbedClass<MiloJeuneService>

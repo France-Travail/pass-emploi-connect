@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { PassEmploiAPIClient } from './pass-emploi-api.client'
+import { PassEmploiAPIClient } from './pass-emploi-api.client.js'
 import { HttpModule } from '@nestjs/axios'
-import { FrancetravailAPIClient } from './francetravail-api.client'
+import { FrancetravailAPIClient } from './francetravail-api.client.js'
 
 @Module({
   imports: [

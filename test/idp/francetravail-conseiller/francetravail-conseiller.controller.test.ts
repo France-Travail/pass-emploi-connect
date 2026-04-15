@@ -3,21 +3,21 @@ import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/fran
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
 import request from 'supertest'
-import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
+import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service.js'
 import {
   emptySuccess,
   failure,
   success
-} from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
-import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
-import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
+} from '../../../src/utils/result/result.js'
+import { StubbedClass, expect } from '../../test-utils.js'
+import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing.js'
+import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service.js'
+import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service.js'
 import {
   AuthError,
   UtilisateurNonTraitable,
   NonTrouveError
-} from '../../../src/utils/result/error'
+} from '../../../src/utils/result/error.js'
 
 describe('FrancetravailConseillerController', () => {
   let francetravailConseillerCEJService: StubbedClass<FrancetravailConseillerCEJService>

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import * as APM from 'elastic-apm-node'
-import { RedisClient } from '../redis/redis.client'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
-import { AuthError } from '../utils/result/error'
-import { Result, emptySuccess, failure } from '../utils/result/result'
+import { RedisClient } from '../redis/redis.client.js'
+import { getAPMInstance } from '../utils/monitoring/apm.init.js'
+import { buildError } from '../utils/monitoring/logger.module.js'
+import { AuthError } from '../utils/result/error.js'
+import { Result, emptySuccess, failure } from '../utils/result/result.js'
 
 interface Inputs {
   idAuth: string

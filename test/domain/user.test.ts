@@ -1,5 +1,5 @@
-import { User, estBeneficiaireFTConnect } from '../../src/domain/user'
-import { expect } from '../test-utils'
+import { User, estBeneficiaireFTConnect } from '../../src/domain/user.js'
+import { expect } from '../test-utils.js'
 
 describe('User', () => {
   describe('estJeuneFT', () => {

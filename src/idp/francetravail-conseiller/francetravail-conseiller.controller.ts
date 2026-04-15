@@ -10,17 +10,17 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { FrancetravailConseillerAccompagnementIntensifService } from './francetravail-conseiller-accompagnement-intensif.service'
-import { FrancetravailConseillerAccompagnementGlobalService } from './francetravail-conseiller-accompagnement-global.service'
-import { FrancetravailConseillerEquipEmploiRecrutService } from './francetravail-conseiller-equip-emploi-recrut.service'
-import { isFailure } from '../../utils/result/result'
-import { redirectFailure } from '../../utils/result/result.handler'
-import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
-import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
-import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
-import { User } from '../../domain/user'
-import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
-import { FrancetravailConseillerService } from './francetravail-conseiller.service'
+import { FrancetravailConseillerAccompagnementIntensifService } from './francetravail-conseiller-accompagnement-intensif.service.js'
+import { FrancetravailConseillerAccompagnementGlobalService } from './francetravail-conseiller-accompagnement-global.service.js'
+import { FrancetravailConseillerEquipEmploiRecrutService } from './francetravail-conseiller-equip-emploi-recrut.service.js'
+import { isFailure } from '../../utils/result/result.js'
+import { redirectFailure } from '../../utils/result/result.handler.js'
+import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service.js'
+import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service.js'
+import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service.js'
+import { User } from '../../domain/user.js'
+import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service.js'
+import { FrancetravailConseillerService } from './francetravail-conseiller.service.js'
 
 @Controller()
 export class FrancetravailConseillerController {

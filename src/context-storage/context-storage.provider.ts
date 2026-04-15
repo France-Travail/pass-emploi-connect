@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { User } from '../domain/user'
-import { RedisClient } from '../redis/redis.client'
+import { User } from '../domain/user.js'
+import { RedisClient } from '../redis/redis.client.js'
 
 const PREFIX = 'ContextStorage'
 export type ContextData = Map<string, unknown>

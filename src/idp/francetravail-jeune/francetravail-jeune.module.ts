@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { APIModule } from '../../api/api.module'
-import { OidcModule } from '../../oidc-provider/oidc.module'
-import { TokenModule } from '../../token/token.module'
-import { FrancetravailAIJService } from './francetravail-aij.service'
-import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
-import { FrancetravailBRSAService } from './francetravail-brsa.service'
-import { FrancetravailJeuneController } from './francetravail-jeune.controller'
-import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
+import { APIModule } from '../../api/api.module.js'
+import { OidcModule } from '../../oidc-provider/oidc.module.js'
+import { TokenModule } from '../../token/token.module.js'
+import { FrancetravailAIJService } from './francetravail-aij.service.js'
+import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service.js'
+import { FrancetravailBRSAService } from './francetravail-brsa.service.js'
+import { FrancetravailJeuneController } from './francetravail-jeune.controller.js'
+import { FrancetravailJeuneCEJService } from './francetravail-jeune.service.js'
 
 @Module({
   imports: [ConfigModule, OidcModule, TokenModule, APIModule],

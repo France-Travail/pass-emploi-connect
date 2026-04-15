@@ -1,4 +1,4 @@
-import { User } from './user'
+import { User } from './user.js'
 
 const separator = '|'
 const typeIndex = 0
