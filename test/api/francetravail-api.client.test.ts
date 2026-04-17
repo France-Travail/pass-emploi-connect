@@ -1,5 +1,4 @@
 import { HttpService } from '@nestjs/axios'
-import { expect } from 'chai'
 import nock from 'nock'
 import { FrancetravailAPIClient } from '../../src/api/francetravail-api.client'
 import { failure, success } from '../../src/utils/result/result'
@@ -35,7 +34,7 @@ describe('FrancetravailAPIClient', () => {
       const result = await francetravailAPIClient.getCoordonness(token)
 
       // Then
-      expect(result).to.deep.equal(
+      expect(result).toEqual(
         success({ nom: 'toto', prenom: 'titi', email: 'tata' })
       )
     })
@@ -56,9 +55,7 @@ describe('FrancetravailAPIClient', () => {
       const result = await francetravailAPIClient.getCoordonness(token)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new NonTrouveError('Coordonnées FT'))
-      )
+      expect(result).toEqual(failure(new NonTrouveError('Coordonnées FT')))
     })
   })
 })

@@ -6,7 +6,7 @@ import { OidcService } from 'src/oidc-provider/oidc.service'
 import { TokenService } from 'src/token/token.service'
 import { AuthError } from 'src/utils/result/error'
 import { failure, success } from 'src/utils/result/result'
-import { createSandbox, expect, StubbedClass, stubClass } from 'test/test-utils'
+import { createSandbox, StubbedClass, stubClass } from 'test/test-utils'
 import { testConfig } from 'test/test-utils/module-for-testing'
 
 describe('ConseilDepartementalConseillerService', () => {
@@ -33,7 +33,7 @@ describe('ConseilDepartementalConseillerService', () => {
     it('renvoie success', () => {
       expect(
         conseillerDepartementalConseillerService.getAuthorizationUrl('test')
-      ).to.deep.equal(
+      ).toEqual(
         success(
           'https://keycloak-cej.com/authorize?client_id=keycloak-cej&scope=keycloak-cej&response_type=code&redirect_uri=keycloak-cej&nonce=test'
         )
@@ -55,7 +55,7 @@ describe('ConseilDepartementalConseillerService', () => {
       )
 
       // Then
-      expect(result).to.deep.equal(failure(new AuthError('CallbackParams')))
+      expect(result).toEqual(failure(new AuthError('CallbackParams')))
     })
   })
 })

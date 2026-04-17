@@ -1,3 +1,4 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { MiloJeuneService } from '../../../src/idp/milo-jeune/milo-jeune.service'
@@ -7,7 +8,7 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
+import { StubbedClass } from '../../test-utils'
 import {
   getApplicationWithStubbedDependencies,
   resetSandbox
@@ -38,9 +39,10 @@ describe('MiloJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          miloJeuneService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          miloJeuneService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -57,9 +59,10 @@ describe('MiloJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=MILO'
           )
 
-        expect(
-          miloJeuneService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          miloJeuneService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
     })
   })
@@ -75,7 +78,7 @@ describe('MiloJeuneController', () => {
           .get('/auth/realms/pass-emploi/broker/similo-jeune/endpoint')
           .expect(HttpStatus.OK)
 
-        expect(miloJeuneService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(miloJeuneService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -90,7 +93,7 @@ describe('MiloJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=MILO'
           )
 
-        expect(miloJeuneService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(miloJeuneService.callback)
       })
     })
   })

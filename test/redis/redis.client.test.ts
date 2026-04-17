@@ -1,4 +1,4 @@
-import { expect } from '../test-utils'
+import sinon from 'sinon'
 import { Redis } from 'ioredis'
 import { RedisClient } from '../../src/redis/redis.client'
 import { StubbedClass, stubClass } from '../test-utils'
@@ -20,8 +20,11 @@ describe('RedisClient', () => {
       const res = await redisClient.get('pref', 'key')
 
       // Then
-      expect(res).to.equal('res')
-      expect(redis.get).to.have.been.calledOnceWithExactly('pref:key')
+      expect(res).toBe('res')
+      sinon.assert.calledOnceWithExactly(
+        redis.get as sinon.SinonStub,
+        'pref:key'
+      )
     })
   })
 
@@ -34,7 +37,11 @@ describe('RedisClient', () => {
       await redisClient.set('pref', 'key', 'value')
 
       // Then
-      expect(redis.set).to.have.been.calledOnceWithExactly('pref:key', 'value')
+      sinon.assert.calledOnceWithExactly(
+        redis.set as sinon.SinonStub,
+        'pref:key',
+        'value'
+      )
     })
   })
 
@@ -47,7 +54,10 @@ describe('RedisClient', () => {
       await redisClient.delete('pref', 'key')
 
       // Then
-      expect(redis.del).to.have.been.calledOnceWithExactly('pref:key')
+      sinon.assert.calledOnceWithExactly(
+        redis.del as sinon.SinonStub,
+        'pref:key'
+      )
     })
   })
   describe('deletePattern', () => {
@@ -60,10 +70,13 @@ describe('RedisClient', () => {
       await redisClient.deletePattern('nimp')
 
       // Then
-      expect(redis.keys).to.have.been.calledOnceWithExactly('*nimp*')
-      expect(redis.del).to.have.been.calledTwice
-      expect(redis.del).to.have.been.calledWithExactly('ok')
-      expect(redis.del).to.have.been.calledWithExactly('abc')
+      sinon.assert.calledOnceWithExactly(
+        redis.keys as sinon.SinonStub,
+        '*nimp*'
+      )
+      sinon.assert.calledTwice(redis.del)
+      sinon.assert.calledWithExactly(redis.del as sinon.SinonStub, 'ok')
+      sinon.assert.calledWithExactly(redis.del as sinon.SinonStub, 'abc')
     })
   })
   describe('setWithExpiry', () => {
@@ -75,7 +88,8 @@ describe('RedisClient', () => {
       await redisClient.setWithExpiry('pref', 'key', 'value', 10)
 
       // Then
-      expect(redis.set).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redis.set as sinon.SinonStub,
         'pref:key',
         'value',
         'EX',
@@ -92,14 +106,15 @@ describe('RedisClient', () => {
       const result = await redisClient.acquireLock('key', 'value')
 
       // Then
-      expect(redis.set).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redis.set as sinon.SinonStub,
         'key',
         'value',
         'EX',
         30,
         'NX'
       )
-      expect(result).to.be.true
+      expect(result).toBe(true)
     })
   })
   describe('releaseLock', () => {
@@ -112,7 +127,7 @@ describe('RedisClient', () => {
       await redisClient.releaseLock('key', 'value')
 
       // Then
-      expect(redis.del).to.have.been.calledOnceWithExactly('key')
+      sinon.assert.calledOnceWithExactly(redis.del as sinon.SinonStub, 'key')
     })
     it("releaseLock doesn't release when value is incorrect", async () => {
       // Given
@@ -123,7 +138,7 @@ describe('RedisClient', () => {
       await redisClient.releaseLock('key', 'value')
 
       // Then
-      expect(redis.del).not.to.have.been.called
+      sinon.assert.notCalled(redis.del)
     })
   })
 })

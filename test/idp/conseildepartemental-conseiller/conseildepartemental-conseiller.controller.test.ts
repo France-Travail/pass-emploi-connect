@@ -1,9 +1,10 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { ConseilDepartementalConseillerService } from 'src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
 import { AuthError } from 'src/utils/result/error'
 import { emptySuccess, failure, success } from 'src/utils/result/result'
-import { expect, StubbedClass } from 'test/test-utils'
+import { StubbedClass } from 'test/test-utils'
 import {
   getApplicationWithStubbedDependencies,
   resetSandbox
@@ -38,9 +39,10 @@ describe('MiloConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          conseilDepartementalConseillerService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          conseilDepartementalConseillerService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -57,9 +59,10 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=CONSEIL_DEPT'
           )
 
-        expect(
-          conseilDepartementalConseillerService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          conseilDepartementalConseillerService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
     })
   })
@@ -77,8 +80,7 @@ describe('MiloConseillerController', () => {
           )
           .expect(HttpStatus.OK)
 
-        expect(conseilDepartementalConseillerService.callback).to.have.been
-          .calledOnce
+        sinon.assert.calledOnce(conseilDepartementalConseillerService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -97,8 +99,7 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=CONSEIL_DEPT'
           )
 
-        expect(conseilDepartementalConseillerService.callback).to.have.been
-          .calledOnce
+        sinon.assert.calledOnce(conseilDepartementalConseillerService.callback)
       })
     })
   })

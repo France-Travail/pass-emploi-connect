@@ -1,3 +1,4 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
@@ -6,7 +7,7 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
+import { StubbedClass } from '../../test-utils'
 import {
   getApplicationWithStubbedDependencies,
   resetSandbox
@@ -55,9 +56,11 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailBeneficiaireService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'ft-beneficiaire')
+        sinon.assert.calledOnceWithExactly(
+          francetravailBeneficiaireService.getAuthorizationUrl,
+          'interactionId',
+          'ft-beneficiaire'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -76,9 +79,11 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=FRANCE_TRAVAIL'
           )
 
-        expect(
-          francetravailBeneficiaireService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'ft-beneficiaire')
+        sinon.assert.calledOnceWithExactly(
+          francetravailBeneficiaireService.getAuthorizationUrl,
+          'interactionId',
+          'ft-beneficiaire'
+        )
       })
     })
     describe('CEJ', () => {
@@ -94,9 +99,11 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailJeuneCEJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+        sinon.assert.calledOnceWithExactly(
+          francetravailJeuneCEJService.getAuthorizationUrl,
+          'interactionId',
+          'cej'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -113,9 +120,11 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI'
           )
 
-        expect(
-          francetravailJeuneCEJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+        sinon.assert.calledOnceWithExactly(
+          francetravailJeuneCEJService.getAuthorizationUrl,
+          'interactionId',
+          'cej'
+        )
       })
     })
     describe('BRSA', () => {
@@ -129,9 +138,11 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailBRSAService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+        sinon.assert.calledOnceWithExactly(
+          francetravailBRSAService.getAuthorizationUrl,
+          'interactionId',
+          'brsa'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -148,9 +159,11 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
-        expect(
-          francetravailBRSAService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+        sinon.assert.calledOnceWithExactly(
+          francetravailBRSAService.getAuthorizationUrl,
+          'interactionId',
+          'brsa'
+        )
       })
     })
     describe('AIJ', () => {
@@ -164,9 +177,11 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailAIJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+        sinon.assert.calledOnceWithExactly(
+          francetravailAIJService.getAuthorizationUrl,
+          'interactionId',
+          'aij'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -183,9 +198,11 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
-        expect(
-          francetravailAIJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+        sinon.assert.calledOnceWithExactly(
+          francetravailAIJService.getAuthorizationUrl,
+          'interactionId',
+          'aij'
+        )
       })
     })
   })
@@ -202,8 +219,7 @@ describe('FrancetravailJeuneController', () => {
           .query({ state: 'ft-beneficiaire' })
           .expect(HttpStatus.OK)
 
-        expect(francetravailBeneficiaireService.callback).to.have.been
-          .calledOnce
+        sinon.assert.calledOnce(francetravailBeneficiaireService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -221,8 +237,7 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=FRANCE_TRAVAIL'
           )
 
-        expect(francetravailBeneficiaireService.callback).to.have.been
-          .calledOnce
+        sinon.assert.calledOnce(francetravailBeneficiaireService.callback)
       })
     })
     describe('CEJ', () => {
@@ -236,7 +251,7 @@ describe('FrancetravailJeuneController', () => {
           .query({ state: 'cej' })
           .expect(HttpStatus.OK)
 
-        expect(francetravailJeuneCEJService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailJeuneCEJService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -254,7 +269,7 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI'
           )
 
-        expect(francetravailJeuneCEJService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailJeuneCEJService.callback)
       })
     })
     describe('BRSA', () => {
@@ -268,7 +283,7 @@ describe('FrancetravailJeuneController', () => {
           .query({ state: 'brsa' })
           .expect(HttpStatus.OK)
 
-        expect(francetravailBRSAService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailBRSAService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -286,7 +301,7 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
-        expect(francetravailBRSAService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailBRSAService.callback)
       })
     })
     describe('AIJ', () => {
@@ -300,7 +315,7 @@ describe('FrancetravailJeuneController', () => {
           .query({ state: 'aij' })
           .expect(HttpStatus.OK)
 
-        expect(francetravailAIJService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailAIJService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -318,7 +333,7 @@ describe('FrancetravailJeuneController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
-        expect(francetravailAIJService.callback).to.have.been.calledOnce
+        sinon.assert.calledOnce(francetravailAIJService.callback)
       })
     })
   })

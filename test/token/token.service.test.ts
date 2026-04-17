@@ -1,4 +1,4 @@
-import { expect } from '../test-utils'
+import sinon from 'sinon'
 import { DateService } from '../../src/utils/date.service'
 import { Account } from '../../src/domain/account'
 import { RedisClient } from '../../src/redis/redis.client'
@@ -35,7 +35,8 @@ describe('TokenService', () => {
       await tokenService.setToken(unAccount(), TokenType.ACCESS, tokenData)
 
       // Then
-      expect(redisClient.setWithExpiry).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redisClient.setWithExpiry,
         TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount()),
         JSON.stringify({
@@ -65,11 +66,12 @@ describe('TokenService', () => {
       )
 
       // Then
-      expect(redisClient.get).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redisClient.get,
         TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount())
       )
-      expect(tokenData).to.deep.equal({
+      expect(tokenData).toEqual({
         token: 'tok',
         scope: '',
         expiresIn: 299
@@ -88,11 +90,12 @@ describe('TokenService', () => {
       )
 
       // Then
-      expect(redisClient.get).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redisClient.get,
         TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount())
       )
-      expect(tokenData).to.be.undefined
+      expect(tokenData).toBeUndefined()
     })
   })
   describe('setAccessTokenLock', () => {
@@ -101,7 +104,8 @@ describe('TokenService', () => {
       await tokenService.setAccessTokenLock(unAccount(), 'unLockId')
 
       // Then
-      expect(redisClient.acquireLock).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redisClient.acquireLock,
         `access_token_lock:${Account.fromAccountToAccountId(unAccount())}`,
         'unLockId'
       )
@@ -113,7 +117,8 @@ describe('TokenService', () => {
       await tokenService.releaseAccessTokenLock(unAccount(), 'unLockId')
 
       // Then
-      expect(redisClient.releaseLock).to.have.been.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
+        redisClient.releaseLock,
         `access_token_lock:${Account.fromAccountToAccountId(unAccount())}`,
         'unLockId'
       )
