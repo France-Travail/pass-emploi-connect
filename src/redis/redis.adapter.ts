@@ -3,8 +3,6 @@
 import { Logger } from '@nestjs/common'
 import Redis from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
-// @ts-expect-error - loadash
-import * as isEmpty from 'lodash.isempty'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import * as APM from 'elastic-apm-node'
 import { buildError } from '../utils/monitoring/logger.module'
@@ -100,7 +98,7 @@ export class RedisAdapter implements Adapter {
         ? await this.redisClient.hgetall(this.key(id))
         : await this.redisClient.get(this.key(id))
 
-      if (isEmpty(data)) {
+      if (!data || Object.keys(data).length === 0) {
         return undefined
       }
 
