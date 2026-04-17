@@ -26,7 +26,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true,
     "noUnusedLocals": false,
-    "types": ["node"]
+    "types": ["node", "vitest/globals"]
   },
   "ts-node": {
     "files": true
