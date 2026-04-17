@@ -26,7 +26,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true,
     "noUnusedLocals": false,
-    "types": ["mocha", "node"]
+    "types": ["node"]
   },
   "ts-node": {
     "files": true
