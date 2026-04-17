@@ -24,6 +24,7 @@ export type OidcProviderModule = {
   errors: typeof errors
 }
 
+type AllowedPackage = 'oidc-provider'
 /**
  * Dynamically imports a package. Useful when we want to import an ES module into CommonJS.
  *
@@ -33,7 +34,7 @@ export type OidcProviderModule = {
  * @param packageName
  */
 const dynamicImport = async <ReturnType>(
-  packageName: string
+  packageName: AllowedPackage
 ): Promise<ReturnType> => new Function(`return import('${packageName}')`)()
 
 /**
