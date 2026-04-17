@@ -8,15 +8,22 @@ import {
   success
 } from '../../../src/utils/result/result'
 import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from '../../test-utils/module-for-testing'
 
 describe('MiloConseillerController', () => {
   let miloConseillerService: StubbedClass<MiloConseillerService>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
     miloConseillerService = app.get(MiloConseillerService)
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /milo-conseiller/connect/:interactionId', () => {
@@ -68,7 +75,7 @@ describe('MiloConseillerController', () => {
           .get('/auth/realms/pass-emploi/broker/similo-conseiller/endpoint')
           .expect(HttpStatus.OK)
 
-        expect(miloConseillerService.callback).to.have.been.calledOnce()
+        expect(miloConseillerService.callback).to.have.been.calledOnce
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -85,7 +92,7 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=MILO'
           )
 
-        expect(miloConseillerService.callback).to.have.been.calledOnce()
+        expect(miloConseillerService.callback).to.have.been.calledOnce
       })
     })
   })

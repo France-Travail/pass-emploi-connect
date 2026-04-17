@@ -1,6 +1,9 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from './test-utils/module-for-testing'
 import { StubbedClass, expect } from './test-utils'
 import { DeleteAccountUsecase } from '../src/account/delete-account.usecase'
 import { emptySuccess } from '../src/utils/result/result'
@@ -8,9 +11,13 @@ import { emptySuccess } from '../src/utils/result/result'
 describe('AppController', () => {
   let deleteAccountUsecase: StubbedClass<DeleteAccountUsecase>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
     deleteAccountUsecase = app.get(DeleteAccountUsecase)
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /health', () => {
@@ -45,7 +52,7 @@ describe('AppController', () => {
         .set({ 'X-API-KEY': 'pass-emploi-bafck' })
         .expect(HttpStatus.UNAUTHORIZED)
 
-      expect(deleteAccountUsecase.execute).not.to.have.been.called()
+      expect(deleteAccountUsecase.execute).not.to.have.been.called
     })
   })
 })

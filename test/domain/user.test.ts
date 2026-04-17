@@ -11,7 +11,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.true()
+      expect(result).to.be.true
     })
     it('renvoie true si beneficiaire FT', () => {
       // When
@@ -21,7 +21,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.true()
+      expect(result).to.be.true
     })
     it('renvoie false si beneficiaire Milo', () => {
       // When
@@ -31,7 +31,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).to.be.false
     })
     it('renvoie false si jeune MILO', () => {
       // When
@@ -41,7 +41,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).to.be.false
     })
     it('renvoie false si conseiller FT', () => {
       // When
@@ -51,7 +51,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).to.be.false
     })
   })
 })

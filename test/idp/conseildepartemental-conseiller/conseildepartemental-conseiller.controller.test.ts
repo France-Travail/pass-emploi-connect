@@ -4,17 +4,24 @@ import { ConseilDepartementalConseillerService } from 'src/idp/conseildepartemen
 import { AuthError } from 'src/utils/result/error'
 import { emptySuccess, failure, success } from 'src/utils/result/result'
 import { expect, StubbedClass } from 'test/test-utils'
-import { getApplicationWithStubbedDependencies } from 'test/test-utils/module-for-testing'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from 'test/test-utils/module-for-testing'
 
 describe('MiloConseillerController', () => {
   let conseilDepartementalConseillerService: StubbedClass<ConseilDepartementalConseillerService>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
     conseilDepartementalConseillerService = app.get(
       ConseilDepartementalConseillerService
     )
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /conseildepartemental-conseiller/connect/:interactionId', () => {
@@ -70,9 +77,8 @@ describe('MiloConseillerController', () => {
           )
           .expect(HttpStatus.OK)
 
-        expect(
-          conseilDepartementalConseillerService.callback
-        ).to.have.been.calledOnce()
+        expect(conseilDepartementalConseillerService.callback).to.have.been
+          .calledOnce
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -91,9 +97,8 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=CONSEIL_DEPT'
           )
 
-        expect(
-          conseilDepartementalConseillerService.callback
-        ).to.have.been.calledOnce()
+        expect(conseilDepartementalConseillerService.callback).to.have.been
+          .calledOnce
       })
     })
   })

@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import { expect } from '../test-utils'
 import { Redis } from 'ioredis'
 import { RedisClient } from '../../src/redis/redis.client'
 import { StubbedClass, stubClass } from '../test-utils'
@@ -61,7 +61,7 @@ describe('RedisClient', () => {
 
       // Then
       expect(redis.keys).to.have.been.calledOnceWithExactly('*nimp*')
-      expect(redis.del).to.have.been.calledTwice()
+      expect(redis.del).to.have.been.calledTwice
       expect(redis.del).to.have.been.calledWithExactly('ok')
       expect(redis.del).to.have.been.calledWithExactly('abc')
     })
@@ -99,7 +99,7 @@ describe('RedisClient', () => {
         30,
         'NX'
       )
-      expect(result).to.be.true()
+      expect(result).to.be.true
     })
   })
   describe('releaseLock', () => {
@@ -123,7 +123,7 @@ describe('RedisClient', () => {
       await redisClient.releaseLock('key', 'value')
 
       // Then
-      expect(redis.del).not.to.have.been.called()
+      expect(redis.del).not.to.have.been.called
     })
   })
 })

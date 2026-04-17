@@ -45,7 +45,7 @@ describe('GetAccessTokenUsecase', () => {
         })
       )
     })
-    xit('refresh et retourne le token quand tout est ok et que le token est expiré', async () => {
+    it.skip('refresh et retourne le token quand tout est ok et que le token est expiré', async () => {
       // Given
       const query = {
         account: unAccount()
@@ -73,7 +73,7 @@ describe('GetAccessTokenUsecase', () => {
           'openid profile offline_access email'
         )
       }
-      expect(tokenService.setToken).to.have.been.calledTwice()
+      expect(tokenService.setToken).to.have.been.calledTwice
     })
     it('erreur quand refresh token inexistant avec lock', async () => {
       // Given

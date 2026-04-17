@@ -21,7 +21,7 @@ describe('ValidateJWTUsecase', () => {
   })
   describe('execute', () => {
     // TODO regénérer un jwt access token valide très longtemps
-    xit('retourne le JWTPayload quand tout est ok', async () => {
+    it.skip('retourne le JWTPayload quand tout est ok', async () => {
       // Given
       const inputs = {
         token: configService.get('test.miloConseillerCEJJWT')
@@ -34,7 +34,7 @@ describe('ValidateJWTUsecase', () => {
       // Then
       expect(result).to.deep.equal(success(unJwtPayloadValide()))
     })
-    xit("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
+    it.skip("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
       // Given
       const inputs = {
         token: configService.get('test.miloConseillerCEJJWT')

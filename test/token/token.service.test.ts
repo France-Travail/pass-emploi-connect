@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import { expect } from '../test-utils'
 import { DateService } from '../../src/utils/date.service'
 import { Account } from '../../src/domain/account'
 import { RedisClient } from '../../src/redis/redis.client'
@@ -92,7 +92,7 @@ describe('TokenService', () => {
         TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount())
       )
-      expect(tokenData).to.be.undefined()
+      expect(tokenData).to.be.undefined
     })
   })
   describe('setAccessTokenLock', () => {

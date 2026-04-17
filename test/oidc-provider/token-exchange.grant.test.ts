@@ -198,8 +198,8 @@ describe('TokenExchangeGrant', () => {
         expect.fail(null, null, 'handle test did not reject with an error')
       } catch (e) {
         // Then
-        expect(validateJWTUsecase.execute).not.to.have.been.called()
-        expect(getAccessTokenUsecase.execute).not.to.have.been.called()
+        expect(validateJWTUsecase.execute).not.to.have.been.called
+        expect(getAccessTokenUsecase.execute).not.to.have.been.called
         expect(e).to.be.an.instanceOf(Error)
       }
     })
@@ -223,7 +223,7 @@ describe('TokenExchangeGrant', () => {
         expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
           token: 'tok'
         })
-        expect(getAccessTokenUsecase.execute).not.to.have.been.called()
+        expect(getAccessTokenUsecase.execute).not.to.have.been.called
         expect(e).to.be.an.instanceOf(Error)
       }
     })

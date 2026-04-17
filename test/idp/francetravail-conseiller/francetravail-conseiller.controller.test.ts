@@ -10,7 +10,10 @@ import {
   success
 } from '../../../src/utils/result/result'
 import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from '../../test-utils/module-for-testing'
 import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
 import {
@@ -27,7 +30,7 @@ describe('FrancetravailConseillerController', () => {
   let francetravailConseillerAccompagnementGlobalService: StubbedClass<FrancetravailConseillerAccompagnementGlobalService>
   let francetravailConseillerEquipEmploiRecrutService: StubbedClass<FrancetravailConseillerEquipEmploiRecrutService>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
     francetravailConseillerCEJService = app.get(
@@ -48,6 +51,10 @@ describe('FrancetravailConseillerController', () => {
     francetravailConseillerEquipEmploiRecrutService = app.get(
       FrancetravailConseillerEquipEmploiRecrutService
     )
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /francetravail-conseiller/connect/:interactionId', () => {
@@ -325,9 +332,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'cej' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerCEJService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerCEJService.callback).to.have.been
+          .calledOnce
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -345,9 +351,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
           )
 
-        expect(
-          francetravailConseillerCEJService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerCEJService.callback).to.have.been
+          .calledOnce
       })
     })
 
@@ -362,9 +367,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'brsa' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerBRSAService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerBRSAService.callback).to.have.been
+          .calledOnce
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -382,9 +386,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
-        expect(
-          francetravailConseillerBRSAService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerBRSAService.callback).to.have.been
+          .calledOnce
       })
     })
 
@@ -399,9 +402,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'aij' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerAIJService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAIJService.callback).to.have.been
+          .calledOnce
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -419,9 +421,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
-        expect(
-          francetravailConseillerAIJService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAIJService.callback).to.have.been
+          .calledOnce
       })
     })
 
@@ -438,9 +439,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'accompagnement-intensif' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerAccompagnementIntensifService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAccompagnementIntensifService.callback).to
+          .have.been.calledOnce
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -459,9 +459,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_INTENSIF'
           )
 
-        expect(
-          francetravailConseillerAccompagnementIntensifService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAccompagnementIntensifService.callback).to
+          .have.been.calledOnce
       })
     })
 
@@ -478,9 +477,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'accompagnement-global' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerAccompagnementGlobalService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAccompagnementGlobalService.callback).to
+          .have.been.calledOnce
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -499,9 +497,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_GLOBAL'
           )
 
-        expect(
-          francetravailConseillerAccompagnementGlobalService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerAccompagnementGlobalService.callback).to
+          .have.been.calledOnce
       })
     })
 
@@ -518,9 +515,8 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'equip-emploi-recrut' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerEquipEmploiRecrutService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerEquipEmploiRecrutService.callback).to.have
+          .been.calledOnce
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -541,9 +537,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT&email=test@test'
           )
 
-        expect(
-          francetravailConseillerEquipEmploiRecrutService.callback
-        ).to.have.been.calledOnce()
+        expect(francetravailConseillerEquipEmploiRecrutService.callback).to.have
+          .been.calledOnce
       })
     })
   })
