@@ -1882,25 +1882,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai-as-promised@npm:^7":
-  version: 7.1.8
-  resolution: "@types/chai-as-promised@npm:7.1.8"
-  dependencies:
-    "@types/chai": "npm:*"
-  checksum: 10/88e2d42f14d1de19ba1c7b5c35f263fef37d3ad241c71f5eb59b10763706f3902f4131b93854c9c6ed520081c7e36be555849f202418357f905bea71178b7d02
-  languageName: node
-  linkType: hard
-
-"@types/chai-as-promised@npm:^8":
-  version: 8.0.2
-  resolution: "@types/chai-as-promised@npm:8.0.2"
-  dependencies:
-    "@types/chai": "npm:*"
-  checksum: 10/c1ff3eb32f599623f3d78ef6a2bbda06f35f62e12cc6341e1e1deb5ff1652898880d93846ad83dab03d7cb633a5939330eb1af120b52fab46eb2e5321c2d0cdc
-  languageName: node
-  linkType: hard
-
-"@types/chai@npm:*, @types/chai@npm:^5.2.2":
+"@types/chai@npm:^5.2.2":
   version: 5.2.3
   resolution: "@types/chai@npm:5.2.3"
   dependencies:
@@ -1949,16 +1931,6 @@ __metadata:
   version: 4.0.2
   resolution: "@types/deep-eql@npm:4.0.2"
   checksum: 10/249a27b0bb22f6aa28461db56afa21ec044fa0e303221a62dff81831b20c8530502175f1a49060f7099e7be06181078548ac47c668de79ff9880241968d43d0c
-  languageName: node
-  linkType: hard
-
-"@types/dirty-chai@npm:^2.0.4":
-  version: 2.0.5
-  resolution: "@types/dirty-chai@npm:2.0.5"
-  dependencies:
-    "@types/chai": "npm:*"
-    "@types/chai-as-promised": "npm:^7"
-  checksum: 10/c1eae210467db917c403284eff4ff27f69c1b2ed7360ec9a578876efc2ce0eca9a232ff241b64d0747c05ebb2c9b72df693ad641279b706bfab550d27a86f310
   languageName: node
   linkType: hard
 
@@ -2194,25 +2166,6 @@ __metadata:
     "@types/http-errors": "npm:*"
     "@types/node": "npm:*"
   checksum: 10/f2bad1304c7d0d3b7221faff3e490c40129d3803f4fb1b2fb84f31f561071c5e6a4b876c41bbbe82d5645034eea936e946bcaaf993dac1093ce68b56effad6e0
-  languageName: node
-  linkType: hard
-
-"@types/sinon-chai@npm:^3.2.12":
-  version: 3.2.12
-  resolution: "@types/sinon-chai@npm:3.2.12"
-  dependencies:
-    "@types/chai": "npm:*"
-    "@types/sinon": "npm:*"
-  checksum: 10/d906f2f766613534c5e9fe1437ec740fb6a9a550f02d1a0abe180c5f18fe73a99f0c12935195404d42f079f5f72a371e16b81e2aef963a6ef0ee0ed9d5d7f391
-  languageName: node
-  linkType: hard
-
-"@types/sinon@npm:*":
-  version: 21.0.0
-  resolution: "@types/sinon@npm:21.0.0"
-  dependencies:
-    "@types/sinonjs__fake-timers": "npm:*"
-  checksum: 10/3add134347bd2b96c4d136bc41108553d31f2b4ca44c118ae69832d8bd9896d9faec07c08ba933cd25ba8699503303e8743d84fc8f5317c16b5cfb8245d0bc29
   languageName: node
   linkType: hard
 
@@ -3556,41 +3509,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai-as-promised@npm:^8":
-  version: 8.0.2
-  resolution: "chai-as-promised@npm:8.0.2"
-  dependencies:
-    check-error: "npm:^2.1.1"
-  peerDependencies:
-    chai: ">= 2.1.2 < 7"
-  checksum: 10/9723b6cda34ef511b48d525ff86a730323f1287728e78918833350718e8b5da58783ebf314ad01e07cca4edcf6df42b2c4bf6b9cfebc886c54ce93b587a1183f
-  languageName: node
-  linkType: hard
-
-"chai-exclude@npm:^2.1.0":
-  version: 2.1.1
-  resolution: "chai-exclude@npm:2.1.1"
-  dependencies:
-    fclone: "npm:^1.0.11"
-  peerDependencies:
-    chai: ">= 4.0.0 < 5"
-  checksum: 10/b9445387d8bec33dfa354c50e291618741d9150b6fbe0efb2ea72ce17560f36a998d6299a5622a10f25928098906c89801424bbfdccd8946eca00de593693027
-  languageName: node
-  linkType: hard
-
-"chai@npm:^5":
-  version: 5.3.3
-  resolution: "chai@npm:5.3.3"
-  dependencies:
-    assertion-error: "npm:^2.0.1"
-    check-error: "npm:^2.1.1"
-    deep-eql: "npm:^5.0.1"
-    loupe: "npm:^3.1.0"
-    pathval: "npm:^2.0.0"
-  checksum: 10/0d0ef63106083b05c7ba510697cd9991a02b8df5984a7d010ab4af10205c7a1f27d1c06bfa4679540894295ac4dcc22aa2a281e2e4cfe5133c1db379626689a2
-  languageName: node
-  linkType: hard
-
 "chai@npm:^6.2.2":
   version: 6.2.2
   resolution: "chai@npm:6.2.2"
@@ -3619,13 +3537,6 @@ __metadata:
   version: 3.4.0
   resolution: "check-disk-space@npm:3.4.0"
   checksum: 10/73130c32e26aaa1eda359706d9cbcde21785285dd829ec2b850c59e88ce99d8ebf830d6849315b2d4bc7eed9082aaea7c5f065f1ace591f49d3851f0c21157f9
-  languageName: node
-  linkType: hard
-
-"check-error@npm:^2.1.1":
-  version: 2.1.3
-  resolution: "check-error@npm:2.1.3"
-  checksum: 10/f1868d3db60f5a7da92e140ccf33e9152bf6124161fa9b7a4ae8eafdb05e66e1f13570401e56f314f037b0f1b71eaf38ad0c7256310d82c6105e9d85ded0f202
   languageName: node
   linkType: hard
 
@@ -4028,13 +3939,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deep-eql@npm:^5.0.1":
-  version: 5.0.2
-  resolution: "deep-eql@npm:5.0.2"
-  checksum: 10/a529b81e2ef8821621d20a36959a0328873a3e49d393ad11f8efe8559f31239494c2eb889b80342808674c475802ba95b9d6c4c27641b9a029405104c1b59fcf
-  languageName: node
-  linkType: hard
-
 "deep-equal@npm:~1.0.1":
   version: 1.0.1
   resolution: "deep-equal@npm:1.0.1"
@@ -4178,15 +4082,6 @@ __metadata:
   version: 8.0.4
   resolution: "diff@npm:8.0.4"
   checksum: 10/b4036ceda0d1e10683a2313079ed52c5e6b09553ae29da87bce81d98714d9725dbf3c0f6f7c3b1f16eec049fe17087e38ee329e732580fa62f6ec1c2487b2435
-  languageName: node
-  linkType: hard
-
-"dirty-chai@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "dirty-chai@npm:2.0.1"
-  peerDependencies:
-    chai: ">=2.2.1 <5"
-  checksum: 10/b4f3d1ea01cc75ec083e5a5a4b7728b2ab7c4b45651126f8189d36653df0737ac601a473e37f026a37d6aca68d8b965952bc917b50905eba0d008c18eeb85fd8
   languageName: node
   linkType: hard
 
@@ -4557,28 +4452,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-chai-friendly@npm:^0.7.4":
-  version: 0.7.4
-  resolution: "eslint-plugin-chai-friendly@npm:0.7.4"
-  peerDependencies:
-    eslint: ">=3.0.0"
-  checksum: 10/c7022be5f864dfc8a1a18494f0de357f245a37cf3f5ca0fec95b14bc3fb249e5ccfa01c3ab66a2203163b61272df495fa6b71b496467a49c131a35d1f8a0f9df
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-mocha@npm:^10.4.3":
-  version: 10.5.0
-  resolution: "eslint-plugin-mocha@npm:10.5.0"
-  dependencies:
-    eslint-utils: "npm:^3.0.0"
-    globals: "npm:^13.24.0"
-    rambda: "npm:^7.4.0"
-  peerDependencies:
-    eslint: ">=7.0.0"
-  checksum: 10/cc2e9cc8efda173967fb31a27b5ebbab989a20a06fd310bb88e4ddf4299c1445365b48c74eadf37eacffb1b16386e5a866ed098a2c242ad61763aea17f324c83
-  languageName: node
-  linkType: hard
-
 "eslint-plugin-prettier@npm:^4.2.1":
   version: 4.2.5
   resolution: "eslint-plugin-prettier@npm:4.2.5"
@@ -4611,24 +4484,6 @@ __metadata:
     esrecurse: "npm:^4.3.0"
     estraverse: "npm:^5.2.0"
   checksum: 10/5c660fb905d5883ad018a6fea2b49f3cb5b1cbf2cd4bd08e98646e9864f9bc2c74c0839bed2d292e90a4a328833accc197c8f0baed89cbe8d605d6f918465491
-  languageName: node
-  linkType: hard
-
-"eslint-utils@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "eslint-utils@npm:3.0.0"
-  dependencies:
-    eslint-visitor-keys: "npm:^2.0.0"
-  peerDependencies:
-    eslint: ">=5"
-  checksum: 10/7675260a6b220c70f13e4cdbf077e93cad0dfb388429a27d6c0b584b2b20dca24594508e8bdb00a460a5764bd364a5018e20c2b8b1d70f82bcc3fdc30692a4d2
-  languageName: node
-  linkType: hard
-
-"eslint-visitor-keys@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "eslint-visitor-keys@npm:2.1.0"
-  checksum: 10/db4547eef5039122d518fa307e938ceb8589da5f6e8f5222efaf14dd62f748ce82e2d2becd3ff9412a50350b726bda95dbea8515a471074547daefa58aee8735
   languageName: node
   linkType: hard
 
@@ -4988,13 +4843,6 @@ __metadata:
   dependencies:
     reusify: "npm:^1.0.4"
   checksum: 10/ab2fe3a7a108112e7752cfe7fc11683c21e595913a6a593ad0b4415f31dddbfc283775ab66f2c8ccea6ab7cfc116157cbddcfae9798d9de98d08fe0a2c3e97b2
-  languageName: node
-  linkType: hard
-
-"fclone@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "fclone@npm:1.0.11"
-  checksum: 10/5f2b89aca797b9bdf314961226e5e9e1d9298e868d668bf9552a39ef498f236c3d7fc63637da923a945738bfa34911f65876495f71a7af1c1aa20fe0024d5dcc
   languageName: node
   linkType: hard
 
@@ -5372,7 +5220,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^13.19.0, globals@npm:^13.24.0":
+"globals@npm:^13.19.0":
   version: 13.24.0
   resolution: "globals@npm:13.24.0"
   dependencies:
@@ -6416,13 +6264,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loupe@npm:^3.1.0":
-  version: 3.2.1
-  resolution: "loupe@npm:3.2.1"
-  checksum: 10/a4d78ec758aaa04e0e35d5cd1c15e970beb9cdbfd3d0f34f98b9bcda489f896a7190b3b6cc40b7a6dcb8e97e82e96eafaae10096aaa469804acdba6f7c2bde5f
-  languageName: node
-  linkType: hard
-
 "lowercase-keys@npm:^3.0.0":
   version: 3.0.0
   resolution: "lowercase-keys@npm:3.0.0"
@@ -7357,8 +7198,6 @@ __metadata:
     "@salesforce/ts-sinon": "npm:^1.4.19"
     "@swc/cli": "npm:^0.8.0"
     "@swc/core": "npm:^1.4.0"
-    "@types/chai-as-promised": "npm:^8"
-    "@types/dirty-chai": "npm:^2.0.4"
     "@types/express": "npm:^5.0.0"
     "@types/luxon": "npm:^3.4.2"
     "@types/node": "npm:^22.0.0"
@@ -7366,23 +7205,16 @@ __metadata:
     "@types/pino-multi-stream": "npm:^5.1.6"
     "@types/sanitize-html": "npm:^2.11.0"
     "@types/sinon": "npm:^17.0.3"
-    "@types/sinon-chai": "npm:^3.2.12"
     "@types/supertest": "npm:^6.0.2"
     "@types/uuid": "npm:^10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"
     "@typescript-eslint/parser": "npm:^8.0.0"
     "@vitest/coverage-v8": "npm:^4.1.4"
     axios: "npm:^1.13.5"
-    chai: "npm:^5"
-    chai-as-promised: "npm:^8"
-    chai-exclude: "npm:^2.1.0"
-    dirty-chai: "npm:^2.0.1"
     dotvault: "npm:^0.0.9"
     elastic-apm-node: "npm:3.52.2"
     eslint: "npm:^8.0.0"
     eslint-config-prettier: "npm:^10.0.0"
-    eslint-plugin-chai-friendly: "npm:^0.7.4"
-    eslint-plugin-mocha: "npm:^10.4.3"
     eslint-plugin-prettier: "npm:^4.2.1"
     husky: "npm:^9.0.11"
     ioredis: "npm:^5.3.2"
@@ -7403,7 +7235,6 @@ __metadata:
     rxjs: "npm:^7.8.1"
     sanitize-html: "npm:^2.13.0"
     sinon: "npm:^21.0.0"
-    sinon-chai: "npm:^4"
     source-map-support: "npm:^0.5.21"
     supertest: "npm:^7.2.2"
     swagger-ui-express: "npm:^5.0.0"
@@ -7474,13 +7305,6 @@ __metadata:
   version: 2.0.3
   resolution: "pathe@npm:2.0.3"
   checksum: 10/01e9a69928f39087d96e1751ce7d6d50da8c39abf9a12e0ac2389c42c83bc76f78c45a475bd9026a02e6a6f79be63acc75667df855862fe567d99a00a540d23d
-  languageName: node
-  linkType: hard
-
-"pathval@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "pathval@npm:2.0.1"
-  checksum: 10/f5e8b82f6b988a5bba197970af050268fd800780d0f9ee026e6f0b544ac4b17ab52bebeabccb790d63a794530a1641ae399ad07ecfc67ad337504c85dc9e5693
   languageName: node
   linkType: hard
 
@@ -7751,13 +7575,6 @@ __metadata:
   version: 7.3.0
   resolution: "quick-lru@npm:7.3.0"
   checksum: 10/5acbfe925c47065a479df2df6899491fded29e910f56a436094c7370031b5cdcbfbf44f70bb10f2c4ade0d6b1f8c90e20cce780494e9f6eedd5fdef8ff8a90a8
-  languageName: node
-  linkType: hard
-
-"rambda@npm:^7.4.0":
-  version: 7.5.0
-  resolution: "rambda@npm:7.5.0"
-  checksum: 10/a87ee033803bf841ac35a12a04583cc36e2d8957e3bee97e45fc8944e64915f4534685724efe663a3088a8d719489f76febf444544b300642e7398c2e5412217
   languageName: node
   linkType: hard
 
@@ -8311,16 +8128,6 @@ __metadata:
   version: 4.1.0
   resolution: "signal-exit@npm:4.1.0"
   checksum: 10/c9fa63bbbd7431066174a48ba2dd9986dfd930c3a8b59de9c29d7b6854ec1c12a80d15310869ea5166d413b99f041bfa3dd80a7947bcd44ea8e6eb3ffeabfa1f
-  languageName: node
-  linkType: hard
-
-"sinon-chai@npm:^4":
-  version: 4.0.1
-  resolution: "sinon-chai@npm:4.0.1"
-  peerDependencies:
-    chai: ^5.0.0 || ^6.0.0
-    sinon: ">=4.0.0"
-  checksum: 10/cc417d196133353cfd08775a6b259264d06bf8b4dea135de1f601d295726010660f20cbeb601c281504935810fcb7781aef1c56596edc0eaaff57be52717bbc8
   languageName: node
   linkType: hard
 
