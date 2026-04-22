@@ -58,7 +58,7 @@
     "pino-http": "^11.0.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
-    "sanitize-html": "^2.13.0",
+    "sanitize-html": "^2.17.3",
     "swagger-ui-express": "^5.0.0",
     "ts-loader": "^9.5.1",
     "typescript": "^6.0.2",
