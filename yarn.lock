@@ -5136,14 +5136,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.2.4":
-  version: 5.10.0
-  resolution: "jose@npm:5.10.0"
-  checksum: 10/03881d1dfb390dcf50926402edcfe233bf557b5a77321fcb1bdb53453bc1cdd26d2d0a9ab28c7445cbb826881f84fdf5074179700f10c2711ccb9880f51065d7
-  languageName: node
-  linkType: hard
-
-"jose@npm:^6.2.0":
+"jose@npm:^6.2.0, jose@npm:^6.2.2":
   version: 6.2.2
   resolution: "jose@npm:6.2.2"
   checksum: 10/fd66f24916d2507dbde0ca77ede86377e7d7eae42c7f94db0dfd014b0c6ce5041365dc8e757a44e54cd7606ea5e9c757aa544b51e55cb8a736e83320db1b8258
@@ -6477,7 +6470,7 @@ __metadata:
     husky: "npm:^9.0.11"
     ioredis: "npm:^5.3.2"
     joi: "npm:^18.0.0"
-    jose: "npm:^5.2.4"
+    jose: "npm:^6.2.2"
     lint-staged: "npm:^16.0.0"
     luxon: "npm:^3.4.4"
     nestjs-pino: "npm:^4.0.0"
