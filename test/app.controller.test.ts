@@ -1,16 +1,24 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { getApplicationWithStubbedDependencies } from './test-utils/module-for-testing'
-import { StubbedClass, expect } from './test-utils'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from './test-utils/module-for-testing'
+import { StubbedClass } from './test-utils'
 import { DeleteAccountUsecase } from '../src/account/delete-account.usecase'
 import { emptySuccess } from '../src/utils/result/result'
 
 describe('AppController', () => {
   let deleteAccountUsecase: StubbedClass<DeleteAccountUsecase>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
     deleteAccountUsecase = app.get(DeleteAccountUsecase)
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /health', () => {
@@ -31,7 +39,7 @@ describe('AppController', () => {
         .set({ 'X-API-KEY': 'pass-emploi-back' })
         .expect(HttpStatus.NO_CONTENT)
 
-      expect(deleteAccountUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(deleteAccountUsecase.execute, {
         idAuth: 'acc'
       })
     })
@@ -45,7 +53,7 @@ describe('AppController', () => {
         .set({ 'X-API-KEY': 'pass-emploi-bafck' })
         .expect(HttpStatus.UNAUTHORIZED)
 
-      expect(deleteAccountUsecase.execute).not.to.have.been.called()
+      sinon.assert.notCalled(deleteAccountUsecase.execute)
     })
   })
 })

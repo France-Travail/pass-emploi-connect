@@ -1,3 +1,4 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
@@ -9,8 +10,11 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import { StubbedClass } from '../../test-utils'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from '../../test-utils/module-for-testing'
 import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
 import {
@@ -27,7 +31,7 @@ describe('FrancetravailConseillerController', () => {
   let francetravailConseillerAccompagnementGlobalService: StubbedClass<FrancetravailConseillerAccompagnementGlobalService>
   let francetravailConseillerEquipEmploiRecrutService: StubbedClass<FrancetravailConseillerEquipEmploiRecrutService>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
     francetravailConseillerCEJService = app.get(
@@ -50,6 +54,10 @@ describe('FrancetravailConseillerController', () => {
     )
   })
 
+  afterEach(() => {
+    resetSandbox()
+  })
+
   describe('GET /francetravail-conseiller/connect/:interactionId', () => {
     describe('CEJ', () => {
       it('renvoie une url quand tout va bien', async () => {
@@ -64,9 +72,11 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerCEJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerCEJService.getAuthorizationUrl,
+          'interactionId',
+          'cej'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -83,9 +93,11 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
           )
 
-        expect(
-          francetravailConseillerCEJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerCEJService.getAuthorizationUrl,
+          'interactionId',
+          'cej'
+        )
       })
     })
 
@@ -102,9 +114,11 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerBRSAService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerBRSAService.getAuthorizationUrl,
+          'interactionId',
+          'brsa'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -121,9 +135,11 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
-        expect(
-          francetravailConseillerBRSAService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerBRSAService.getAuthorizationUrl,
+          'interactionId',
+          'brsa'
+        )
       })
     })
 
@@ -140,9 +156,11 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerAIJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAIJService.getAuthorizationUrl,
+          'interactionId',
+          'aij'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -159,9 +177,11 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
-        expect(
-          francetravailConseillerAIJService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAIJService.getAuthorizationUrl,
+          'interactionId',
+          'aij'
+        )
       })
     })
 
@@ -180,9 +200,8 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerAccompagnementIntensifService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAccompagnementIntensifService.getAuthorizationUrl,
           'interactionId',
           'accompagnement-intensif'
         )
@@ -205,9 +224,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_INTENSIF'
           )
 
-        expect(
-          francetravailConseillerAccompagnementIntensifService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAccompagnementIntensifService.getAuthorizationUrl,
           'interactionId',
           'accompagnement-intensif'
         )
@@ -229,9 +247,8 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl,
           'interactionId',
           'accompagnement-global'
         )
@@ -254,9 +271,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_GLOBAL'
           )
 
-        expect(
-          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl,
           'interactionId',
           'accompagnement-global'
         )
@@ -278,9 +294,8 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl,
           'interactionId',
           'equip-emploi-recrut'
         )
@@ -303,9 +318,8 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT'
           )
 
-        expect(
-          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly(
+        sinon.assert.calledOnceWithExactly(
+          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl,
           'interactionId',
           'equip-emploi-recrut'
         )
@@ -325,9 +339,7 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'cej' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerCEJService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerCEJService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -345,9 +357,7 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
           )
 
-        expect(
-          francetravailConseillerCEJService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerCEJService.callback)
       })
     })
 
@@ -362,9 +372,7 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'brsa' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerBRSAService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerBRSAService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -382,9 +390,7 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
-        expect(
-          francetravailConseillerBRSAService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerBRSAService.callback)
       })
     })
 
@@ -399,9 +405,7 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'aij' })
           .expect(HttpStatus.OK)
 
-        expect(
-          francetravailConseillerAIJService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerAIJService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -419,9 +423,7 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
-        expect(
-          francetravailConseillerAIJService.callback
-        ).to.have.been.calledOnce()
+        sinon.assert.calledOnce(francetravailConseillerAIJService.callback)
       })
     })
 
@@ -438,9 +440,9 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'accompagnement-intensif' })
           .expect(HttpStatus.OK)
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerAccompagnementIntensifService.callback
-        ).to.have.been.calledOnce()
+        )
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -459,9 +461,9 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_INTENSIF'
           )
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerAccompagnementIntensifService.callback
-        ).to.have.been.calledOnce()
+        )
       })
     })
 
@@ -478,9 +480,9 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'accompagnement-global' })
           .expect(HttpStatus.OK)
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerAccompagnementGlobalService.callback
-        ).to.have.been.calledOnce()
+        )
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -499,9 +501,9 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_GLOBAL'
           )
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerAccompagnementGlobalService.callback
-        ).to.have.been.calledOnce()
+        )
       })
     })
 
@@ -518,9 +520,9 @@ describe('FrancetravailConseillerController', () => {
           .query({ state: 'equip-emploi-recrut' })
           .expect(HttpStatus.OK)
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerEquipEmploiRecrutService.callback
-        ).to.have.been.calledOnce()
+        )
       })
 
       it('redirige vers le web en cas de failure', async () => {
@@ -541,9 +543,9 @@ describe('FrancetravailConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT&email=test@test'
           )
 
-        expect(
+        sinon.assert.calledOnce(
           francetravailConseillerEquipEmploiRecrutService.callback
-        ).to.have.been.calledOnce()
+        )
       })
     })
   })

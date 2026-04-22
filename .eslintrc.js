@@ -5,17 +5,15 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module'
   },
-  plugins: ['@typescript-eslint/eslint-plugin', 'chai-friendly', 'mocha'],
+  plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
     'plugin:@typescript-eslint/recommended',
-    'plugin:chai-friendly/recommended',
     'plugin:prettier/recommended'
   ],
   root: true,
   env: {
     node: true,
-    jest: true,
-    mocha: true
+    jest: true
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {

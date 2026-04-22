@@ -75,11 +75,12 @@ export const getApplicationWithStubbedDependencies =
       await applicationForHttpTesting.init()
     }
 
-    afterEach(() => {
-      sandbox.reset()
-    })
     return applicationForHttpTesting
   }
+
+export const resetSandbox = (): void => {
+  sandbox?.reset()
+}
 
 export const testConfig = (): ConfigService => {
   const config: Configuration = {

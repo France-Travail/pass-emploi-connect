@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import { DateService } from '../../src/utils/date.service'
-import { expect } from '../test-utils'
 
 describe('DateService', () => {
   describe('now', () => {
@@ -12,7 +11,7 @@ describe('DateService', () => {
       const now = dateService.now()
 
       // Then
-      expect(DateTime.now().toMillis() - now.toMillis()).to.be.lessThan(10)
+      expect(DateTime.now().toMillis() - now.toMillis()).toBeLessThan(10)
     })
   })
 })

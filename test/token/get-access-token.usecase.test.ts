@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import sinon from 'sinon'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { TokenService, TokenType } from '../../src/token/token.service'
 import { AuthError, NonTrouveError } from '../../src/utils/result/error'
@@ -37,7 +37,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(
+      expect(result).toEqual(
         success({
           token: 'string',
           expiresIn: 100,
@@ -45,7 +45,7 @@ describe('GetAccessTokenUsecase', () => {
         })
       )
     })
-    xit('refresh et retourne le token quand tout est ok et que le token est expiré', async () => {
+    it.skip('refresh et retourne le token quand tout est ok et que le token est expiré', async () => {
       // Given
       const query = {
         account: unAccount()
@@ -66,14 +66,12 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result._isSuccess).to.equal(true)
+      expect(result._isSuccess).toBe(true)
       if (result._isSuccess) {
-        expect(result.data.expiresIn).to.be.oneOf([298, 299, 300])
-        expect(result.data.scope).to.equal(
-          'openid profile offline_access email'
-        )
+        expect(result.data.expiresIn).toBeOneOf([298, 299, 300])
+        expect(result.data.scope).toBe('openid profile offline_access email')
       }
-      expect(tokenService.setToken).to.have.been.calledTwice()
+      sinon.assert.calledTwice(tokenService.setToken)
     })
     it('erreur quand refresh token inexistant avec lock', async () => {
       // Given
@@ -86,7 +84,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(failure(new NonTrouveError('Refresh token')))
+      expect(result).toEqual(failure(new NonTrouveError('Refresh token')))
     })
     it('retourne le token avec un refresh qui se fait par un autre thread', async () => {
       // Given
@@ -111,7 +109,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(
+      expect(result).toEqual(
         success({
           token: 'string',
           expiresIn: 100,
@@ -130,7 +128,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(failure(new NonTrouveError('AcessToken')))
+      expect(result).toEqual(failure(new NonTrouveError('AcessToken')))
     })
     it('erreur quand mauvais refresh token avec lock', async () => {
       // Given
@@ -150,7 +148,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(
+      expect(result).toEqual(
         failure(new AuthError(`ERROR_REFRESH_TOKEN_IDP_CONSEILLER_MILO`))
       )
     })

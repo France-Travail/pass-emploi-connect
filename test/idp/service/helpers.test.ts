@@ -4,7 +4,6 @@ import {
   createIdpIssuerConfig,
   getIdpConfig
 } from '../../../src/idp/service/helpers'
-import { expect } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
 describe('Helpers', () => {
@@ -14,21 +13,21 @@ describe('Helpers', () => {
     it('renvoie miloJeune pour JEUNE MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.JEUNE, User.Structure.MILO).issuer
-      ).to.equal('milo-jeune.com')
+      ).toBe('milo-jeune.com')
     })
 
     it('renvoie miloJeune pour BENEFICIAIRE MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.BENEFICIAIRE, User.Structure.MILO)
           .issuer
-      ).to.equal('milo-jeune.com')
+      ).toBe('milo-jeune.com')
     })
 
     it('renvoie miloConseiller pour CONSEILLER MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.CONSEILLER, User.Structure.MILO)
           .issuer
-      ).to.equal('https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif')
+      ).toBe('https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif')
     })
 
     it('renvoie conseillerDept pour CONSEILLER CONSEIL_DEPT', () => {
@@ -38,7 +37,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.CONSEIL_DEPT
         ).issuer
-      ).to.equal('https://keycloak-cej.com')
+      ).toBe('https://keycloak-cej.com')
     })
 
     it('renvoie francetravailConseiller pour CONSEILLER FRANCE_TRAVAIL', () => {
@@ -48,7 +47,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.FRANCE_TRAVAIL
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailConseillerpour CONSEILLER PE CEJ', () => {
@@ -58,7 +57,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.POLE_EMPLOI_CEJ
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailConseiller pour CONSEILLER BRSA', () => {
@@ -68,7 +67,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.POLE_EMPLOI_BRSA
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailConseiller pour CONSEILLER ACCOMPAGNEMENT INTENSIF', () => {
@@ -78,7 +77,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.FT_ACCOMPAGNEMENT_INTENSIF
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailConseiller pour CONSEILLER ACCOMPAGNEMENT GLOBAL', () => {
@@ -88,7 +87,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.FT_ACCOMPAGNEMENT_GLOBAL
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailConseiller pour CONSEILLER EQUIP’EMPLOI EQUIP’RECRUT', () => {
@@ -98,7 +97,7 @@ describe('Helpers', () => {
           User.Type.CONSEILLER,
           User.Structure.FT_EQUIP_EMPLOI_RECRUT
         ).issuer
-      ).to.equal('ft-conseiller.com')
+      ).toBe('ft-conseiller.com')
     })
 
     it('renvoie francetravailBeneficiaire pour BENEFICIAIRE FRANCE_TRAVAIL', () => {
@@ -108,7 +107,7 @@ describe('Helpers', () => {
           User.Type.BENEFICIAIRE,
           User.Structure.FRANCE_TRAVAIL
         ).issuer
-      ).to.equal('ft-jeune.com')
+      ).toBe('ft-jeune.com')
     })
 
     it('renvoie francetravailBeneficiaire pour BENEFICIAIRE CONSEIL_DEPT', () => {
@@ -118,7 +117,7 @@ describe('Helpers', () => {
           User.Type.BENEFICIAIRE,
           User.Structure.CONSEIL_DEPT
         ).issuer
-      ).to.equal('ft-jeune.com')
+      ).toBe('ft-jeune.com')
     })
 
     it('renvoie francetravailBeneficiaire pour BENEFICIAIRE PE CEJ', () => {
@@ -128,7 +127,7 @@ describe('Helpers', () => {
           User.Type.BENEFICIAIRE,
           User.Structure.POLE_EMPLOI_CEJ
         ).issuer
-      ).to.equal('ft-jeune.com')
+      ).toBe('ft-jeune.com')
     })
 
     it('renvoie francetravailBeneficiaire pour JEUNE PE CEJ ', () => {
@@ -138,7 +137,7 @@ describe('Helpers', () => {
           User.Type.JEUNE,
           User.Structure.POLE_EMPLOI_CEJ
         ).issuer
-      ).to.equal('ft-jeune.com')
+      ).toBe('ft-jeune.com')
     })
 
     it('renvoie francetravailBeneficiaire pour JEUNE FRANCE_TRAVAIL', () => {
@@ -148,7 +147,7 @@ describe('Helpers', () => {
           User.Type.JEUNE,
           User.Structure.FRANCE_TRAVAIL
         ).issuer
-      ).to.equal('ft-jeune.com')
+      ).toBe('ft-jeune.com')
     })
   })
 
@@ -166,7 +165,7 @@ describe('Helpers', () => {
       userinfo_endpoint: idp.userinfo
     }
     it('renvoie issuerConfig', () => {
-      expect(createIdpIssuerConfig(idp)).to.deep.equal(issuerConfig)
+      expect(createIdpIssuerConfig(idp)).toEqual(issuerConfig)
     })
   })
 
@@ -186,7 +185,7 @@ describe('Helpers', () => {
       token_endpoint_auth_method: 'client_secret_post'
     }
     it('renvoie issuerConfig', () => {
-      expect(createIdpClientConfig(idp)).to.deep.equal(clientConfig)
+      expect(createIdpClientConfig(idp)).toEqual(clientConfig)
     })
   })
 })

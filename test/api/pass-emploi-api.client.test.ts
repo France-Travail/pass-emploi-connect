@@ -1,5 +1,4 @@
 import { HttpService } from '@nestjs/axios'
-import { expect } from 'chai'
 import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { NonTrouveError } from '../../src/utils/result/error'
@@ -44,7 +43,7 @@ describe('PassEmploiAPIClient', () => {
       )
 
       // Then
-      expect(response).to.deep.equal(success(unUser()))
+      expect(response).toEqual(success(unUser()))
     })
     it("retourne une failure quand l'appel d'API échoue avec un code NonTraitable connu", async () => {
       // Given
@@ -69,7 +68,7 @@ describe('PassEmploiAPIClient', () => {
       const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
 
       // Then
-      expect(response).to.deep.equal({
+      expect(response).toEqual({
         _isSuccess: false,
         error: {
           code: 'UTILISATEUR_NON_TRAITABLE',
@@ -100,7 +99,7 @@ describe('PassEmploiAPIClient', () => {
       const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
 
       // Then
-      expect(response).to.deep.equal({
+      expect(response).toEqual({
         _isSuccess: false,
         error: {
           code: 'UTILISATEUR_NON_TRAITABLE',
@@ -140,7 +139,7 @@ describe('PassEmploiAPIClient', () => {
       const response = await passEmploiAPIClient.getUser(account)
 
       // Then
-      expect(response).to.deep.equal(success(unUser()))
+      expect(response).toEqual(success(unUser()))
     })
     it("retourne une failure quand l'appel d'API échoue", async () => {
       // Given
@@ -158,7 +157,7 @@ describe('PassEmploiAPIClient', () => {
       const response = await passEmploiAPIClient.getUser(unAccount())
 
       // Then
-      expect(response).to.deep.equal(
+      expect(response).toEqual(
         failure(new NonTrouveError('Utilisateur', account.sub))
       )
     })

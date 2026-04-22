@@ -1,3 +1,4 @@
+import sinon from 'sinon'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { MiloConseillerService } from '../../../src/idp/milo-conseiller/milo-conseiller.service'
@@ -7,16 +8,23 @@ import {
   failure,
   success
 } from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import { StubbedClass } from '../../test-utils'
+import {
+  getApplicationWithStubbedDependencies,
+  resetSandbox
+} from '../../test-utils/module-for-testing'
 
 describe('MiloConseillerController', () => {
   let miloConseillerService: StubbedClass<MiloConseillerService>
   let app: INestApplication
-  before(async () => {
+  beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
     miloConseillerService = app.get(MiloConseillerService)
+  })
+
+  afterEach(() => {
+    resetSandbox()
   })
 
   describe('GET /milo-conseiller/connect/:interactionId', () => {
@@ -31,9 +39,10 @@ describe('MiloConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
-        expect(
-          miloConseillerService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          miloConseillerService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -50,9 +59,10 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=MILO'
           )
 
-        expect(
-          miloConseillerService.getAuthorizationUrl
-        ).to.have.been.calledOnceWithExactly('interactionId')
+        sinon.assert.calledOnceWithExactly(
+          miloConseillerService.getAuthorizationUrl,
+          'interactionId'
+        )
       })
     })
   })
@@ -68,7 +78,7 @@ describe('MiloConseillerController', () => {
           .get('/auth/realms/pass-emploi/broker/similo-conseiller/endpoint')
           .expect(HttpStatus.OK)
 
-        expect(miloConseillerService.callback).to.have.been.calledOnce()
+        sinon.assert.calledOnce(miloConseillerService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
@@ -85,7 +95,7 @@ describe('MiloConseillerController', () => {
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=MILO'
           )
 
-        expect(miloConseillerService.callback).to.have.been.calledOnce()
+        sinon.assert.calledOnce(miloConseillerService.callback)
       })
     })
   })

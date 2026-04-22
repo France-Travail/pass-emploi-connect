@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { unJwtPayloadValide, uneDatetime } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
@@ -21,7 +20,7 @@ describe('ValidateJWTUsecase', () => {
   })
   describe('execute', () => {
     // TODO regénérer un jwt access token valide très longtemps
-    xit('retourne le JWTPayload quand tout est ok', async () => {
+    it.skip('retourne le JWTPayload quand tout est ok', async () => {
       // Given
       const inputs = {
         token: configService.get('test.miloConseillerCEJJWT')
@@ -32,9 +31,9 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).to.deep.equal(success(unJwtPayloadValide()))
+      expect(result).toEqual(success(unJwtPayloadValide()))
     })
-    xit("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
+    it.skip("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
       // Given
       const inputs = {
         token: configService.get('test.miloConseillerCEJJWT')
@@ -46,9 +45,7 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new JWTError(errors.JWTExpired.code))
-      )
+      expect(result).toEqual(failure(new JWTError(errors.JWTExpired.code)))
     })
     it('retourne une erreur JWKS expired JWT est expiré (peu importe la date now)', async () => {
       // Given
@@ -61,9 +58,7 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new JWTError(errors.JWTExpired.code))
-      )
+      expect(result).toEqual(failure(new JWTError(errors.JWTExpired.code)))
     })
     it('retourne une erreur JWS invalid quand le token est pas bien formé', async () => {
       // Given
@@ -76,9 +71,7 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new JWTError(errors.JWSInvalid.code))
-      )
+      expect(result).toEqual(failure(new JWTError(errors.JWSInvalid.code)))
     })
     it("retourne une erreur JWKS No matching key quand le token n'est pas à nous", async () => {
       // Given
@@ -92,7 +85,7 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).to.deep.equal(
+      expect(result).toEqual(
         failure(new JWTError(errors.JWKSNoMatchingKey.code))
       )
     })

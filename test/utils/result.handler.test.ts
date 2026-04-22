@@ -1,7 +1,7 @@
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Response } from 'express'
 import { HttpStatus } from '@nestjs/common'
-import { createSandbox, expect } from 'test/test-utils'
+import { createSandbox } from 'test/test-utils'
 import { redirectFailure } from '../../src/utils/result/result.handler'
 import { Failure } from '../../src/utils/result/result'
 import { User } from '../../src/domain/user'
@@ -30,8 +30,8 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal('reason=Test error')
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe('reason=Test error')
   })
 
   it('retourne le code quand il attend la raison', () => {
@@ -49,8 +49,8 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal('reason=ERROR_CODE')
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe('reason=ERROR_CODE')
   })
 
   it("inclue le type de l'utilisateur si il est attendu", () => {
@@ -68,8 +68,8 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal(
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe(
       `reason=ERROR_CODE&typeUtilisateur=${User.Type.CONSEILLER}`
     )
   })
@@ -89,8 +89,8 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal(
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe(
       `reason=ERROR_CODE&structureUtilisateur=FRANCE_TRAVAIL`
     )
   })
@@ -118,8 +118,8 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal(
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe(
       'reason=ERROR_CODE&typeUtilisateur=' +
         `${User.Type.JEUNE}&structureUtilisateur=FRANCE_TRAVAIL&email=test@example.com` +
         `&nom=Doe&prenom=John`
@@ -141,7 +141,7 @@ describe('redirectFailure', () => {
 
     // Then
     const [status, url] = response.redirect.getCall(0).args
-    expect(status).to.equal(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).to.equal('reason=')
+    expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
+    expect(url.split('?').pop()).toBe('reason=')
   })
 })

@@ -1,5 +1,4 @@
 import { User, estBeneficiaireFTConnect } from '../../src/domain/user'
-import { expect } from '../test-utils'
 
 describe('User', () => {
   describe('estJeuneFT', () => {
@@ -11,7 +10,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.true()
+      expect(result).toBe(true)
     })
     it('renvoie true si beneficiaire FT', () => {
       // When
@@ -21,7 +20,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.true()
+      expect(result).toBe(true)
     })
     it('renvoie false si beneficiaire Milo', () => {
       // When
@@ -31,7 +30,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).toBe(false)
     })
     it('renvoie false si jeune MILO', () => {
       // When
@@ -41,7 +40,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).toBe(false)
     })
     it('renvoie false si conseiller FT', () => {
       // When
@@ -51,7 +50,7 @@ describe('User', () => {
       )
 
       // Then
-      expect(result).to.be.false()
+      expect(result).toBe(false)
     })
   })
 })

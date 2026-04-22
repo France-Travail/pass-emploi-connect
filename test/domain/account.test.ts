@@ -1,6 +1,5 @@
 import { Account } from '../../src/domain/account'
 import { unAccount } from '../test-utils/fixtures'
-import { expect } from '../test-utils'
 
 describe('Account', () => {
   describe('fromAccountToAccountId', () => {
@@ -12,7 +11,7 @@ describe('Account', () => {
       const accountId = Account.fromAccountToAccountId(account)
 
       // Then
-      expect(accountId).to.deep.equal('CONSEILLER|MILO|un-sub')
+      expect(accountId).toEqual('CONSEILLER|MILO|un-sub')
     })
   })
   describe('fromAccountIdToAccount', () => {
@@ -25,7 +24,7 @@ describe('Account', () => {
       const foundAccount = Account.fromAccountIdToAccount(accountId)
 
       // Then
-      expect(foundAccount).to.deep.equal(account)
+      expect(foundAccount).toEqual(account)
     })
   })
   describe('getStructureFromAccountId', () => {
@@ -38,7 +37,7 @@ describe('Account', () => {
       const structure = Account.getStructureFromAccountId(accountId)
 
       // Then
-      expect(structure).to.deep.equal(account.structure)
+      expect(structure).toEqual(account.structure)
     })
   })
   describe('getSubFromAccountId', () => {
@@ -51,7 +50,7 @@ describe('Account', () => {
       const sub = Account.getSubFromAccountId(accountId)
 
       // Then
-      expect(sub).to.deep.equal(account.sub)
+      expect(sub).toEqual(account.sub)
     })
   })
   describe('getTypeFromAccountId', () => {
@@ -64,7 +63,7 @@ describe('Account', () => {
       const type = Account.getTypeFromAccountId(accountId)
 
       // Then
-      expect(type).to.deep.equal(account.type)
+      expect(type).toEqual(account.type)
     })
   })
 })

@@ -1,5 +1,5 @@
+import sinon from 'sinon'
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
-import { expect } from 'chai'
 import { KoaContextWithOIDC } from 'oidc-provider'
 import { OidcProviderModule } from '../../src/oidc-provider/provider'
 import { TokenExchangeGrant } from '../../src/oidc-provider/token-exchange.grant'
@@ -50,13 +50,13 @@ describe('TokenExchangeGrant', () => {
       await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
-      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
         token: 'tok'
       })
-      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(getAccessTokenUsecase.execute, {
         account: unAccount({ sub: 'id-auth' })
       })
-      expect(context.body).to.deep.equal({
+      expect(context.body).toEqual({
         issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
         access_token: tokenData.token,
         token_type: 'bearer',
@@ -87,13 +87,13 @@ describe('TokenExchangeGrant', () => {
       await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
-      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
         token: 'tok'
       })
-      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(getAccessTokenUsecase.execute, {
         account: unAccount({ sub: 'sub_jeune', type: User.Type.JEUNE })
       })
-      expect(context.body).to.deep.equal({
+      expect(context.body).toEqual({
         issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
         access_token: tokenData.token,
         token_type: 'bearer',
@@ -127,16 +127,16 @@ describe('TokenExchangeGrant', () => {
       await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
-      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
         token: 'tok'
       })
-      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(getAccessTokenUsecase.execute, {
         account: unAccount({
           sub: 'sub_conseiller',
           type: User.Type.CONSEILLER
         })
       })
-      expect(context.body).to.deep.equal({
+      expect(context.body).toEqual({
         issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
         access_token: tokenData.token,
         token_type: 'bearer',
@@ -171,13 +171,13 @@ describe('TokenExchangeGrant', () => {
       await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
-      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
         token: 'tok'
       })
-      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+      sinon.assert.calledOnceWithExactly(getAccessTokenUsecase.execute, {
         account: unAccount({ sub: 'sub_user', type: User.Type.CONSEILLER })
       })
-      expect(context.body).to.deep.equal({
+      expect(context.body).toEqual({
         issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
         access_token: tokenData.token,
         token_type: 'bearer',
@@ -195,12 +195,12 @@ describe('TokenExchangeGrant', () => {
         await tokenExchangeGrant.handler(
           context as unknown as KoaContextWithOIDC
         )
-        expect.fail(null, null, 'handle test did not reject with an error')
+        throw new Error('handle test did not reject with an error')
       } catch (e) {
         // Then
-        expect(validateJWTUsecase.execute).not.to.have.been.called()
-        expect(getAccessTokenUsecase.execute).not.to.have.been.called()
-        expect(e).to.be.an.instanceOf(Error)
+        sinon.assert.notCalled(validateJWTUsecase.execute)
+        sinon.assert.notCalled(getAccessTokenUsecase.execute)
+        expect(e).toBeInstanceOf(Error)
       }
     })
 
@@ -217,14 +217,14 @@ describe('TokenExchangeGrant', () => {
         await tokenExchangeGrant.handler(
           context as unknown as KoaContextWithOIDC
         )
-        expect.fail(null, null, 'handle test did not reject with an error')
+        throw new Error('handle test did not reject with an error')
       } catch (e) {
         // Then
-        expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+        sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
           token: 'tok'
         })
-        expect(getAccessTokenUsecase.execute).not.to.have.been.called()
-        expect(e).to.be.an.instanceOf(Error)
+        sinon.assert.notCalled(getAccessTokenUsecase.execute)
+        expect(e).toBeInstanceOf(Error)
       }
     })
 
@@ -250,18 +250,16 @@ describe('TokenExchangeGrant', () => {
         await tokenExchangeGrant.handler(
           context as unknown as KoaContextWithOIDC
         )
-        expect.fail(null, null, 'handle test did not reject with an error')
+        throw new Error('handle test did not reject with an error')
       } catch (e) {
         // Then
-        expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+        sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
           token: 'tok'
         })
-        expect(
-          getAccessTokenUsecase.execute
-        ).to.have.been.calledOnceWithExactly({
+        sinon.assert.calledOnceWithExactly(getAccessTokenUsecase.execute, {
           account: unAccount({ sub: 'id-auth' })
         })
-        expect(e).to.be.an.instanceOf(Error)
+        expect(e).toBeInstanceOf(Error)
       }
     })
   })

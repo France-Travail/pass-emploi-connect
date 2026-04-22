@@ -6,12 +6,7 @@ import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
 import { AuthError } from '../../../src/utils/result/error'
 import { failure, success } from '../../../src/utils/result/result'
-import {
-  createSandbox,
-  expect,
-  StubbedClass,
-  stubClass
-} from '../../test-utils'
+import { createSandbox, StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
 describe('MiloJeuneService', () => {
@@ -35,7 +30,7 @@ describe('MiloJeuneService', () => {
 
   describe('getAuthorizationUrl', () => {
     it('renvoie success', () => {
-      expect(miloJeuneService.getAuthorizationUrl('test')).to.deep.equal(
+      expect(miloJeuneService.getAuthorizationUrl('test')).toEqual(
         success(
           'https://milo-jeune.com/authorize?client_id=milo-jeune&scope=&response_type=code&redirect_uri=&nonce=test'
         )
@@ -54,7 +49,7 @@ describe('MiloJeuneService', () => {
       const result = await miloJeuneService.callback(request, response)
 
       // Then
-      expect(result).to.deep.equal(failure(new AuthError('CallbackParams')))
+      expect(result).toEqual(failure(new AuthError('CallbackParams')))
     })
   })
 })

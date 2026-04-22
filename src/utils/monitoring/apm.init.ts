@@ -1,5 +1,5 @@
 /* eslint-disable */
-import * as APM from 'elastic-apm-node'
+import APM from 'elastic-apm-node'
 
 let instance: APM.Agent | undefined
 
