@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { Redis } from 'ioredis'
-import { RedisAdapter } from '../../src/redis/redis.adapter'
+import { RedisAdapter } from 'src/redis/redis.adapter'
 import { StubbedClass, stubClass } from '../test-utils'
 
 describe('RedisAdapter', () => {
@@ -83,7 +83,7 @@ describe('RedisAdapter', () => {
         sinon.assert.calledOnce(multiStub.exec)
       })
 
-      it("ne rethrow pas si Redis échoue", async () => {
+      it('ne rethrow pas si Redis échoue', async () => {
         // Given
         multiStub.exec.rejects(new Error('Redis down'))
 
@@ -142,7 +142,7 @@ describe('RedisAdapter', () => {
         sinon.assert.calledWithExactly(multiStub.expire, 'grant:grant1', 3600)
       })
 
-      it("ne rafraîchit pas le TTL du grant quand expiresIn <= ttl du grant", async () => {
+      it('ne rafraîchit pas le TTL du grant quand expiresIn <= ttl du grant', async () => {
         // Given
         redis.ttl.resolves(7200)
 
@@ -212,7 +212,10 @@ describe('RedisAdapter', () => {
         const result = await adapter.find('id1')
 
         // Then
-        sinon.assert.calledWithExactly(redis.get as sinon.SinonStub, 'Session:id1')
+        sinon.assert.calledWithExactly(
+          redis.get as sinon.SinonStub,
+          'Session:id1'
+        )
         expect(result).toEqual(payload)
       })
 
