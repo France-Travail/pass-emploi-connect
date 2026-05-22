@@ -256,14 +256,3 @@ export const configureLoggerModule = (): DynamicModule =>
     // @ts-ignore — mixinMergeStrategy supporté runtime mais absent de @types
     pinoHttp: [pinoHttpOptions]
   })
-
-// Conservé pour compat le temps de la migration des call sites.
-export interface LogError {
-  message: string
-  err?: Error | string
-}
-
-export function buildError(message: string, error: unknown): LogError {
-  const err = error instanceof Error ? error : undefined
-  return { message, err: err ?? String(error) }
-}

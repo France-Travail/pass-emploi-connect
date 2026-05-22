@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Logger } from '@nestjs/common'
 import Redis from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import * as APM from 'elastic-apm-node'
-import { buildError } from '../utils/monitoring/logger.module'
+import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 
 const grantable = new Set([
   'AccessToken',
@@ -35,11 +34,9 @@ function uidKeyFor(uid: string) {
 }
 
 export class RedisAdapter implements Adapter {
-  private logger: Logger
   protected apmService: APM.Agent
 
   constructor(private name: string, private readonly redisClient: Redis) {
-    this.logger = new Logger('RedisAdapter')
     this.apmService = getAPMInstance()
   }
 
@@ -85,7 +82,10 @@ export class RedisAdapter implements Adapter {
 
       await multi.exec() // execute the transaction, committing the changes
     } catch (e) {
-      this.logger.error(buildError('REDIS UPSERT ERROR', e))
+      rootLogger.error(
+        { context: 'RedisAdapter', error: toEcsError(e) },
+        'redis_upsert_failed'
+      )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
@@ -112,7 +112,10 @@ export class RedisAdapter implements Adapter {
         ...JSON.parse(payload)
       }
     } catch (e) {
-      this.logger.error(buildError('REDIS FIND ERROR', e))
+      rootLogger.error(
+        { context: 'RedisAdapter', error: toEcsError(e) },
+        'redis_find_failed'
+      )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
