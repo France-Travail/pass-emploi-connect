@@ -10,6 +10,7 @@ import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravai
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
 import { MiloJeuneModule } from './idp/milo-jeune/milo-jeune.module'
 import { configureLoggerModule } from './utils/monitoring/logger.module'
+import { RequestContextModule } from './utils/monitoring/request-context.module'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { configureLoggerModule } from './utils/monitoring/logger.module'
     }),
     TerminusModule,
     configureLoggerModule(),
+    RequestContextModule,
     FrancetravailJeuneModule,
     FrancetravailConseillerModule,
     MiloConseillerModule,
