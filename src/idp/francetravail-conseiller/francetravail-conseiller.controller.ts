@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Query,
   Redirect,
@@ -21,11 +20,10 @@ import { FrancetravailConseillerCEJService } from './francetravail-conseiller-ce
 import { User } from '../../domain/user'
 import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
 import { FrancetravailConseillerService } from './francetravail-conseiller.service'
+import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class FrancetravailConseillerController {
-  private readonly logger: Logger
-
   constructor(
     private readonly francetravailConseillerCEJService: FrancetravailConseillerCEJService,
     private readonly francetravailConseillerAIJService: FrancetravailConseillerAIJService,
@@ -35,9 +33,7 @@ export class FrancetravailConseillerController {
     private readonly francetravailConseillerAccompagnementIntensifService: FrancetravailConseillerAccompagnementIntensifService,
     private readonly francetravailConseillerAccompagnementGlobalService: FrancetravailConseillerAccompagnementGlobalService,
     private readonly francetravailConseillerEquipEmploiRecrutService: FrancetravailConseillerEquipEmploiRecrutService
-  ) {
-    this.logger = new Logger('FrancetravailConseillerController')
-  }
+  ) {}
 
   @Get('francetravail-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
@@ -46,6 +42,14 @@ export class FrancetravailConseillerController {
     @Param('interactionId') interactionId: string,
     @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
+    rootLogger.info(
+      {
+        context: 'FrancetravailConseillerController',
+        event: { action: 'login_initiated', outcome: 'success' },
+        labels: { idp: 'francetravail-conseiller' }
+      },
+      'login_initiated'
+    )
     let authorizationUrlResult
     let structure: User.Structure
 
