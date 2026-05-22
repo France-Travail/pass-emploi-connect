@@ -28,16 +28,21 @@ describe('RequestContext', () => {
     expect(getContextValue(ContextKey.INTERACTION_ID)).toEqual('uid-123')
   })
 
-  it('isole les valeurs entre deux contextes', async () => {
-    // Given / When
-    const lire = (valeur: string): string | undefined => {
-      context.start()
-      context.set(ContextKey.INTERACTION_ID, valeur)
-      return context.get(ContextKey.INTERACTION_ID)
+  it('isole les valeurs entre deux contextes concurrents', async () => {
+    // Given
+    const run = async (valeur: string): Promise<string | undefined> => {
+      const ctx = new RequestContext()
+      ctx.start()
+      ctx.set(ContextKey.INTERACTION_ID, valeur)
+      await new Promise(resolve => setImmediate(resolve))
+      return ctx.get(ContextKey.INTERACTION_ID)
     }
 
+    // When
+    const [a, b] = await Promise.all([run('a'), run('b')])
+
     // Then
-    expect(lire('a')).toEqual('a')
-    expect(lire('b')).toEqual('b')
+    expect(a).toEqual('a')
+    expect(b).toEqual('b')
   })
 })
