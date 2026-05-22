@@ -20,6 +20,10 @@ export function getContextValue<T>(key: ContextKey): T | undefined {
 // requête HTTP. Lu par le mixin pino (logger.module.ts).
 @Injectable()
 export class RequestContext {
+  // enterWith (et non run) : choix délibéré, homogène avec pass-emploi-api.
+  // Le store est posé sur le contexte async de la requête HTTP courante et
+  // nettoyé avec elle par le GC. Suppose un transport HTTP (Express) — pas
+  // adapté à un transport non-HTTP.
   start(): void {
     asyncLocalStorage.enterWith(new Map<ContextKey, unknown>())
   }

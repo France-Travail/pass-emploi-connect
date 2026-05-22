@@ -20,7 +20,7 @@ describe('ContextInterceptor', () => {
     const next: CallHandler = { handle: () => of('ok') }
 
     // When
-    interceptor.intercept(executionContext, next)
+    interceptor.intercept(executionContext, next).subscribe()
 
     // Then
     expect(context.get(ContextKey.HTTP_REQUEST_ID)).toEqual('req-1')
@@ -39,7 +39,7 @@ describe('ContextInterceptor', () => {
     const next: CallHandler = { handle: () => of('ok') }
 
     // When
-    interceptor.intercept(executionContext, next)
+    interceptor.intercept(executionContext, next).subscribe()
 
     // Then
     expect(context.get(ContextKey.INTERACTION_ID)).toBeUndefined()
