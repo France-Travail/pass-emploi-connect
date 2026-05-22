@@ -18,6 +18,7 @@ export class FrancetravailConseillerAIJService extends IdpService {
   ) {
     super(
       'FrancetravailConseillerAIJService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.POLE_EMPLOI_AIJ,
       configService,

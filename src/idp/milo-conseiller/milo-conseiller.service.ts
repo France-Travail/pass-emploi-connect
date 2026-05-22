@@ -18,6 +18,7 @@ export class MiloConseillerService extends IdpService {
   ) {
     super(
       'MiloConseillerService',
+      'milo-conseiller',
       User.Type.CONSEILLER,
       User.Structure.MILO,
       configService,

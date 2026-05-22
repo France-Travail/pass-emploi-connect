@@ -18,6 +18,7 @@ export class FrancetravailConseillerEquipEmploiRecrutService extends IdpService 
   ) {
     super(
       'FrancetravailConseillerEquipEmploiRecrutService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.FT_EQUIP_EMPLOI_RECRUT,
       configService,

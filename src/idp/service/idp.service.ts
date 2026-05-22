@@ -44,6 +44,7 @@ import {
 
 export abstract class IdpService {
   private idpName: string
+  private idpLabel: string
   private userType: User.Type
   private userStructure: User.Structure
   private idp: IdpConfig
@@ -52,6 +53,7 @@ export abstract class IdpService {
 
   constructor(
     idpName: string,
+    idpLabel: string,
     userType: User.Type,
     userStructure: User.Structure,
     private readonly configService: ConfigService,
@@ -63,6 +65,7 @@ export abstract class IdpService {
   ) {
     this.apmService = getAPMInstance()
     this.idpName = idpName
+    this.idpLabel = idpLabel
     this.userType = userType
     this.userStructure = userStructure
     this.idp = getIdpConfig(this.configService, userType, userStructure)
@@ -87,9 +90,9 @@ export abstract class IdpService {
       const url = this.client.authorizationUrl(params)
       rootLogger.info(
         {
-          context: `${this.idpName}IdpService`,
+          context: this.idpName,
           event: { action: 'login_redirected', outcome: 'success' },
-          labels: { idp: this.idpName }
+          labels: { idp: this.idpLabel }
         },
         'login_redirected'
       )
@@ -100,9 +103,9 @@ export abstract class IdpService {
       )
       rootLogger.error(
         {
-          context: `${this.idpName}IdpService`,
+          context: this.idpName,
           event: { action: 'login_redirected', outcome: 'failure' },
-          labels: { idp: this.idpName },
+          labels: { idp: this.idpLabel },
           error: toEcsError(e)
         },
         'login_redirected'
@@ -179,9 +182,9 @@ export abstract class IdpService {
       if (isFailure(apiUserResult)) {
         rootLogger.error(
           {
-            context: `${this.idpName}IdpService`,
+            context: this.idpName,
             event: { action: 'login_failed', outcome: 'failure' },
-            labels: { idp: this.idpName },
+            labels: { idp: this.idpLabel },
             login: { step: 'ApiPassEmploi' }
           },
           'login_failed'
@@ -252,9 +255,9 @@ export abstract class IdpService {
       await this.oidcService.interactionFinished(request, response, result)
       rootLogger.info(
         {
-          context: `${this.idpName}IdpService`,
+          context: this.idpName,
           event: { action: 'login_completed', outcome: 'success' },
-          labels: { idp: this.idpName }
+          labels: { idp: this.idpLabel }
         },
         'login_completed'
       )
@@ -265,9 +268,9 @@ export abstract class IdpService {
       )
       rootLogger.error(
         {
-          context: `${this.idpName}IdpService`,
+          context: this.idpName,
           event: { action: 'login_failed', outcome: 'failure' },
-          labels: { idp: this.idpName },
+          labels: { idp: this.idpLabel },
           login: { step: codeErreur },
           error: toEcsError(e)
         },

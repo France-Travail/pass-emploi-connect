@@ -18,6 +18,7 @@ export class ConseilDepartementalConseillerService extends IdpService {
   ) {
     super(
       'ConseillerDeptService',
+      'conseildepartemental-conseiller',
       User.Type.CONSEILLER,
       User.Structure.CONSEIL_DEPT,
       configService,

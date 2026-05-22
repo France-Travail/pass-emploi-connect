@@ -18,6 +18,7 @@ export class FrancetravailConseillerBRSAService extends IdpService {
   ) {
     super(
       'FrancetravailConseillerBRSAService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.POLE_EMPLOI_BRSA,
       configService,

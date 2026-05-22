@@ -20,6 +20,7 @@ export class FrancetravailBeneficiaireService extends IdpService {
   ) {
     super(
       'FrancetravailBeneficiaireService',
+      'francetravail-jeune',
       User.Type.BENEFICIAIRE,
       User.Structure.FRANCE_TRAVAIL,
       configService,

@@ -18,6 +18,7 @@ export class FrancetravailConseillerService extends IdpService {
   ) {
     super(
       'FrancetravailConseillerService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.FRANCE_TRAVAIL,
       configService,

@@ -18,6 +18,7 @@ export class FrancetravailConseillerAccompagnementIntensifService extends IdpSer
   ) {
     super(
       'FrancetravailConseillerAccompagnementIntensifService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.FT_ACCOMPAGNEMENT_INTENSIF,
       configService,
