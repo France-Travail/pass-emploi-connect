@@ -1,6 +1,6 @@
-import { HttpService } from '@nestjs/axios'
 import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
+import { ExternalApiLoggerService } from '../../src/utils/monitoring/external-api-logger.service'
 import { NonTrouveError } from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
@@ -11,8 +11,11 @@ describe('PassEmploiAPIClient', () => {
   const configService = testConfig()
 
   beforeEach(() => {
-    const httpService = new HttpService()
-    passEmploiAPIClient = new PassEmploiAPIClient(configService, httpService)
+    const externalApiLogger = new ExternalApiLoggerService()
+    passEmploiAPIClient = new PassEmploiAPIClient(
+      configService,
+      externalApiLogger
+    )
   })
   describe('putUser', () => {
     it("retourne l'utilisateur lorsque l'appel est ok", async () => {
