@@ -152,14 +152,8 @@ export class GetAccessTokenUsecase {
         })
       } else {
         rootLogger.info(
-          {
-            context: 'GetAccessTokenUsecase',
-            event: { action: 'token_refreshed', outcome: 'failure' },
-            error: toEcsError(
-              new Error('Pas de refresh token dans le tokenSet')
-            )
-          },
-          'token_refreshed'
+          { context: 'GetAccessTokenUsecase' },
+          'refresh_token_absent_in_token_set'
         )
       }
 
