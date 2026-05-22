@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import * as APM from 'elastic-apm-node'
 import { Account } from '../domain/account'
 import { RedisClient } from '../redis/redis.client'
 import { DateService } from '../utils/date.service'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
+import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 
 export enum TokenType {
   ACCESS = 'access_token',
@@ -24,14 +24,12 @@ type SavedTokenData = {
 
 @Injectable()
 export class TokenService {
-  private readonly logger: Logger
   protected apmService: APM.Agent
 
   constructor(
     private readonly redisClient: RedisClient,
     private readonly dateService: DateService
   ) {
-    this.logger = new Logger('TokenService')
     this.apmService = getAPMInstance()
   }
 
@@ -54,7 +52,10 @@ export class TokenService {
         this.apmService.captureError(
           e instanceof Error ? e : new Error(String(e))
         )
-        this.logger.error(buildError('get token invalid data format', e))
+        rootLogger.error(
+          { context: 'TokenService', error: toEcsError(e) },
+          'token_invalid_format'
+        )
       }
     }
     return undefined

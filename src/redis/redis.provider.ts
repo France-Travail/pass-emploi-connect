@@ -1,7 +1,6 @@
-import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { buildError } from '../utils/monitoring/logger.module'
+import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 export const RedisInjectionToken = 'RedisClient'
@@ -15,20 +14,25 @@ export const RedisProvider = {
       keyPrefix: 'oidc:',
       lazyConnect: true
     })
-    const logger = new Logger('Redis')
     const apmService = getAPMInstance()
 
     try {
-      logger.log('Connecting to Redis')
+      rootLogger.info({ context: 'Redis' }, 'redis_connecting')
       await redisInstance.connect()
       redisInstance.on('error', e => {
-        logger.error(buildError('Redis error', e))
+        rootLogger.error(
+          { context: 'Redis', error: toEcsError(e) },
+          'redis_error'
+        )
         throw new Error(`Redis error: ${e}`)
       })
-      logger.log('Connection with the Redis is OK')
+      rootLogger.info({ context: 'Redis' }, 'redis_connected')
       return redisInstance
     } catch (e) {
-      logger.error(buildError('Error connecting to the Redis', e))
+      rootLogger.error(
+        { context: 'Redis', error: toEcsError(e) },
+        'redis_connection_failed'
+      )
       apmService.captureError(e instanceof Error ? e : new Error(String(e)))
       throw e
     }
