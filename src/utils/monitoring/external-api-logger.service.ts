@@ -29,7 +29,8 @@ type Emit = (
 @Injectable()
 export class ExternalApiLoggerService {
   createAxios(target: string): AxiosInstance {
-    const instance = axios.create()
+    // timeout 5s : restitue le comportement de l'ancien HttpModule.register
+    const instance = axios.create({ timeout: 5000 })
     attachExternalApiLogger(instance, (level, obj, msg) => {
       rootLogger[level]({ ...obj, context: target }, msg)
     })
