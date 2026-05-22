@@ -1,15 +1,14 @@
-import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AxiosError } from 'axios'
 import * as APM from 'elastic-apm-node'
-import { firstValueFrom } from 'rxjs'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
+import { ExternalApiLoggerService } from '../utils/monitoring/external-api-logger.service'
 import { NonTrouveError, UtilisateurNonTraitable } from '../utils/result/error'
 import { Result, failure, success } from '../utils/result/result'
+import { ExternalApiClient } from './external-api-client'
 
 export interface PassEmploiUser {
   nom?: string
@@ -21,17 +20,16 @@ export interface PassEmploiUser {
 }
 
 @Injectable()
-export class PassEmploiAPIClient {
-  private readonly logger: Logger
+export class PassEmploiAPIClient extends ExternalApiClient {
   private readonly apiUrl: string
   private readonly apiKey: string
   protected apmService: APM.Agent
 
   constructor(
     private readonly configService: ConfigService,
-    private httpService: HttpService
+    externalApiLogger: ExternalApiLoggerService
   ) {
-    this.logger = new Logger('PassEmploiAPIClient')
+    super('PassEmploiApiClient', externalApiLogger)
     this.apmService = getAPMInstance()
     this.apiUrl = this.configService.get('apis.passemploi.url')!
     this.apiKey = this.configService.get('apis.passemploi.key')!
@@ -42,16 +40,14 @@ export class PassEmploiAPIClient {
     passEmploiUser: PassEmploiUser
   ): Promise<Result<User>> {
     try {
-      const apiUser = await firstValueFrom(
-        this.httpService.put(
-          `${this.apiUrl}/auth/users/${sub}`,
-          passEmploiUser,
-          {
-            headers: {
-              'X-API-KEY': this.apiKey
-            }
+      const apiUser = await this.axios.put(
+        `${this.apiUrl}/auth/users/${sub}`,
+        passEmploiUser,
+        {
+          headers: {
+            'X-API-KEY': this.apiKey
           }
-        )
+        }
       )
 
       const user: User = {
@@ -66,7 +62,6 @@ export class PassEmploiAPIClient {
       }
       return success(user)
     } catch (e) {
-      this.logger.error(buildError('Erreur PUT User', e))
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
@@ -88,8 +83,9 @@ export class PassEmploiAPIClient {
 
   async getUser(account: Account): Promise<Result<User>> {
     try {
-      const apiUser = await firstValueFrom(
-        this.httpService.get(`${this.apiUrl}/auth/users/${account.sub}`, {
+      const apiUser = await this.axios.get(
+        `${this.apiUrl}/auth/users/${account.sub}`,
+        {
           params: {
             typeUtilisateur: account.type,
             structureUtilisateur: account.structure
@@ -97,7 +93,7 @@ export class PassEmploiAPIClient {
           headers: {
             'X-API-KEY': this.apiKey
           }
-        })
+        }
       )
 
       const user: User = {
@@ -112,7 +108,6 @@ export class PassEmploiAPIClient {
       }
       return success(user)
     } catch (e) {
-      this.logger.error(buildError('Erreur GET User', e))
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )

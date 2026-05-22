@@ -1,6 +1,6 @@
-import { HttpService } from '@nestjs/axios'
 import nock from 'nock'
 import { FrancetravailAPIClient } from '../../src/api/francetravail-api.client'
+import { ExternalApiLoggerService } from '../../src/utils/monitoring/external-api-logger.service'
 import { failure, success } from '../../src/utils/result/result'
 import { testConfig } from '../test-utils/module-for-testing'
 import { NonTrouveError } from '../../src/utils/result/error'
@@ -10,10 +10,10 @@ describe('FrancetravailAPIClient', () => {
   const configService = testConfig()
 
   beforeEach(() => {
-    const httpService = new HttpService()
+    const externalApiLogger = new ExternalApiLoggerService()
     francetravailAPIClient = new FrancetravailAPIClient(
       configService,
-      httpService
+      externalApiLogger
     )
   })
   describe('getCoordonness', () => {
