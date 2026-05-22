@@ -28,6 +28,8 @@ export class RequestContext {
     return getContextValue<T>(key)
   }
 
+  // Best-effort : si start() n'a pas été appelé (hors requête), l'écriture est
+  // silencieusement ignorée. Cohérent avec le rôle « contexte de log ».
   set(key: ContextKey, value: unknown): void {
     asyncLocalStorage.getStore()?.set(key, value)
   }
