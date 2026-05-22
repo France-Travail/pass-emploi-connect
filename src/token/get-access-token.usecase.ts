@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Issuer } from 'openid-client'
@@ -10,7 +10,11 @@ import {
   getIdpConfig
 } from '../idp/service/helpers'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
+import {
+  rootLogger,
+  serializeBodyForLog,
+  toEcsError
+} from '../utils/monitoring/logger.module'
 import { AuthError, NonTrouveError } from '../utils/result/error'
 import { failure, Result, success } from '../utils/result/result'
 import { TokenData, TokenService, TokenType } from './token.service'
@@ -22,14 +26,12 @@ interface Inputs {
 
 @Injectable()
 export class GetAccessTokenUsecase {
-  private readonly logger: Logger
   protected apmService: APM.Agent
 
   constructor(
     private readonly configService: ConfigService,
     private readonly tokenService: TokenService
   ) {
-    this.logger = new Logger('GetAccessTokenUsecase')
     this.apmService = getAPMInstance()
   }
 
@@ -46,7 +48,14 @@ export class GetAccessTokenUsecase {
 
       return this.refreshAccessTokenWithLock(query.account)
     } catch (e) {
-      this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
+      rootLogger.error(
+        {
+          context: 'GetAccessTokenUsecase',
+          event: { action: 'token_refreshed', outcome: 'failure' },
+          error: toEcsError(e instanceof Error ? e : new Error(String(e)))
+        },
+        'token_refreshed'
+      )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
@@ -79,7 +88,14 @@ export class GetAccessTokenUsecase {
     )
 
     if (!refreshToken) {
-      this.logger.error("L'utilisateur n'a pas de refresh token")
+      rootLogger.error(
+        {
+          context: 'GetAccessTokenUsecase',
+          event: { action: 'token_refreshed', outcome: 'failure' },
+          error: toEcsError(new Error("L'utilisateur n'a pas de refresh token"))
+        },
+        'token_refreshed'
+      )
       this.apmService.captureError(
         new Error("L'utilisateur n'a pas de refresh token")
       )
@@ -99,14 +115,26 @@ export class GetAccessTokenUsecase {
       const issuer = new Issuer(issuerConfig)
       const client = new issuer.Client(clientConfig)
 
-      this.logger.debug(
-        `user ${account.type} ${account.structure} ${account.sub}`
+      rootLogger.debug(
+        {
+          context: 'GetAccessTokenUsecase',
+          data: serializeBodyForLog({
+            type: account.type,
+            structure: account.structure
+          })
+        },
+        'refresh_token_debug'
       )
-      this.logger.debug(`Refresh token utilisé ${JSON.stringify(refreshToken)}`)
 
       const tokenSet = await client.refresh(refreshToken.token)
 
-      this.logger.debug(`TokenSet ${JSON.stringify(tokenSet)}`)
+      rootLogger.debug(
+        {
+          context: 'GetAccessTokenUsecase',
+          data: serializeBodyForLog(tokenSet)
+        },
+        'token_set_debug'
+      )
 
       const tokenData: TokenData = {
         token: tokenSet.access_token!,
@@ -123,20 +151,42 @@ export class GetAccessTokenUsecase {
           scope: tokenSet.scope
         })
       } else {
-        this.logger.warn('Pas de refresh token dans le tokenSet')
+        rootLogger.info(
+          {
+            context: 'GetAccessTokenUsecase',
+            event: { action: 'token_refreshed', outcome: 'failure' },
+            error: toEcsError(
+              new Error('Pas de refresh token dans le tokenSet')
+            )
+          },
+          'token_refreshed'
+        )
       }
+
+      rootLogger.info(
+        {
+          context: 'GetAccessTokenUsecase',
+          event: { action: 'token_refreshed', outcome: 'success' }
+        },
+        'token_refreshed'
+      )
       return success(tokenData)
     } catch (e) {
-      this.logger.debug(`issuer utilisé ${JSON.stringify(issuerConfig)}`)
-
-      this.logger.error(
-        `Erreur refresh token ${account.type} ${account.structure}`
+      rootLogger.debug(
+        {
+          context: 'GetAccessTokenUsecase',
+          data: serializeBodyForLog(issuerConfig)
+        },
+        'issuer_debug'
       )
-      this.logger.error(
-        buildError(
-          `Erreur refresh token ${account.type} ${account.structure}`,
-          e
-        )
+
+      rootLogger.error(
+        {
+          context: 'GetAccessTokenUsecase',
+          event: { action: 'token_refreshed', outcome: 'failure' },
+          error: toEcsError(e instanceof Error ? e : new Error(String(e)))
+        },
+        'token_refreshed'
       )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
