@@ -8,6 +8,7 @@ import { AuthError } from '../../../src/utils/result/error'
 import { failure, success } from '../../../src/utils/result/result'
 import { createSandbox, StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
+import { RequestContext } from '../../../src/utils/monitoring/request-context'
 
 describe('MiloJeuneService', () => {
   let miloJeuneService: MiloJeuneService
@@ -24,7 +25,8 @@ describe('MiloJeuneService', () => {
       configService,
       oidcService,
       tokenService,
-      passEmploiAPIClient
+      passEmploiAPIClient,
+      new RequestContext()
     )
   })
 
