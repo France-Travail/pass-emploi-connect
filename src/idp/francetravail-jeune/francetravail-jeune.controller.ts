@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Query,
   Redirect,
@@ -17,19 +16,16 @@ import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.s
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
 import { User } from '../../domain/user'
+import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class FrancetravailJeuneController {
-  private readonly logger: Logger
-
   constructor(
     private readonly francetravailJeuneCEJService: FrancetravailJeuneCEJService,
     private readonly francetravailAIJService: FrancetravailAIJService,
     private readonly francetravailBRSAService: FrancetravailBRSAService,
     private readonly francetravailBeneficiaireService: FrancetravailBeneficiaireService
-  ) {
-    this.logger = new Logger('FrancetravailJeuneController')
-  }
+  ) {}
 
   @Get('francetravail-jeune/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
@@ -38,6 +34,14 @@ export class FrancetravailJeuneController {
     @Param('interactionId') interactionId: string,
     @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
+    rootLogger.info(
+      {
+        context: 'FrancetravailJeuneController',
+        event: { action: 'login_initiated', outcome: 'success' },
+        labels: { idp: 'francetravail-jeune' }
+      },
+      'login_initiated'
+    )
     let authorizationUrlResult
     let structure: User.Structure
 

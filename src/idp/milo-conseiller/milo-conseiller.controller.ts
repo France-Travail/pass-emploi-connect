@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Redirect,
   Req,
@@ -13,14 +12,11 @@ import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { MiloConseillerService } from './milo-conseiller.service'
 import { User } from '../../domain/user'
+import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class MiloConseillerController {
-  private readonly logger: Logger
-
-  constructor(private readonly miloConseillerService: MiloConseillerService) {
-    this.logger = new Logger('MiloConseillerController')
-  }
+  constructor(private readonly miloConseillerService: MiloConseillerService) {}
 
   @Get('milo-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
@@ -28,6 +24,14 @@ export class MiloConseillerController {
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string } | void> {
+    rootLogger.info(
+      {
+        context: 'MiloConseillerController',
+        event: { action: 'login_initiated', outcome: 'success' },
+        labels: { idp: 'milo-conseiller' }
+      },
+      'login_initiated'
+    )
     const authorizationUrlResult =
       this.miloConseillerService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))
