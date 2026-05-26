@@ -1,12 +1,11 @@
-import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
-import { firstValueFrom } from 'rxjs'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
-import { buildError } from '../utils/monitoring/logger.module'
+import { ExternalApiLoggerService } from '../utils/monitoring/external-api-logger.service'
 import { NonTrouveError } from '../utils/result/error'
 import { Result, failure, success } from '../utils/result/result'
+import { ExternalApiClient } from './external-api-client'
 
 export interface CoordonneesFT {
   nom: string
@@ -15,16 +14,15 @@ export interface CoordonneesFT {
 }
 
 @Injectable()
-export class FrancetravailAPIClient {
-  private readonly logger: Logger
+export class FrancetravailAPIClient extends ExternalApiClient {
   private readonly apiUrl: string
   protected apmService: APM.Agent
 
   constructor(
     private readonly configService: ConfigService,
-    private httpService: HttpService
+    externalApiLogger: ExternalApiLoggerService
   ) {
-    this.logger = new Logger('FrancetravailAPIClient')
+    super('FrancetravailApiClient', externalApiLogger)
     this.apmService = getAPMInstance()
     this.apiUrl = this.configService.get('apis.francetravail.url')!
   }
@@ -33,15 +31,13 @@ export class FrancetravailAPIClient {
     accessTokenJeune: string
   ): Promise<Result<CoordonneesFT>> {
     try {
-      const coordonnees = await firstValueFrom(
-        this.httpService.get(
-          `${this.apiUrl}/peconnect-coordonnees/v1/coordonnees`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessTokenJeune}`
-            }
+      const coordonnees = await this.axios.get(
+        `${this.apiUrl}/peconnect-coordonnees/v1/coordonnees`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessTokenJeune}`
           }
-        )
+        }
       )
 
       return success({
@@ -50,9 +46,6 @@ export class FrancetravailAPIClient {
         email: coordonnees.data.email
       })
     } catch (e) {
-      this.logger.error(
-        buildError('Erreur lors de la récupération des coordonnées FT', e)
-      )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )

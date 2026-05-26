@@ -9,6 +9,7 @@ import { AuthError } from '../../../src/utils/result/error'
 import { failure, success } from '../../../src/utils/result/result'
 import { createSandbox, StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
+import { RequestContext } from '../../../src/utils/monitoring/request-context'
 
 describe('FrancetravailJeuneCEJService', () => {
   let francetravailJeuneCEJService: FrancetravailJeuneCEJService
@@ -28,7 +29,8 @@ describe('FrancetravailJeuneCEJService', () => {
       oidcService,
       tokenService,
       passEmploiAPIClient,
-      francetravailAPIClient
+      francetravailAPIClient,
+      new RequestContext()
     )
   })
 

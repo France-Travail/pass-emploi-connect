@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Request, Response } from 'express'
@@ -21,7 +20,12 @@ import {
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService, TokenType } from '../../token/token.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
-import { buildError } from '../../utils/monitoring/logger.module'
+import { logExternalCall } from '../../utils/monitoring/external-call.logger'
+import { rootLogger, toEcsError } from '../../utils/monitoring/logger.module'
+import {
+  ContextKey,
+  RequestContext
+} from '../../utils/monitoring/request-context'
 import { AuthError } from '../../utils/result/error'
 import {
   Result,
@@ -40,7 +44,7 @@ import {
 
 export abstract class IdpService {
   private idpName: string
-  protected logger: Logger
+  private idpLabel: string
   private userType: User.Type
   private userStructure: User.Structure
   private idp: IdpConfig
@@ -49,17 +53,19 @@ export abstract class IdpService {
 
   constructor(
     idpName: string,
+    idpLabel: string,
     userType: User.Type,
     userStructure: User.Structure,
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
     private readonly passemploiapi: PassEmploiAPIClient,
-    private readonly francetravailapi?: FrancetravailAPIClient
+    private readonly francetravailapi?: FrancetravailAPIClient,
+    private readonly requestContext?: RequestContext
   ) {
-    this.logger = new Logger(idpName)
     this.apmService = getAPMInstance()
     this.idpName = idpName
+    this.idpLabel = idpLabel
     this.userType = userType
     this.userStructure = userStructure
     this.idp = getIdpConfig(this.configService, userType, userStructure)
@@ -82,13 +88,27 @@ export abstract class IdpService {
         params.realm = this.idp.realm
       }
       const url = this.client.authorizationUrl(params)
+      rootLogger.info(
+        {
+          context: this.idpName,
+          event: { action: 'login_redirected', outcome: 'success' },
+          labels: { idp: this.idpLabel }
+        },
+        'login_redirected'
+      )
       return success(url)
     } catch (e) {
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
-      this.logger.error(
-        buildError(`Authorize error ${this.userType} ${this.userStructure}`, e)
+      rootLogger.error(
+        {
+          context: this.idpName,
+          event: { action: 'login_redirected', outcome: 'failure' },
+          labels: { idp: this.idpLabel },
+          error: toEcsError(e)
+        },
+        'login_redirected'
       )
       return failure(new AuthError('AUTHORIZE'))
     }
@@ -96,7 +116,6 @@ export abstract class IdpService {
 
   async callback(request: Request, response: Response): Promise<Result> {
     let codeErreur = 'none'
-    let sub = 'unknown'
     try {
       codeErreur = 'CallbackParams'
       const params = this.client.callbackParams(request)
@@ -108,24 +127,32 @@ export abstract class IdpService {
         response
       )
 
+      this.requestContext?.set(
+        ContextKey.INTERACTION_ID,
+        interactionDetails.uid
+      )
+
       codeErreur = 'Callback'
-      const tokenSet = await this.client.callback(
-        this.idp.redirectUri,
-        params,
-        {
-          nonce: interactionDetails.uid,
-          state: request.query.state
-            ? (request.query.state as string)
-            : undefined
-        }
+      const tokenSet = await logExternalCall(
+        { target: this.idpName, operation: 'token' },
+        () =>
+          this.client.callback(this.idp.redirectUri, params, {
+            nonce: interactionDetails.uid,
+            state: request.query.state
+              ? (request.query.state as string)
+              : undefined
+          })
       )
 
       codeErreur = 'UserInfo'
-      let userInfoOptions
+      let userInfoOptions: { params?: object } | undefined
       if (this.idp.realm) {
         userInfoOptions = { params: { realm: this.idp.realm } }
       }
-      const userInfo = await this.client.userinfo(tokenSet, userInfoOptions)
+      const userInfo = await logExternalCall(
+        { target: this.idpName, operation: 'userinfo' },
+        () => this.client.userinfo(tokenSet, userInfoOptions)
+      )
 
       codeErreur = 'Coordonnees'
       const { nom, prenom, email } = await this.getCoordonnees(
@@ -153,10 +180,25 @@ export abstract class IdpService {
       })
 
       if (isFailure(apiUserResult)) {
-        this.logger.error('Callback PUT user error')
+        rootLogger.error(
+          {
+            context: this.idpName,
+            event: { action: 'login_failed', outcome: 'failure' },
+            labels: { idp: this.idpLabel },
+            login: { step: 'ApiPassEmploi' },
+            error: toEcsError(apiUserResult.error)
+          },
+          'login_failed'
+        )
         this.apmService.captureError(new Error('Callback PUT user error'))
         return apiUserResult
       }
+
+      this.requestContext?.set(ContextKey.USER, {
+        id: apiUserResult.data.userId,
+        type: apiUserResult.data.userType,
+        structure: apiUserResult.data.userStructure
+      })
 
       codeErreur = 'UserPassEmploi'
       const typeUtilisateurFinal = apiUserResult.data.userType
@@ -166,8 +208,6 @@ export abstract class IdpService {
         type: typeUtilisateurFinal,
         structure: structureUtilisateurFinal
       }
-      sub = userInfo.sub
-
       codeErreur = 'AccountId'
       const accountId = Account.fromAccountToAccountId(account)
 
@@ -214,19 +254,29 @@ export abstract class IdpService {
 
       codeErreur = 'SaveSession'
       await this.oidcService.interactionFinished(request, response, result)
+      rootLogger.info(
+        {
+          context: this.idpName,
+          event: { action: 'login_completed', outcome: 'success' },
+          labels: { idp: this.idpLabel }
+        },
+        'login_completed'
+      )
       return emptySuccess()
     } catch (e) {
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
-      this.logger.error({
-        message: 'Callback error',
-        err: e,
-        userType: this.userType,
-        userStructure: this.userStructure,
-        codeErreur,
-        sub
-      })
+      rootLogger.error(
+        {
+          context: this.idpName,
+          event: { action: 'login_failed', outcome: 'failure' },
+          labels: { idp: this.idpLabel },
+          login: { step: codeErreur },
+          error: toEcsError(e)
+        },
+        'login_failed'
+      )
 
       if (codeErreur === 'SessionNotFound') {
         response.clearCookie('_session', { httpOnly: true, secure: true })

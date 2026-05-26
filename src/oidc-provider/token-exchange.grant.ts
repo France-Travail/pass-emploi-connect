@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { KoaContextWithOIDC } from 'oidc-provider'
 import { User } from '../domain/user'
 import { GetAccessTokenUsecase } from '../token/get-access-token.usecase'
@@ -6,7 +6,7 @@ import { ValidateJWTUsecase } from '../token/verify-jwt.usecase'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 import { Account } from '../domain/account'
 import { isFailure } from '../utils/result/result'
-import { buildError } from '../utils/monitoring/logger.module'
+import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 
@@ -28,7 +28,6 @@ export const parameters = new Set([
 
 @Injectable()
 export class TokenExchangeGrant {
-  private logger: Logger
   protected apmService: APM.Agent
 
   constructor(
@@ -36,7 +35,6 @@ export class TokenExchangeGrant {
     private readonly validateJWTUsecase: ValidateJWTUsecase,
     private readonly getAccessTokenUsecase: GetAccessTokenUsecase
   ) {
-    this.logger = new Logger('TokenExchangeGrant')
     this.apmService = getAPMInstance()
   }
 
@@ -45,7 +43,14 @@ export class TokenExchangeGrant {
     const subjectToken = context.oidc?.params?.subject_token as string
     if (!subjectToken) {
       const message = 'subject token not found'
-      this.logger.error(message)
+      rootLogger.error(
+        {
+          context: 'TokenExchangeGrant',
+          event: { action: 'token_failed', outcome: 'failure' },
+          error: toEcsError(new Error(message))
+        },
+        'token_failed'
+      )
       this.apmService.captureError(new Error(message))
       throw new this.opm.errors.InvalidGrant(message)
     }
@@ -56,8 +61,13 @@ export class TokenExchangeGrant {
 
     if (isFailure(tokenPayloadResult)) {
       const message = 'subject token is invalid'
-      this.logger.error(
-        buildError(message, new Error(tokenPayloadResult.error.code))
+      rootLogger.error(
+        {
+          context: 'TokenExchangeGrant',
+          event: { action: 'token_failed', outcome: 'failure' },
+          error: toEcsError(new Error(tokenPayloadResult.error.code))
+        },
+        'token_failed'
       )
       this.apmService.captureError(new Error(tokenPayloadResult.error.code))
       throw new this.opm.errors.InvalidGrant(message)
@@ -87,8 +97,14 @@ export class TokenExchangeGrant {
 
     if (isFailure(resultTokenData)) {
       const message = 'unable to find an access_token'
-      this.logger.error(resultTokenData.error.message)
-      this.logger.error(message)
+      rootLogger.error(
+        {
+          context: 'TokenExchangeGrant',
+          event: { action: 'token_failed', outcome: 'failure' },
+          error: toEcsError(resultTokenData.error)
+        },
+        'token_failed'
+      )
       this.apmService.captureError(new Error(message))
       throw new this.opm.errors.InvalidTarget(message)
     }
@@ -100,5 +116,12 @@ export class TokenExchangeGrant {
       expires_in: resultTokenData.data.expiresIn,
       scope: resultTokenData.data.scope
     }
+    rootLogger.info(
+      {
+        context: 'TokenExchangeGrant',
+        event: { action: 'token_issued', outcome: 'success' }
+      },
+      'token_issued'
+    )
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JWK, JWTPayload, errors, importJWK, jwtVerify } from 'jose'
 import { DateTime } from 'luxon'
@@ -14,14 +14,12 @@ interface Inputs {
 }
 @Injectable()
 export class ValidateJWTUsecase {
-  private readonly logger: Logger
   protected apmService: APM.Agent
 
   constructor(
     private configService: ConfigService,
     private dateService: DateService
   ) {
-    this.logger = new Logger('ValidateJWTUsecase')
     this.apmService = getAPMInstance()
   }
 

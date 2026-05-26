@@ -5,6 +5,7 @@ import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService } from '../../token/token.service'
+import { RequestContext } from '../../utils/monitoring/request-context'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
@@ -14,17 +15,20 @@ export class FrancetravailBeneficiaireService extends IdpService {
     oidcService: OidcService,
     tokenService: TokenService,
     passemploiapi: PassEmploiAPIClient,
-    francetravailAPIClient: FrancetravailAPIClient
+    francetravailAPIClient: FrancetravailAPIClient,
+    requestContext: RequestContext
   ) {
     super(
       'FrancetravailBeneficiaireService',
+      'francetravail-jeune',
       User.Type.BENEFICIAIRE,
       User.Structure.FRANCE_TRAVAIL,
       configService,
       oidcService,
       tokenService,
       passemploiapi,
-      francetravailAPIClient
+      francetravailAPIClient,
+      requestContext
     )
   }
 }
