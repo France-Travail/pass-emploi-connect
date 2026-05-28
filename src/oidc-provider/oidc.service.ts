@@ -73,6 +73,9 @@ export class OidcService {
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')
       },
+      rotateRefreshToken: async ctx => {
+        return ctx.oidc.client?.clientId !== clients.app.id
+      },
       extraParams: ['kc_idp_hint'],
       clients: [
         {
