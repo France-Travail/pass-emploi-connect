@@ -8,7 +8,11 @@ import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { StubbedClass, createSandbox, stubClass } from '../test-utils'
 import { unAccount, unTokenData } from '../test-utils/fixtures'
-import { JWTError, NonTrouveError } from '../../src/utils/result/error'
+import {
+  ErreurReseauIDP,
+  JWTError,
+  NonTrouveError
+} from '../../src/utils/result/error'
 import { User } from '../../src/domain/user'
 
 describe('TokenExchangeGrant', () => {
@@ -252,7 +256,7 @@ describe('TokenExchangeGrant', () => {
         )
         throw new Error('handle test did not reject with an error')
       } catch (e) {
-        // Then
+        // Then → InvalidTarget (400), pas ERREUR_RESEAU_IDP (500)
         sinon.assert.calledOnceWithExactly(validateJWTUsecase.execute, {
           token: 'tok'
         })
@@ -260,6 +264,36 @@ describe('TokenExchangeGrant', () => {
           account: unAccount({ sub: 'id-auth' })
         })
         expect(e).toBeInstanceOf(Error)
+        expect((e as Error).message).not.toBe('ERREUR_RESEAU_IDP')
+      }
+    })
+
+    it('retourne une erreur non-OIDC (500) quand le réseau IDP est indisponible', async () => {
+      // Given
+      const context = {
+        oidc: { params: { subject_token: 'tok' } },
+        body: {}
+      }
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'CONSEILLER',
+          userStructure: 'MILO'
+        })
+      )
+      getAccessTokenUsecase.execute.resolves(
+        failure(new ErreurReseauIDP('ERROR_REFRESH_TOKEN_IDP_CONSEILLER_MILO'))
+      )
+
+      try {
+        // When
+        await tokenExchangeGrant.handler(
+          context as unknown as KoaContextWithOIDC
+        )
+        throw new Error('handle test did not reject with an error')
+      } catch (e) {
+        // Then → Error plain (statusCode undefined → 500), pas InvalidTarget (400)
+        expect((e as Error).message).toBe('ERREUR_RESEAU_IDP')
       }
     })
   })

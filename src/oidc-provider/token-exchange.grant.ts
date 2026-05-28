@@ -7,6 +7,7 @@ import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 import { Account } from '../domain/account'
 import { isFailure } from '../utils/result/result'
 import { buildError } from '../utils/monitoring/logger.module'
+import { ErreurReseauIDP } from '../utils/result/error'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 
@@ -90,6 +91,9 @@ export class TokenExchangeGrant {
       this.logger.error(resultTokenData.error.message)
       this.logger.error(message)
       this.apmService.captureError(new Error(message))
+      if (resultTokenData.error.code === ErreurReseauIDP.CODE) {
+        throw new Error('ERREUR_RESEAU_IDP')
+      }
       throw new this.opm.errors.InvalidTarget(message)
     }
 

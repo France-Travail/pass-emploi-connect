@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
-import { Issuer } from 'openid-client'
+import { errors, Issuer } from 'openid-client'
 import { IdpConfig } from '../config/configuration'
 import { Account } from '../domain/account'
 import {
@@ -11,7 +11,11 @@ import {
 } from '../idp/service/helpers'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { buildError } from '../utils/monitoring/logger.module'
-import { AuthError, NonTrouveError } from '../utils/result/error'
+import {
+  AuthError,
+  ErreurReseauIDP,
+  NonTrouveError
+} from '../utils/result/error'
 import { failure, Result, success } from '../utils/result/result'
 import { TokenData, TokenService, TokenType } from './token.service'
 import * as uuid from 'uuid'
@@ -141,11 +145,12 @@ export class GetAccessTokenUsecase {
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
-      return failure(
-        new AuthError(
-          `ERROR_REFRESH_TOKEN_IDP_${account.type}_${account.structure}`
-        )
-      )
+
+      const log = `ERROR_REFRESH_TOKEN_IDP_${account.type}_${account.structure}`
+      if (erreurReseauIDP(e)) {
+        return failure(new ErreurReseauIDP(log))
+      }
+      return failure(new AuthError(log))
     }
   }
 
@@ -166,4 +171,21 @@ export class GetAccessTokenUsecase {
     }
     return failure(new NonTrouveError('AcessToken'))
   }
+}
+
+function erreurReseauIDP(e: unknown): boolean {
+  if (e instanceof errors.OPError) {
+    return false
+  }
+  if (e instanceof Error) {
+    const erreursReseau = [
+      'ECONNREFUSED',
+      'ECONNRESET',
+      'ETIMEDOUT',
+      'ENOTFOUND',
+      'ECONNABORTED'
+    ]
+    return erreursReseau.includes((e as NodeJS.ErrnoException).code ?? '')
+  }
+  return false
 }

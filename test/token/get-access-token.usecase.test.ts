@@ -1,8 +1,15 @@
 import sinon from 'sinon'
+import { ConfigService } from '@nestjs/config'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { TokenService, TokenType } from '../../src/token/token.service'
-import { AuthError, NonTrouveError } from '../../src/utils/result/error'
+import {
+  AuthError,
+  ErreurReseauIDP,
+  NonTrouveError
+} from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
+import { User } from '../../src/domain/user'
+import { IdpConfig, IdpConfigIdentifier } from '../../src/config/configuration'
 import { StubbedClass, stubClass } from '../test-utils'
 import { unAccount } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
@@ -150,6 +157,43 @@ describe('GetAccessTokenUsecase', () => {
       // Then
       expect(result).toEqual(
         failure(new AuthError(`ERROR_REFRESH_TOKEN_IDP_CONSEILLER_MILO`))
+      )
+    })
+    it('retourne ErreurReseauIDP quand le réseau est indisponible lors du refresh', async () => {
+      // Given
+      const baseIdps =
+        testConfig().get<Record<IdpConfigIdentifier, IdpConfig>>('idps')!
+      const configAvecErreurReseau = new ConfigService({
+        idps: {
+          ...baseIdps,
+          miloJeune: {
+            ...baseIdps.miloJeune,
+            issuer: 'http://erreur-reseau-test.invalid',
+            tokenUrl: 'http://erreur-reseau-test.invalid/token'
+          }
+        }
+      })
+      const usecaseAvecErreurReseau = new GetAccessTokenUsecase(
+        configAvecErreurReseau,
+        tokenService
+      )
+      const account = unAccount({
+        type: User.Type.JEUNE,
+        structure: User.Structure.MILO
+      })
+      tokenService.setAccessTokenLock.resolves(true)
+      tokenService.getToken.withArgs(account, TokenType.REFRESH).resolves({
+        token: 'un-refresh-token',
+        expiresIn: 100,
+        scope: ''
+      })
+
+      // When
+      const result = await usecaseAvecErreurReseau.execute({ account })
+
+      // Then
+      expect(result).toEqual(
+        failure(new ErreurReseauIDP('ERROR_REFRESH_TOKEN_IDP_JEUNE_MILO'))
       )
     })
   })

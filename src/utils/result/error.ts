@@ -40,6 +40,16 @@ export class NonTrouveError implements DomainError {
   }
 }
 
+export class ErreurReseauIDP implements DomainError {
+  static CODE = 'ERREUR_RESEAU_IDP'
+  readonly code: string = ErreurReseauIDP.CODE
+  readonly message: string
+
+  constructor(message: string) {
+    this.message = message
+  }
+}
+
 export class UtilisateurNonTraitable implements DomainError {
   static CODE = 'UTILISATEUR_NON_TRAITABLE'
   readonly code: string = UtilisateurNonTraitable.CODE
