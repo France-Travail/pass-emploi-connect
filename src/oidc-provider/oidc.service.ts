@@ -76,6 +76,9 @@ export class OidcService {
       rotateRefreshToken: async ctx => {
         return ctx.oidc.client?.clientId !== clients.app.id
       },
+      expiresWithSession: async ctx => {
+        return ctx.oidc.client?.applicationType !== 'native'
+      },
       extraParams: ['kc_idp_hint'],
       clients: [
         {
@@ -216,9 +219,6 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
-            if (context.oidc.entities.Session) {
-              await context.oidc.entities.Session.destroy()
-            }
             this.logger.error('Could not get user from API')
             const error = new Error('Could not get user from API')
             this.apmService.captureError(error)
