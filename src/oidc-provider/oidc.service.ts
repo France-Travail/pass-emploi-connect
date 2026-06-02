@@ -45,6 +45,10 @@ export class OidcService {
     const accessTokenTtl = this.configService.get<number>(
       'oidc.acessTokenTtlSeconds'
     )
+    const refreshTokenTtl =
+      this.configService.get<number>('oidc.refreshTokenTtlMinutes')! * 60
+    const webRefreshTokenTtl =
+      this.configService.get<number>('oidc.webRefreshTokenTtlMinutes')! * 60
     this.oidc = new this.opm.Provider(oidcPort, {
       routes: {
         authorization: '/protocol/openid-connect/auth',
@@ -61,10 +65,18 @@ export class OidcService {
         userinfo: '/protocol/openid-connect/userinfo'
       },
       ttl: {
-        RefreshToken: 3600 * 24 * 42,
+        // TTL réduit pour le web (re-login forcé), TTL global pour les autres clients
+        RefreshToken: (_ctx, _token, client) =>
+          client?.clientId === clients.web.id
+            ? webRefreshTokenTtl
+            : refreshTokenTtl,
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: 3600 * 24 * 42,
-        Session: 3600 * 24 * 42,
+        // Session alignée sur le refresh pour forcer un vrai re-login via l'IDP
+        Session: (_ctx, _session, client) =>
+          client?.clientId === clients.web.id
+            ? webRefreshTokenTtl
+            : refreshTokenTtl,
         AccessToken: accessTokenTtl,
         IdToken: accessTokenTtl, // Dans l'App Mobile, la validité de l'AccessToken est liée à celle de l'IdToken -> todo: à changer
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
@@ -73,9 +85,7 @@ export class OidcService {
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')
       },
-      rotateRefreshToken: async ctx => {
-        return ctx.oidc.client?.clientId !== clients.app.id
-      },
+      rotateRefreshToken: () => false,
       expiresWithSession: async ctx => {
         return ctx.oidc.client?.applicationType !== 'native'
       },
