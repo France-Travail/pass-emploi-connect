@@ -4,7 +4,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { ErrorOut, JWKS } from 'oidc-provider'
+import { ErrorOut, JWKS, KoaContextWithOIDC } from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
@@ -402,6 +402,24 @@ export class OidcService {
       tokenExchangeGrantType,
       this.tokenExchangeGrant.handler,
       tokenExchangeParameters
+    )
+
+    // Démasque la vraie raison des erreurs du endpoint /token (oidc-provider renvoie
+    // un message générique "grant request is invalid" au client, mais error_detail
+    // contient la cause réelle : "refresh token not found/expired/already used", "grant not found"...).
+    this.oidc.on(
+      'grant.error',
+      (
+        ctx: KoaContextWithOIDC,
+        err: { error?: string; error_detail?: string }
+      ) => {
+        const grantType = ctx.oidc?.params?.grant_type
+        const clientId = ctx.oidc?.client?.clientId
+        const detail = err.error_detail ?? 'n/a'
+        const message = `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${detail}`
+        this.logger.error(message)
+        this.apmService.captureError(new Error(message))
+      }
     )
 
     this.oidc.proxy = true
