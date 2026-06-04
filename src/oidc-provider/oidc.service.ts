@@ -86,8 +86,13 @@ export class OidcService {
         return client.grantTypeAllowed('refresh_token')
       },
       rotateRefreshToken: () => false,
+      // Les refresh tokens de l'app mobile doivent être INDÉPENDANTS de la session
+      // (durée de vie propre de 42j), sinon ils meurent à la destruction de la session
+      // (logout/re-login/expiry) => "refresh token not found" => déconnexion.
+      // NB: le test sur applicationType 'native' ne suffit pas ici (le client n'est pas
+      // résolu comme natif), on cible donc explicitement le client app par son id.
       expiresWithSession: async ctx => {
-        return ctx.oidc.client?.applicationType !== 'native'
+        return ctx.oidc.client?.clientId !== clients.app.id
       },
       extraParams: ['kc_idp_hint'],
       clients: [
