@@ -8,7 +8,6 @@ import { AuthError } from 'src/utils/result/error'
 import { failure, success } from 'src/utils/result/result'
 import { createSandbox, StubbedClass, stubClass } from 'test/test-utils'
 import { testConfig } from 'test/test-utils/module-for-testing'
-import { RequestContext } from 'src/utils/monitoring/request-context'
 
 describe('ConseilDepartementalConseillerService', () => {
   let conseillerDepartementalConseillerService: ConseilDepartementalConseillerService
@@ -26,8 +25,7 @@ describe('ConseilDepartementalConseillerService', () => {
         configService,
         oidcService,
         tokenService,
-        passEmploiAPIClient,
-        new RequestContext()
+        passEmploiAPIClient
       )
   })
 

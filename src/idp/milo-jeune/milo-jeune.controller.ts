@@ -12,7 +12,6 @@ import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { MiloJeuneService } from './milo-jeune.service'
 import { User } from '../../domain/user'
-import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class MiloJeuneController {
@@ -24,14 +23,6 @@ export class MiloJeuneController {
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string } | void> {
-    rootLogger.info(
-      {
-        context: 'MiloJeuneController',
-        event: { action: 'login_initiated', outcome: 'success' },
-        labels: { idp: 'milo-jeune' }
-      },
-      'login_initiated'
-    )
     const authorizationUrlResult =
       this.miloJeuneService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))

@@ -4,7 +4,6 @@ import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService } from '../../token/token.service'
-import { RequestContext } from '../../utils/monitoring/request-context'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
@@ -13,8 +12,7 @@ export class FrancetravailConseillerCEJService extends IdpService {
     configService: ConfigService,
     oidcService: OidcService,
     tokenService: TokenService,
-    passemploiapi: PassEmploiAPIClient,
-    requestContext: RequestContext
+    passemploiapi: PassEmploiAPIClient
   ) {
     super(
       'FrancetravailConseillerCEJService',
@@ -24,9 +22,7 @@ export class FrancetravailConseillerCEJService extends IdpService {
       configService,
       oidcService,
       tokenService,
-      passemploiapi,
-      undefined,
-      requestContext
+      passemploiapi
     )
   }
 }

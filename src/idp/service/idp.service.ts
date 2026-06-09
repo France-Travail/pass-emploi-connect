@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Request, Response } from 'express'
@@ -51,6 +52,9 @@ export abstract class IdpService {
   private client: BaseClient
   protected apmService: APM.Agent
 
+  @Inject(RequestContext)
+  private readonly requestContext!: RequestContext
+
   constructor(
     idpName: string,
     idpLabel: string,
@@ -60,8 +64,7 @@ export abstract class IdpService {
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
     private readonly passemploiapi: PassEmploiAPIClient,
-    private readonly francetravailapi?: FrancetravailAPIClient,
-    private readonly requestContext?: RequestContext
+    private readonly francetravailapi?: FrancetravailAPIClient
   ) {
     this.apmService = getAPMInstance()
     this.idpName = idpName
@@ -78,6 +81,17 @@ export abstract class IdpService {
   }
 
   getAuthorizationUrl(interactionId: string, state?: string): Result<string> {
+    // login_initiated : marqueur d'entrée du flow, émis ici (et non dans les
+    // controllers) pour que le label idp reste l'unique source de vérité de
+    // l'IdpService. Suivi de login_redirected (success/failure) ci-dessous.
+    rootLogger.info(
+      {
+        context: this.idpName,
+        event: { action: 'login_initiated', outcome: 'success' },
+        labels: { idp: this.idpLabel }
+      },
+      'login_initiated'
+    )
     try {
       const params: AuthorizationParameters = {
         nonce: interactionId,
@@ -127,10 +141,7 @@ export abstract class IdpService {
         response
       )
 
-      this.requestContext?.set(
-        ContextKey.INTERACTION_ID,
-        interactionDetails.uid
-      )
+      this.requestContext.set(ContextKey.INTERACTION_ID, interactionDetails.uid)
 
       codeErreur = 'Callback'
       const tokenSet = await logExternalCall(
@@ -194,7 +205,7 @@ export abstract class IdpService {
         return apiUserResult
       }
 
-      this.requestContext?.set(ContextKey.USER, {
+      this.requestContext.set(ContextKey.USER, {
         id: apiUserResult.data.userId,
         type: apiUserResult.data.userType,
         structure: apiUserResult.data.userStructure

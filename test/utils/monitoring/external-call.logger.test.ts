@@ -18,7 +18,7 @@ describe('logExternalCall', () => {
     // Then
     expect(result).toEqual({ sub: 'abc' })
     sinon.assert.calledOnce(infoSpy)
-    const [obj, msg] = infoSpy.firstCall.args as [
+    const [obj, msg] = infoSpy.firstCall.args as unknown as [
       { event: { action: string; outcome: string }; context: string },
       string
     ]
@@ -43,7 +43,7 @@ describe('logExternalCall', () => {
       )
     ).rejects.toThrow('idp down')
     sinon.assert.calledOnce(errorSpy)
-    const [obj] = errorSpy.firstCall.args as [
+    const [obj] = errorSpy.firstCall.args as unknown as [
       { event: { outcome: string }; error: { message: string } }
     ]
     expect(obj.event.outcome).toEqual('failure')

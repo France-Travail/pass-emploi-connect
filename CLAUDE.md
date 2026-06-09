@@ -63,12 +63,15 @@ d'entrée unique pour les applications Pass Emploi.
 
 ### Testing
 
-| Outil     | Version | Usage       |
-|-----------|---------|-------------|
-| **Mocha** | -       | Test runner |
-| **Chai**  | -       | Assertions  |
-| **Sinon** | -       | Mocking     |
-| **NYC**   | -       | Coverage    |
+| Outil                  | Version | Usage                          |
+|------------------------|---------|--------------------------------|
+| **Vitest**             | 4.1.x   | Test runner + assertions (`expect`) |
+| **@vitest/coverage-v8**| 4.1.x   | Coverage                       |
+| **Sinon**              | -       | Mocking/stubs                  |
+
+> Le projet a migré de Mocha/Chai/NYC vers **Vitest** (runner, assertions
+> natives `expect`, coverage v8). Sinon est conservé pour les stubs. Les tests
+> tournent sur Redis local (`test:local`).
 
 ---
 

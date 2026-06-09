@@ -20,7 +20,6 @@ import { FrancetravailConseillerCEJService } from './francetravail-conseiller-ce
 import { User } from '../../domain/user'
 import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
 import { FrancetravailConseillerService } from './francetravail-conseiller.service'
-import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -42,14 +41,6 @@ export class FrancetravailConseillerController {
     @Param('interactionId') interactionId: string,
     @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
-    rootLogger.info(
-      {
-        context: 'FrancetravailConseillerController',
-        event: { action: 'login_initiated', outcome: 'success' },
-        labels: { idp: 'francetravail-conseiller' }
-      },
-      'login_initiated'
-    )
     let authorizationUrlResult
     let structure: User.Structure
 

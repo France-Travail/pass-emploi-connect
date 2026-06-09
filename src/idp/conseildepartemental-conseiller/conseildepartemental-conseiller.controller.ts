@@ -12,7 +12,6 @@ import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { ConseilDepartementalConseillerService } from './conseildepartemental-conseiller.service'
 import { User } from '../../domain/user'
-import { rootLogger } from '../../utils/monitoring/logger.module'
 
 @Controller()
 export class ConseilDepartementalConseillerController {
@@ -26,14 +25,6 @@ export class ConseilDepartementalConseillerController {
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string } | void> {
-    rootLogger.info(
-      {
-        context: 'ConseilDepartementalConseillerController',
-        event: { action: 'login_initiated', outcome: 'success' },
-        labels: { idp: 'conseildepartemental-conseiller' }
-      },
-      'login_initiated'
-    )
     const authorizationUrlResult =
       this.conseilDepartementalConseillerService.getAuthorizationUrl(
         interactionId
