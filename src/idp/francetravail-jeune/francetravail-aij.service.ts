@@ -18,6 +18,7 @@ export class FrancetravailAIJService extends IdpService {
   ) {
     super(
       'FrancetravailAIJService',
+      'francetravail-jeune',
       User.Type.JEUNE,
       User.Structure.POLE_EMPLOI_AIJ,
       configService,

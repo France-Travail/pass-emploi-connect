@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Redirect,
   Req,
@@ -16,11 +15,7 @@ import { User } from '../../domain/user'
 
 @Controller()
 export class MiloConseillerController {
-  private readonly logger: Logger
-
-  constructor(private readonly miloConseillerService: MiloConseillerService) {
-    this.logger = new Logger('MiloConseillerController')
-  }
+  constructor(private readonly miloConseillerService: MiloConseillerService) {}
 
   @Get('milo-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)

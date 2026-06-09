@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core'
 import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module'
 import { initializeAPMAgent } from './utils/monitoring/apm.init'
+import { ContextInterceptor } from './utils/monitoring/context.interceptor'
+import { RequestContext } from './utils/monitoring/request-context'
 
 import { custom } from 'openid-client'
 import * as https from 'node:https'
@@ -26,6 +28,9 @@ async function bootstrap(): Promise<void> {
 
   const logger = app.get(Logger)
   app.useLogger(logger)
+
+  const requestContext = app.get(RequestContext)
+  app.useGlobalInterceptors(new ContextInterceptor(requestContext))
 
   const appConfig = app.get(ConfigService)
 

@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Query,
   Redirect,
@@ -20,16 +19,12 @@ import { User } from '../../domain/user'
 
 @Controller()
 export class FrancetravailJeuneController {
-  private readonly logger: Logger
-
   constructor(
     private readonly francetravailJeuneCEJService: FrancetravailJeuneCEJService,
     private readonly francetravailAIJService: FrancetravailAIJService,
     private readonly francetravailBRSAService: FrancetravailBRSAService,
     private readonly francetravailBeneficiaireService: FrancetravailBeneficiaireService
-  ) {
-    this.logger = new Logger('FrancetravailJeuneController')
-  }
+  ) {}
 
   @Get('francetravail-jeune/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)

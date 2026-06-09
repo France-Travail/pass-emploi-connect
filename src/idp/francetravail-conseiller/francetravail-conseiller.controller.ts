@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Query,
   Redirect,
@@ -24,8 +23,6 @@ import { FrancetravailConseillerService } from './francetravail-conseiller.servi
 
 @Controller()
 export class FrancetravailConseillerController {
-  private readonly logger: Logger
-
   constructor(
     private readonly francetravailConseillerCEJService: FrancetravailConseillerCEJService,
     private readonly francetravailConseillerAIJService: FrancetravailConseillerAIJService,
@@ -35,9 +32,7 @@ export class FrancetravailConseillerController {
     private readonly francetravailConseillerAccompagnementIntensifService: FrancetravailConseillerAccompagnementIntensifService,
     private readonly francetravailConseillerAccompagnementGlobalService: FrancetravailConseillerAccompagnementGlobalService,
     private readonly francetravailConseillerEquipEmploiRecrutService: FrancetravailConseillerEquipEmploiRecrutService
-  ) {
-    this.logger = new Logger('FrancetravailConseillerController')
-  }
+  ) {}
 
   @Get('francetravail-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)

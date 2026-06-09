@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
@@ -20,10 +20,10 @@ import sanitizeHtml from 'sanitize-html'
 import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 
 @Injectable()
 export class OidcService {
-  private readonly logger: Logger
   private readonly oidc: Provider
   private readonly jwks: JWKS
   protected apmService: APM.Agent
@@ -39,7 +39,6 @@ export class OidcService {
     const clients = this.configService.get('clients')
     this.jwks = this.configService.get<JWKS>('jwks')!
 
-    this.logger = new Logger('OidcService')
     this.apmService = getAPMInstance()
 
     const accessTokenTtl = this.configService.get<number>(
@@ -219,8 +218,11 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
-            this.logger.error('Could not get user from API')
             const error = new Error('Could not get user from API')
+            rootLogger.error(
+              { context: 'OidcService', error: toEcsError(error) },
+              'find_account_failed'
+            )
             this.apmService.captureError(error)
             throw error
           }
@@ -403,7 +405,10 @@ export class OidcService {
     try {
       return this.oidc.callback()
     } catch (e) {
-      this.logger.error(e)
+      rootLogger.error(
+        { context: 'OidcService', error: toEcsError(e) },
+        'oidc_callback_failed'
+      )
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
@@ -439,7 +444,10 @@ export class OidcService {
   }
 
   private logErrors(errors: ErrorOut): string {
-    this.logger.error(errors)
+    rootLogger.error(
+      { context: 'OidcService', error: toEcsError(errors) },
+      'oidc_render_error'
+    )
     if (this.configService.get('environment') !== 'prod') {
       return Object.entries(errors)
         .map(([key, value]) => {

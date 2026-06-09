@@ -16,6 +16,7 @@ export class FrancetravailConseillerAccompagnementGlobalService extends IdpServi
   ) {
     super(
       'FrancetravailConseillerAccompagnementGlobalService',
+      'francetravail-conseiller',
       User.Type.CONSEILLER,
       User.Structure.FT_ACCOMPAGNEMENT_GLOBAL,
       configService,

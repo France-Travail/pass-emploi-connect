@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { User } from '../domain/user'
 import { RedisClient } from '../redis/redis.client'
 
@@ -17,11 +17,7 @@ export interface ContextKey {
 
 @Injectable()
 export class ContextStorage {
-  private readonly logger: Logger
-
-  constructor(private readonly redisClient: RedisClient) {
-    this.logger = new Logger('ContextStorage')
-  }
+  constructor(private readonly redisClient: RedisClient) {}
 
   async get(key: ContextKey): Promise<string | null> {
     return this.redisClient.get(PREFIX, fromKeyObjectToString(key))

@@ -16,6 +16,7 @@ export class MiloJeuneService extends IdpService {
   ) {
     super(
       'MiloJeuneService',
+      'milo-jeune',
       User.Type.JEUNE,
       User.Structure.MILO,
       configService,

@@ -18,6 +18,7 @@ export class FrancetravailBRSAService extends IdpService {
   ) {
     super(
       'FrancetravailBRSAService',
+      'francetravail-jeune',
       User.Type.JEUNE,
       User.Structure.POLE_EMPLOI_BRSA,
       configService,

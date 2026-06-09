@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Logger,
   Param,
   Redirect,
   Req,
@@ -16,13 +15,9 @@ import { User } from '../../domain/user'
 
 @Controller()
 export class ConseilDepartementalConseillerController {
-  private readonly logger: Logger
-
   constructor(
     private readonly conseilDepartementalConseillerService: ConseilDepartementalConseillerService
-  ) {
-    this.logger = new Logger('ConseilDepartementalConseiller')
-  }
+  ) {}
 
   @Get('conseildepartemental-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
