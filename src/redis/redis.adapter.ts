@@ -137,6 +137,11 @@ export class RedisAdapter implements Adapter {
 
   async destroy(id: string): Promise<void> {
     const key = this.key(id)
+    // Trace la suppression des refresh tokens et sessions : utile pour relier une
+    // déconnexion à la destruction de l'entité côté serveur.
+    if (this.name === 'RefreshToken' || this.name === 'Session') {
+      rootLogger.warn({ context: 'RedisAdapter', key }, 'redis_destroy')
+    }
     await this.redisClient.del(key)
   }
 
@@ -144,6 +149,12 @@ export class RedisAdapter implements Adapter {
     // eslint-disable-line class-methods-use-this
     const multi = this.redisClient.multi()
     const tokens = await this.redisClient.lrange(grantKeyFor(grantId), 0, -1)
+    // Trace la révocation d'un grant entier (supprime tous ses tokens) : cause directe
+    // des déconnexions lors d'un rejeu de refresh token.
+    rootLogger.warn(
+      { context: 'RedisAdapter', grantId, tokensCount: tokens.length, tokens },
+      'redis_revoke_by_grant_id'
+    )
     tokens.forEach(token => multi.del(token))
     multi.del(grantKeyFor(grantId))
     await multi.exec()
