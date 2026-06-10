@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { ExternalApiLoggerService } from '../../src/utils/monitoring/external-api-logger.service'
-import { NonTrouveError } from '../../src/utils/result/error'
-import { failure, success } from '../../src/utils/result/result'
+import { ErreurReseauIDP, NonTrouveError } from '../../src/utils/result/error'
+import { failure, isFailure, success } from '../../src/utils/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
 
@@ -144,7 +144,7 @@ describe('PassEmploiAPIClient', () => {
       // Then
       expect(response).toEqual(success(unUser()))
     })
-    it("retourne une failure quand l'appel d'API échoue", async () => {
+    it('retourne une NonTrouveError quand le compte est introuvable (404)', async () => {
       // Given
       const account = unAccount()
       nock('https://api.pass-emploi.fr')
@@ -163,6 +163,27 @@ describe('PassEmploiAPIClient', () => {
       expect(response).toEqual(
         failure(new NonTrouveError('Utilisateur', account.sub))
       )
+    })
+    it("retourne une ErreurReseauIDP quand l'API échoue autrement (5xx)", async () => {
+      // Given
+      const account = unAccount()
+      nock('https://api.pass-emploi.fr')
+        .get('/auth/users/un-sub')
+        .query({
+          typeUtilisateur: account.type,
+          structureUtilisateur: account.structure
+        })
+        .reply(500)
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.getUser(unAccount())
+
+      // Then
+      expect(isFailure(response)).toBe(true)
+      if (isFailure(response)) {
+        expect(response.error.code).toBe(ErreurReseauIDP.CODE)
+      }
     })
   })
 })

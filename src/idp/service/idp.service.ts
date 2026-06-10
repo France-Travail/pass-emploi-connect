@@ -202,6 +202,15 @@ export abstract class IdpService {
           'login_failed'
         )
         this.apmService.captureError(new Error('Callback PUT user error'))
+
+        // L'API ne reconnaît pas l'utilisateur (ex: jeune archivé -> 422 UTILISATEUR_INEXISTANT).
+        // On supprime toute trace de la session SSO résiduelle (entrée Redis + cookies) afin
+        // qu'une reconnexion ultérieure (nouveau compte, même sub IDP) reparte proprement.
+        if (interactionDetails.session?.uid) {
+          await this.oidcService.destroySession(interactionDetails.session.uid)
+        }
+        clearAuthCookies(response)
+
         return apiUserResult
       }
 
@@ -290,16 +299,7 @@ export abstract class IdpService {
       )
 
       if (codeErreur === 'SessionNotFound') {
-        response.clearCookie('_session', { httpOnly: true, secure: true })
-        response.clearCookie('_session.legacy', {
-          httpOnly: true,
-          secure: true
-        })
-        response.clearCookie('_interaction', { httpOnly: true, secure: true })
-        response.clearCookie('_interaction.legacy', {
-          httpOnly: true,
-          secure: true
-        })
+        clearAuthCookies(response)
       }
       return failure(new AuthError(codeErreur))
     }
@@ -327,6 +327,18 @@ export abstract class IdpService {
     const email = coordonnees?.email ?? userInfoFromIdToken.email
 
     return { nom, prenom, email }
+  }
+}
+
+function clearAuthCookies(response: Response): void {
+  const cookieNames = [
+    '_session',
+    '_session.legacy',
+    '_interaction',
+    '_interaction.legacy'
+  ]
+  for (const name of cookieNames) {
+    response.clearCookie(name, { httpOnly: true, secure: true })
   }
 }
 

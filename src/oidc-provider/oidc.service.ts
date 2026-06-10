@@ -18,6 +18,7 @@ import {
 } from './token-exchange.grant'
 import sanitizeHtml from 'sanitize-html'
 import { isFailure } from '../utils/result/result'
+import { NonTrouveError } from '../utils/result/error'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
@@ -44,6 +45,26 @@ export class OidcService {
     const accessTokenTtl = this.configService.get<number>(
       'oidc.acessTokenTtlSeconds'
     )
+
+    // Policy d'interaction : on étend le prompt "login" pour forcer une nouvelle
+    // authentification lorsqu'une session SSO existe mais que le compte référencé est
+    // introuvable (ex: jeune archivé par le conseiller -> findAccount retourne undefined).
+    // Sans ça, oidc-provider réutilise la session orpheline et plante en server_error (500).
+    const { interactionPolicy } = this.opm
+    const policy = interactionPolicy.base()
+    policy
+      .get('login')
+      ?.checks.add(
+        new interactionPolicy.Check(
+          'account_not_found',
+          'session references an account that no longer exists',
+          (ctx: KoaContextWithOIDC) =>
+            ctx.oidc.session?.accountId && !ctx.oidc.account
+              ? interactionPolicy.Check.REQUEST_PROMPT
+              : interactionPolicy.Check.NO_NEED_TO_PROMPT
+        )
+      )
+
     this.oidc = new this.opm.Provider(oidcPort, {
       routes: {
         authorization: '/protocol/openid-connect/auth',
@@ -218,6 +239,19 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
+            // Compte introuvable (ex: jeune archivé/supprimé par le conseiller).
+            // - Flow token/refresh : retourner undefined fait lever un invalid_grant (400)
+            //   par oidc-provider -> l'app purge ses tokens et redirige vers le login.
+            // - Flow authorization (session SSO résiduelle) : le compte undefined est rattrapé
+            //   par le check de policy "account_not_found" qui force une nouvelle auth.
+            // Condition attendue et gérée -> log en warn pour ne pas déclencher d'alerte.
+            if (apiUser.error.code === NonTrouveError.CODE) {
+              rootLogger.warn(
+                { context: 'OidcService', error: toEcsError(apiUser.error) },
+                'find_account_not_found'
+              )
+              return undefined
+            }
             const error = new Error('Could not get user from API')
             rootLogger.error(
               { context: 'OidcService', error: toEcsError(error) },
@@ -340,6 +374,7 @@ export class OidcService {
         }
       },
       interactions: {
+        policy,
         async url(ctx, interaction) {
           if (ctx.request.query.kc_idp_hint) {
             interaction.params.kc_idp_hint = ctx.request.query.kc_idp_hint
@@ -454,6 +489,28 @@ export class OidcService {
 
   getProvider(): Provider {
     return this.oidc
+  }
+
+  /**
+   * Détruit une session SSO (entrée Redis) à partir de son uid.
+   * Utilisé pour purger une session orpheline quand le compte associé n'existe plus
+   * côté API (ex: jeune archivé). Ne throw jamais pour ne pas interrompre le flow appelant.
+   */
+  async destroySession(uid: string): Promise<void> {
+    try {
+      const session = await this.oidc.Session.findByUid(uid)
+      if (session) {
+        await session.destroy()
+      }
+    } catch (e) {
+      rootLogger.error(
+        { context: 'OidcService', error: toEcsError(e) },
+        'destroy_session_failed'
+      )
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
+    }
   }
 
   createGrant(accountId: string, clientId: string) {
