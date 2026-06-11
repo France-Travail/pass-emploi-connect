@@ -4,7 +4,7 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { ErrorOut, JWKS } from 'oidc-provider'
+import { ErrorOut, JWKS, KoaContextWithOIDC } from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
@@ -72,8 +72,8 @@ export class OidcService {
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')
       },
-      rotateRefreshToken: async ctx => {
-        return ctx.oidc.client?.clientId !== clients.app.id
+      rotateRefreshToken: async _ctx => {
+        return false
       },
       expiresWithSession: async ctx => {
         return ctx.oidc.client?.applicationType !== 'native'
@@ -397,6 +397,27 @@ export class OidcService {
     )
 
     this.oidc.proxy = true
+
+    // log error_detail avec raison erreurs de /token plutot que message generique par défaut de oidc-provider
+    this.oidc.on('grant.error', (ctx: KoaContextWithOIDC, err) => {
+      const grantType = ctx.oidc?.params?.grant_type
+      const clientId = ctx.oidc?.client?.clientId
+      const detail = err.error_detail ?? 'n/a'
+      rootLogger.error(
+        {
+          context: 'OidcService',
+          event: { action: 'grant_error', outcome: 'failure' },
+          grant: { type: grantType, clientId },
+          error: { code: err.error, detail }
+        },
+        'grant_error'
+      )
+      this.apmService.captureError(
+        new Error(
+          `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${detail}`
+        )
+      )
+    })
   }
 
   // Below are the methods that you can use to interact with the oidc-provider library
