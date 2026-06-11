@@ -290,11 +290,9 @@ export abstract class IdpService {
       )
 
       if (codeErreur === 'SessionNotFound') {
-        response.clearCookie('_session', { httpOnly: true, secure: true })
-        response.clearCookie('_session.legacy', {
-          httpOnly: true,
-          secure: true
-        })
+        // L'interaction est perdue (cookie _interaction absent/expiré), mais la session SSO
+        // est souvent valide : on n'efface QUE les cookies d'interaction pour repartir propre,
+        // sans toucher à _session (sinon on déconnecterait pour rien -> re-saisie des logins).
         response.clearCookie('_interaction', { httpOnly: true, secure: true })
         response.clearCookie('_interaction.legacy', {
           httpOnly: true,
