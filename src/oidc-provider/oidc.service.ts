@@ -21,6 +21,7 @@ import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
+import { NonTrouveError } from '../utils/result/error'
 
 @Injectable()
 export class OidcService {
@@ -44,6 +45,32 @@ export class OidcService {
     const accessTokenTtl = this.configService.get<number>(
       'oidc.acessTokenTtlSeconds'
     )
+
+    // Check du prompt "login" : si la session SSO pointe vers un compte introuvable
+    // (ex: jeune archivé -> findAccount renvoie undefined) force le login au lieu de réutiliser une session orpheline
+    const { interactionPolicy } = this.opm
+    const { Check } = interactionPolicy
+
+    const sessionPointeVersUnCompteInexistant = (
+      ctx: KoaContextWithOIDC
+    ): boolean => {
+      const sessionPresente = Boolean(ctx.oidc.session?.accountId)
+      const compteIntrouvable = !ctx.oidc.account // findAccount a renvoyé undefined
+      return sessionPresente && compteIntrouvable
+    }
+
+    const forcerLoginSiCompteInexistant = new Check(
+      'account_not_found',
+      'session references an account that no longer exists',
+      ctx =>
+        sessionPointeVersUnCompteInexistant(ctx)
+          ? Check.REQUEST_PROMPT // -> renvoie vers le login
+          : Check.NO_NEED_TO_PROMPT // -> session OK, on laisse passer
+    )
+
+    const policy = interactionPolicy.base() // prompts par défaut : login + consent
+    policy.get('login')?.checks.add(forcerLoginSiCompteInexistant)
+
     this.oidc = new this.opm.Provider(oidcPort, {
       routes: {
         authorization: '/protocol/openid-connect/auth',
@@ -218,6 +245,16 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
+            if (apiUser.error.code === NonTrouveError.CODE) {
+              rootLogger.warn(
+                { context: 'OidcService', error: toEcsError(apiUser.error) },
+                'find_account_not_found'
+              )
+              // undefined = le compte n'existe pas pour findAccount, oidc-provider en déduit l'erreur selon le flow
+              // flow token/refresh : lève un invalid_grant (400)
+              // flow authorization : le check de policy voit account = undefined et force un re-login
+              return undefined
+            }
             const error = new Error('Could not get user from API')
             rootLogger.error(
               { context: 'OidcService', error: toEcsError(error) },
@@ -340,6 +377,7 @@ export class OidcService {
         }
       },
       interactions: {
+        policy,
         async url(ctx, interaction) {
           if (ctx.request.query.kc_idp_hint) {
             interaction.params.kc_idp_hint = ctx.request.query.kc_idp_hint

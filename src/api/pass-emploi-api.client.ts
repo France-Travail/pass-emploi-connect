@@ -6,7 +6,11 @@ import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { ExternalApiLoggerService } from '../utils/monitoring/external-api-logger.service'
-import { NonTrouveError, UtilisateurNonTraitable } from '../utils/result/error'
+import {
+  ErreurReseauIDP,
+  NonTrouveError,
+  UtilisateurNonTraitable
+} from '../utils/result/error'
 import { Result, failure, success } from '../utils/result/result'
 import { ExternalApiClient } from './external-api-client'
 
@@ -111,7 +115,15 @@ export class PassEmploiAPIClient extends ExternalApiClient {
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
-      return failure(new NonTrouveError('Utilisateur', account.sub))
+      const axiosError = e as AxiosError
+      if (axiosError.response?.status === 404) {
+        return failure(new NonTrouveError('Utilisateur', account.sub))
+      }
+      return failure(
+        new ErreurReseauIDP(
+          'Erreur réseau lors de la récupération des données du compte'
+        )
+      )
     }
   }
 }
