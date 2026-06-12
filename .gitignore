@@ -425,4 +425,4 @@ scripts/.yarn/*
 vitest.config.js
 vitest.config.js.map
 
-log
+log*
