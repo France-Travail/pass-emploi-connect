@@ -148,7 +148,7 @@ export class OidcService {
       //   id_token_signed_response_alg: 'ES384',
       // },
       jwks: this.jwks,
-      renderError: (ctx, out, _error) => {
+      renderError: (ctx, out, error) => {
         ctx.type = 'html'
         ctx.body = `<!DOCTYPE html>
         <html>
@@ -214,7 +214,7 @@ export class OidcService {
           <div class="container">
             <h1>Portail de connexion</h1>
             <p>Une erreur technique s'est produite, veuillez <b>recharger la page</b> ou contacter le support.</p>
-            ${this.logErrors(out)}
+            ${this.logErrors(out, error)}
           </div>
         </body>
         
@@ -436,12 +436,18 @@ export class OidcService {
 
     this.oidc.proxy = true
 
-    // log error_detail avec raison erreurs de /token plutot que message generique par défaut de oidc-provider
+    // log error_detail avec la raison des erreurs de /token plutot que le message
+    // generique par défaut de oidc-provider
     this.oidc.on('grant.error', (ctx: KoaContextWithOIDC, err) => {
       const grantType = ctx.oidc?.params?.grant_type
       const clientId = ctx.oidc?.client?.clientId
       const detail = err.error_detail ?? 'n/a'
-      rootLogger.error(
+      // Les 4xx sont des erreurs client OAuth attendues (refresh expiré/déjà utilisé, "refresh token not found", compte supprimé, invalid_target...) on log en warn mais on n'inonde PAS l'APM avec
+      // Seules les erreurs serveur (5xx) ou inattendues remontent en error + APM
+      const status = err.status ?? err.statusCode
+      const isExpectedClientError =
+        typeof status === 'number' && status >= 400 && status < 500
+      rootLogger[isExpectedClientError ? 'warn' : 'error'](
         {
           context: 'OidcService',
           event: { action: 'grant_error', outcome: 'failure' },
@@ -450,11 +456,13 @@ export class OidcService {
         },
         'grant_error'
       )
-      this.apmService.captureError(
-        new Error(
-          `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${detail}`
+      if (!isExpectedClientError) {
+        this.apmService.captureError(
+          new Error(
+            `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${detail}`
+          )
         )
-      )
+      }
     })
   }
 
@@ -502,9 +510,17 @@ export class OidcService {
     return this.oidc.Grant.find(grantId)
   }
 
-  private logErrors(errors: ErrorOut): string {
+  private logErrors(errors: ErrorOut, cause?: unknown): string {
+    // ErrorOut est un objet pas reconnue par toEcsError, il faut mettre cause dans toEcsError
     rootLogger.error(
-      { context: 'OidcService', error: toEcsError(errors) },
+      {
+        context: 'OidcService',
+        error: {
+          type: errors.error ?? 'Unknown',
+          message: errors.error_description ?? JSON.stringify(errors)
+        },
+        ...(cause !== undefined && { cause: toEcsError(cause) })
+      },
       'oidc_render_error'
     )
     if (this.configService.get('environment') !== 'prod') {
