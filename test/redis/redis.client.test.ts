@@ -79,6 +79,48 @@ describe('RedisClient', () => {
       sinon.assert.calledWithExactly(redis.del as sinon.SinonStub, 'abc')
     })
   })
+  describe('scanKeys', () => {
+    it('itère sur le curseur et retire le préfixe oidc:', async () => {
+      // Given
+      ;(redis.scan as sinon.SinonStub)
+        .withArgs('0', 'MATCH', '*Session:*', 'COUNT', 100)
+        .resolves(['12', ['oidc:Session:a', 'oidc:Session:b']])
+      ;(redis.scan as sinon.SinonStub)
+        .withArgs('12', 'MATCH', '*Session:*', 'COUNT', 100)
+        .resolves(['0', ['oidc:Session:c']])
+
+      // When
+      const res = await redisClient.scanKeys('*Session:*')
+
+      // Then
+      expect(res).toEqual(['Session:a', 'Session:b', 'Session:c'])
+      sinon.assert.calledTwice(redis.scan as sinon.SinonStub)
+    })
+  })
+  describe('hgetAllRaw / delRaw', () => {
+    it('hgetAllRaw lit le hash', async () => {
+      // Given
+      redis.hgetall.withArgs('RefreshToken:a').resolves({ payload: '{}' })
+
+      // When - Then
+      expect(await redisClient.hgetAllRaw('RefreshToken:a')).toEqual({
+        payload: '{}'
+      })
+    })
+    it('delRaw supprime la clé telle quelle', async () => {
+      // Given
+      redis.del.resolves()
+
+      // When
+      await redisClient.delRaw('grant:g')
+
+      // Then
+      sinon.assert.calledOnceWithExactly(
+        redis.del as sinon.SinonStub,
+        'grant:g'
+      )
+    })
+  })
   describe('setWithExpiry', () => {
     it('setWithExpiry', async () => {
       // Given
