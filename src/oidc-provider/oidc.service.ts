@@ -221,7 +221,11 @@ export class OidcService {
         </html>`
       },
       cookies: {
-        short: { path: '/', sameSite: 'none' }
+        // Lax (et pas None) pour le cookie d'interaction : sur le callback IDP
+        // (navigation top-level GET) le cookie Lax est bien renvoyé, alors que
+        // None est traité comme cookie tiers et bloqué par les webviews / ITP /
+        // navigateurs qui bloquent les cookies tiers -> SessionNotFound systématique.
+        short: { path: '/', sameSite: 'lax' }
       },
       adapter: (name: string) => new RedisAdapter(name, this.redisClient),
       findAccount: async (context, accountId: string) => {
