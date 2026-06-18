@@ -102,9 +102,9 @@ export class OidcService {
       rotateRefreshToken: async _ctx => {
         return false
       },
-      // expiresWithSession: async ctx => {
-      //   return ctx.oidc.client?.applicationType !== 'native'
-      // },
+      expiresWithSession: async ctx => {
+        return ctx.oidc.client?.applicationType !== 'native'
+      },
       extraParams: ['kc_idp_hint'],
       clients: [
         {
