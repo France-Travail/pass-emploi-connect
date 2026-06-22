@@ -122,12 +122,15 @@ export class GetAccessTokenUsecase {
       rootLogger.debug(
         {
           context: 'GetAccessTokenUsecase',
-          data: serializeBodyForLog({
-            type: account.type,
-            structure: account.structure
-          })
+          event: { action: 'idp_refresh_requested' },
+          labels: {
+            account: serializeBodyForLog({
+              type: account.type,
+              structure: account.structure
+            })
+          }
         },
-        'refresh_token_debug'
+        'idp_refresh_requested'
       )
 
       const tokenSet = await client.refresh(refreshToken.token)
@@ -135,9 +138,10 @@ export class GetAccessTokenUsecase {
       rootLogger.debug(
         {
           context: 'GetAccessTokenUsecase',
-          data: serializeBodyForLog(tokenSet)
+          event: { action: 'idp_token_set_received' },
+          labels: { token_set: serializeBodyForLog(tokenSet) }
         },
-        'token_set_debug'
+        'idp_token_set_received'
       )
 
       const tokenData: TokenData = {
@@ -173,9 +177,10 @@ export class GetAccessTokenUsecase {
       rootLogger.debug(
         {
           context: 'GetAccessTokenUsecase',
-          data: serializeBodyForLog(issuerConfig)
+          event: { action: 'idp_issuer_config_inspected' },
+          labels: { issuer_config: serializeBodyForLog(issuerConfig) }
         },
-        'issuer_debug'
+        'idp_issuer_config_inspected'
       )
 
       rootLogger.error(
