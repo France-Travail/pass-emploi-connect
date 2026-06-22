@@ -1,7 +1,8 @@
 # Pass Emploi Connect - Contexte Technique
 
 > Service d'authentification OIDC centralisé
-> Voir le contexte global Pass Emploi dans `pass-emploi-api/CLAUDE.md` (section "Contexte Global")
+
+@../pass-emploi-tools/docs/CONTEXTE-TRANSVERSE.md
 
 ---
 
