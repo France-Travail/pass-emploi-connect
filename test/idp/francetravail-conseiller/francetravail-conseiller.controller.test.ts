@@ -336,7 +336,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'cej' })
+          .query({ state: 'cej.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailConseillerCEJService.callback)
@@ -350,7 +350,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'cej' })
+          .query({ state: 'cej.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -369,7 +369,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'brsa' })
+          .query({ state: 'brsa.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailConseillerBRSAService.callback)
@@ -383,7 +383,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'brsa' })
+          .query({ state: 'brsa.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -402,7 +402,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'aij' })
+          .query({ state: 'aij.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailConseillerAIJService.callback)
@@ -416,7 +416,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'aij' })
+          .query({ state: 'aij.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -437,7 +437,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'accompagnement-intensif' })
+          .query({ state: 'accompagnement-intensif.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(
@@ -454,7 +454,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'accompagnement-intensif' })
+          .query({ state: 'accompagnement-intensif.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -477,7 +477,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'accompagnement-global' })
+          .query({ state: 'accompagnement-global.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(
@@ -494,7 +494,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'accompagnement-global' })
+          .query({ state: 'accompagnement-global.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -517,7 +517,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'equip-emploi-recrut' })
+          .query({ state: 'equip-emploi-recrut.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(
@@ -536,7 +536,7 @@ describe('FrancetravailConseillerController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-          .query({ state: 'equip-emploi-recrut' })
+          .query({ state: 'equip-emploi-recrut.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',

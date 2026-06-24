@@ -11,6 +11,7 @@ import {
 import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
+import { decodeAuthStateType } from '../../oidc-provider/auth-state'
 import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
@@ -89,7 +90,10 @@ export class FrancetravailJeuneController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
-    const ftType = request.query.state
+    // le `state` encode `${type}.${uid}` : on extrait le type pour dispatcher
+    const ftType = decodeAuthStateType(
+      typeof request.query.state === 'string' ? request.query.state : undefined
+    )
     let result
     let structure: User.Structure
 

@@ -34,7 +34,7 @@ describe('FrancetravailConseillerService', () => {
         francetravailConseillerService.getAuthorizationUrl('test')
       ).toEqual(
         success(
-          'https://ft-conseiller.com/authorize?client_id=ft-conseiller&scope=&response_type=code&redirect_uri=&nonce=test&realm=agent'
+          'https://ft-conseiller.com/authorize?client_id=ft-conseiller&scope=&response_type=code&redirect_uri=&nonce=test&state=test&realm=agent'
         )
       )
     })

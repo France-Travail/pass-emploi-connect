@@ -36,7 +36,7 @@ describe('FrancetravailJeuneCEJService', () => {
     it('renvoie success', () => {
       expect(francetravailJeuneCEJService.getAuthorizationUrl('test')).toEqual(
         success(
-          'https://ft-jeune.com/authorize?client_id=ft-jeune&scope=&response_type=code&redirect_uri=&nonce=test&realm=individu'
+          'https://ft-jeune.com/authorize?client_id=ft-jeune&scope=&response_type=code&redirect_uri=&nonce=test&state=test&realm=individu'
         )
       )
     })

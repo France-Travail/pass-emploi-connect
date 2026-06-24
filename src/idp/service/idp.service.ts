@@ -42,6 +42,7 @@ import {
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
+import { encodeAuthState } from '../../oidc-provider/auth-state'
 
 export abstract class IdpService {
   private idpName: string
@@ -80,7 +81,7 @@ export abstract class IdpService {
     this.client = new issuer.Client(clientConfig)
   }
 
-  getAuthorizationUrl(interactionId: string, state?: string): Result<string> {
+  getAuthorizationUrl(interactionId: string, type?: string): Result<string> {
     // login_initiated : marqueur d'entrée du flow, émis ici (et non dans les
     // controllers) pour que le label idp reste l'unique source de vérité de
     // l'IdpService. Suivi de login_redirected (success/failure) ci-dessous.
@@ -96,7 +97,10 @@ export abstract class IdpService {
       const params: AuthorizationParameters = {
         nonce: interactionId,
         scope: this.idp.scopes,
-        state
+        // uid encodé dans le state (qui transite par l'IDP) pour retrouver
+        // l'interaction au callback sans dépendre du cookie _interaction.
+        // cf. oidc-provider/auth-state + OidcService.recoverInteraction
+        state: encodeAuthState(interactionId, type)
       }
       if (this.idp.realm) {
         params.realm = this.idp.realm
@@ -136,7 +140,7 @@ export abstract class IdpService {
 
       codeErreur = 'SessionNotFound'
 
-      const interactionDetails = await this.oidcService.interactionDetails(
+      const interactionDetails = await this.oidcService.recoverInteraction(
         request,
         response
       )
@@ -264,7 +268,11 @@ export abstract class IdpService {
       }
 
       codeErreur = 'SaveSession'
-      await this.oidcService.interactionFinished(request, response, result)
+      await this.oidcService.finishInteraction(
+        response,
+        interactionDetails,
+        result
+      )
       rootLogger.info(
         {
           context: this.idpName,

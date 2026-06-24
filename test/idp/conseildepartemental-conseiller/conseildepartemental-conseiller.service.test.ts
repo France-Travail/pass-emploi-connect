@@ -35,7 +35,7 @@ describe('ConseilDepartementalConseillerService', () => {
         conseillerDepartementalConseillerService.getAuthorizationUrl('test')
       ).toEqual(
         success(
-          'https://keycloak-cej.com/authorize?client_id=keycloak-cej&scope=keycloak-cej&response_type=code&redirect_uri=keycloak-cej&nonce=test'
+          'https://keycloak-cej.com/authorize?client_id=keycloak-cej&scope=keycloak-cej&response_type=code&redirect_uri=keycloak-cej&nonce=test&state=test'
         )
       )
     })

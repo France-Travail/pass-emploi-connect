@@ -14,6 +14,7 @@ import { FrancetravailConseillerAccompagnementGlobalService } from './francetrav
 import { FrancetravailConseillerEquipEmploiRecrutService } from './francetravail-conseiller-equip-emploi-recrut.service'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
+import { decodeAuthStateType } from '../../oidc-provider/auth-state'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
@@ -126,7 +127,10 @@ export class FrancetravailConseillerController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
-    const ftType = request.query.state
+    // le `state` encode `${type}.${uid}` : on extrait le type pour dispatcher
+    const ftType = decodeAuthStateType(
+      typeof request.query.state === 'string' ? request.query.state : undefined
+    )
     let result
     let structure: User.Structure
 

@@ -4,13 +4,20 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { ErrorOut, JWKS, KoaContextWithOIDC } from 'oidc-provider'
+import { Request, Response } from 'express'
+import {
+  ErrorOut,
+  InteractionResults,
+  JWKS,
+  KoaContextWithOIDC
+} from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
+import { decodeAuthStateInteractionId } from './auth-state'
 import {
   TokenExchangeGrant,
   grantType as tokenExchangeGrantType,
@@ -22,6 +29,13 @@ import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { NonTrouveError } from '../utils/result/error'
+
+// Noms par défaut des cookies d'interaction oidc-provider (cookies.names non surchargé).
+// cookieName() n'étant pas typé publiquement, on les fige ici.
+const INTERACTION_COOKIE = '_interaction'
+const INTERACTION_RESUME_COOKIE = '_interaction_resume'
+
+type OidcInteraction = InstanceType<Provider['Interaction']>
 
 @Injectable()
 export class OidcService {
@@ -489,6 +503,58 @@ export class OidcService {
 
   interactionDetails: Provider['interactionDetails'] = (req, res) => {
     return this.oidc.interactionDetails(req, res)
+  }
+
+  // Retrouve l'interaction via le `state` (qui transite par l'IDP) plutôt que via le
+  // cookie `_interaction`, souvent perdu par les webviews/navigateurs mobiles à
+  // l'aller-retour vers l'IDP -> SessionNotFound. Repli sur le cookie pour les
+  // connexions en vol pendant un déploiement (state au format legacy / absent).
+  async recoverInteraction(
+    req: Request,
+    res: Response
+  ): Promise<OidcInteraction> {
+    const state =
+      typeof req.query.state === 'string' ? req.query.state : undefined
+    const interactionId = decodeAuthStateInteractionId(state)
+    if (interactionId) {
+      const interaction = await this.oidc.Interaction.find(interactionId)
+      if (interaction) {
+        return interaction
+      }
+    }
+    return this.oidc.interactionDetails(req, res)
+  }
+
+  // Termine l'interaction SANS lire le cookie de la requête (contrairement à
+  // interactionFinished -> interactionResult -> #getInteraction qui l'exige). On écrit
+  // le résultat puis on re-pose `_interaction`/`_interaction_resume` : la reprise
+  // /auth/:uid étant une navigation même-site immédiate, le cookie fraîchement posé
+  // repart, même si l'original a été perdu pendant l'aller-retour vers l'IDP externe.
+  async finishInteraction(
+    res: Response,
+    interaction: OidcInteraction,
+    result: InteractionResults
+  ): Promise<void> {
+    interaction.result = { ...(interaction.lastSubmission ?? {}), ...result }
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    await interaction.save(interaction.exp - nowSeconds)
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax' as const,
+      maxAge: Math.max(1, interaction.exp - nowSeconds) * 1000
+    }
+    res.cookie(INTERACTION_COOKIE, interaction.uid, {
+      ...cookieOptions,
+      path: '/'
+    })
+    res.cookie(INTERACTION_RESUME_COOKIE, interaction.uid, {
+      ...cookieOptions,
+      path: new URL(interaction.returnTo).pathname
+    })
+
+    res.redirect(303, interaction.returnTo)
   }
 
   interactionFinished: Provider['interactionFinished'] = (req, res, result) => {

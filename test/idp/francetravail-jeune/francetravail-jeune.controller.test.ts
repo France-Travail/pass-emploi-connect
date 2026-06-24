@@ -216,7 +216,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'ft-beneficiaire' })
+          .query({ state: 'ft-beneficiaire.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailBeneficiaireService.callback)
@@ -230,7 +230,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'ft-beneficiaire' })
+          .query({ state: 'ft-beneficiaire.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -248,7 +248,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'cej' })
+          .query({ state: 'cej.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailJeuneCEJService.callback)
@@ -262,7 +262,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'cej' })
+          .query({ state: 'cej.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -280,7 +280,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'brsa' })
+          .query({ state: 'brsa.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailBRSAService.callback)
@@ -294,7 +294,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'brsa' })
+          .query({ state: 'brsa.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -312,7 +312,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'aij' })
+          .query({ state: 'aij.interaction-id' })
           .expect(HttpStatus.OK)
 
         sinon.assert.calledOnce(francetravailAIJService.callback)
@@ -326,7 +326,7 @@ describe('FrancetravailJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'aij' })
+          .query({ state: 'aij.interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',

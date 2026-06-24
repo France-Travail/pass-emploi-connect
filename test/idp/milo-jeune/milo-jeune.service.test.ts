@@ -32,7 +32,7 @@ describe('MiloJeuneService', () => {
     it('renvoie success', () => {
       expect(miloJeuneService.getAuthorizationUrl('test')).toEqual(
         success(
-          'https://milo-jeune.com/authorize?client_id=milo-jeune&scope=&response_type=code&redirect_uri=&nonce=test'
+          'https://milo-jeune.com/authorize?client_id=milo-jeune&scope=&response_type=code&redirect_uri=&nonce=test&state=test'
         )
       )
     })
