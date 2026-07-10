@@ -1,5 +1,6 @@
 import { Controller, All, Req, Res } from '@nestjs/common'
 import { Request, Response } from 'express'
+import { ensureResumeCookie } from './resume-cookie'
 import { OidcService } from './oidc.service'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
@@ -23,6 +24,7 @@ export class OidcController {
   public mountedOidc(@Req() req: Request, @Res() res: Response): Promise<void> {
     try {
       req.url = req.originalUrl.replace('/auth/realms/pass-emploi', '')
+      ensureResumeCookie(req)
       return this.callback(req, res)
     } catch (e) {
       rootLogger.error(
