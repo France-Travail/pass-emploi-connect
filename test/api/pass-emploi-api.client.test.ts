@@ -115,6 +115,59 @@ describe('PassEmploiAPIClient', () => {
       })
     })
   })
+  describe('putUtilisateurInvite', () => {
+    it("crée l'invité et retourne l'utilisateur, sans données d'IDP", async () => {
+      // Given : l'API renvoie le jeune invité (prenom -> given_name du JWT)
+      const apiUser = {
+        id: 'id-en-base',
+        type: 'JEUNE',
+        structure: 'INVITE',
+        prenom: 'Invité',
+        nom: '',
+        roles: []
+      }
+
+      nock('https://api.pass-emploi.fr')
+        .put('/auth/users/invite/un-sub-invite', {})
+        .reply(200, apiUser)
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.putUtilisateurInvite(
+        'un-sub-invite'
+      )
+
+      // Then
+      expect(response).toEqual(
+        success({
+          userId: 'id-en-base',
+          userType: 'JEUNE',
+          userStructure: 'INVITE',
+          userRoles: [],
+          given_name: 'Invité',
+          family_name: '',
+          email: undefined
+        })
+      )
+    })
+
+    it("retourne un échec quand l'API refuse", async () => {
+      // Given
+      nock('https://api.pass-emploi.fr')
+        .put('/auth/users/invite/un-sub-invite', {})
+        .reply(400, { reason: 'STRUCTURE_UTILISATEUR_NON_TRAITABLE' })
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.putUtilisateurInvite(
+        'un-sub-invite'
+      )
+
+      // Then
+      expect(isFailure(response)).toBe(true)
+    })
+  })
+
   describe('getUser', () => {
     it("retourne l'utilisateur lorsque l'appel est ok", async () => {
       // Given

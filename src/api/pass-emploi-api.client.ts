@@ -85,6 +85,43 @@ export class PassEmploiAPIClient extends ExternalApiClient {
     }
   }
 
+  // Mode invité : pas de données d'IDP à transmettre, l'utilisateur est anonyme.
+  // L'API crée le jeune invité s'il n'existe pas, sinon renvoie l'existant.
+  async putUtilisateurInvite(sub: string): Promise<Result<User>> {
+    try {
+      const apiUser = await this.axios.put(
+        `${this.apiUrl}/auth/users/invite/${sub}`,
+        {},
+        {
+          headers: {
+            'X-API-KEY': this.apiKey
+          }
+        }
+      )
+
+      const user: User = {
+        userId: apiUser.data.id,
+        userType: apiUser.data.type,
+        userStructure: apiUser.data.structure,
+        userRoles: apiUser.data.roles ?? [],
+        given_name: apiUser.data.prenom,
+        family_name: apiUser.data.nom,
+        email: apiUser.data.email
+      }
+      return success(user)
+    } catch (e) {
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
+      const axiosError = e as AxiosError<{ reason?: string; code?: string }>
+      return failure(
+        new UtilisateurNonTraitable(
+          axiosError.response?.data?.reason ?? axiosError.response?.data?.code
+        )
+      )
+    }
+  }
+
   async getUser(account: Account): Promise<Result<User>> {
     try {
       const apiUser = await this.axios.get(

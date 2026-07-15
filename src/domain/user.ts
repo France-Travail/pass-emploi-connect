@@ -28,8 +28,15 @@ export namespace User {
     AVENIR_PRO = 'AVENIR_PRO',
     FT_ACCOMPAGNEMENT_INTENSIF = 'FT_ACCOMPAGNEMENT_INTENSIF',
     FT_ACCOMPAGNEMENT_GLOBAL = 'FT_ACCOMPAGNEMENT_GLOBAL',
-    FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT'
+    FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT',
+    INVITE = 'INVITE'
   }
+}
+
+// Mode invité : bénéficiaire anonyme, sans IDP externe. C'est Connect lui-même
+// qui fabrique l'identité (aucune preuve à vérifier), d'où l'absence d'IdpService.
+export function estInvite(userStructure: User.Structure): boolean {
+  return userStructure === User.Structure.INVITE
 }
 
 function estFT(userStructure: User.Structure): boolean {

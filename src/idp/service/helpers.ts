@@ -53,6 +53,10 @@ function getIdpConfigIdentifier(
           case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
           case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
             return IdpConfigIdentifier.FT_BENEFICIAIRE
+          // L'invité n'a aucun IDP : demander sa config est une erreur de
+          // programmation (aucun token IDP à obtenir ni à rafraîchir).
+          case User.Structure.INVITE:
+            throw new Error("L'invité n'a pas de configuration IDP")
         }
       })()
     case User.Type.CONSEILLER:
@@ -71,6 +75,9 @@ function getIdpConfigIdentifier(
           case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
           case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
             return IdpConfigIdentifier.FT_CONSEILLER
+          // Un invité est toujours un bénéficiaire, jamais un conseiller.
+          case User.Structure.INVITE:
+            throw new Error("L'invité n'a pas de configuration IDP")
         }
       })()
   }
