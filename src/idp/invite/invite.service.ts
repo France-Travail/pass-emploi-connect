@@ -91,12 +91,16 @@ export class InviteService {
       const accountId = Account.fromAccountToAccountId(account)
 
       codeErreur = 'Grant'
+      // On ne réutilise JAMAIS le grant de l'interaction (contrairement aux IDP
+      // externes) : chaque enregistrement invité fabrique un sub neuf, donc un
+      // accountId neuf. Réutiliser le grant d'une session précédente laisserait
+      // dedans l'ancien accountId -> `accountId mismatch` dans loadGrant, et
+      // l'autorisation échouerait en server_error.
       const grantId = await generateNewGrantId(
         this.configService,
         this.oidcService,
         accountId,
-        interaction.params.client_id as string,
-        interaction.grantId
+        interaction.params.client_id as string
       )
 
       codeErreur = 'CreateSession'

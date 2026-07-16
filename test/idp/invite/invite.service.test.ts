@@ -43,13 +43,13 @@ describe('InviteService', () => {
     save: sinon.stub().resolves('un-grant-id')
   })
 
-  const uneInteraction = (): Awaited<
-    ReturnType<OidcService['findInteraction']>
-  > =>
+  const uneInteraction = (
+    grantId?: string
+  ): Awaited<ReturnType<OidcService['findInteraction']>> =>
     ({
       uid: interactionId,
       params: { client_id: 'app' },
-      grantId: undefined
+      grantId
     } as unknown as Awaited<ReturnType<OidcService['findInteraction']>>)
 
   beforeEach(() => {
@@ -98,6 +98,36 @@ describe('InviteService', () => {
       expect(interactionResults.userStructure).toEqual(User.Structure.INVITE)
       // userId = l'id en base : c'est lui que le mobile utilisera vers l'API
       expect(interactionResults.userId).toEqual('id-en-base')
+    })
+
+    // Régression : l'invité fabrique un accountId neuf à chaque fois. Réutiliser
+    // le grant d'une session précédente y laisserait l'ancien accountId, et
+    // oidc-provider rejetterait l'autorisation en `accountId mismatch`.
+    it('crée un grant neuf même si une session précédente en a déjà un', async () => {
+      // Given : une interaction qui porte déjà le grant d'une session précédente
+      oidcService.findInteraction.resolves(uneInteraction('grant-precedent'))
+      oidcService.createGrant.returns(
+        unGrant() as unknown as ReturnType<OidcService['createGrant']>
+      )
+      passEmploiAPIClient.putUtilisateurInvite.resolves(success(unInvite()))
+
+      // When
+      const result = await inviteService.connect(interactionId, response)
+
+      // Then : on ne va jamais rechercher le grant existant
+      expect(isSuccess(result)).toBe(true)
+      expect(oidcService.findGrant.notCalled).toBe(true)
+
+      // et le grant créé porte bien l'accountId de l'invité
+      const subAppele =
+        passEmploiAPIClient.putUtilisateurInvite.firstCall.args[0]
+      expect(oidcService.createGrant.firstCall.args[0]).toEqual(
+        Account.fromAccountToAccountId({
+          sub: subAppele,
+          type: User.Type.JEUNE,
+          structure: User.Structure.INVITE
+        })
+      )
     })
 
     it('génère un sub différent à chaque enregistrement', async () => {
