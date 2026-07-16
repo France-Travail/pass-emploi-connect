@@ -13,7 +13,6 @@ import {
   success
 } from '../../../src/utils/result/result'
 import { StubbedClass, stubClass } from '../../test-utils'
-import { unUser } from '../../test-utils/fixtures'
 import { testConfig } from '../../test-utils/module-for-testing'
 
 describe('InviteService', () => {
@@ -24,15 +23,14 @@ describe('InviteService', () => {
   const configService = testConfig()
 
   const interactionId = 'une-interaction'
-  const unInvite = (): User =>
-    unUser({
-      userId: 'id-en-base',
-      userType: User.Type.JEUNE,
-      userStructure: User.Structure.INVITE,
-      userRoles: [],
-      given_name: 'Invité',
-      family_name: ''
-    })
+  // L'invité n'a ni family_name ni email : les claims sont absents, pas vides.
+  const unInvite = (): User => ({
+    userId: 'id-en-base',
+    userType: User.Type.JEUNE,
+    userStructure: User.Structure.INVITE,
+    userRoles: [],
+    given_name: 'Invité'
+  })
 
   // Grant minimal : generateNewGrantId enchaîne addOIDCScope/addResourceScope/save
   const unGrant = (): {

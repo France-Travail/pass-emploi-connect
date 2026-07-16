@@ -2,7 +2,12 @@ import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { ExternalApiLoggerService } from '../../src/utils/monitoring/external-api-logger.service'
 import { ErreurReseauIDP, NonTrouveError } from '../../src/utils/result/error'
-import { failure, isFailure, success } from '../../src/utils/result/result'
+import {
+  failure,
+  isFailure,
+  isSuccess,
+  success
+} from '../../src/utils/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
 
@@ -144,11 +149,16 @@ describe('PassEmploiAPIClient', () => {
           userType: 'JEUNE',
           userStructure: 'INVITE',
           userRoles: [],
-          given_name: 'Invité',
-          family_name: '',
-          email: undefined
+          given_name: 'Invité'
         })
       )
+
+      // family_name et email sont absents (pas vides) : les claims seront omis du JWT
+      expect(isSuccess(response)).toBe(true)
+      if (isSuccess(response)) {
+        expect('family_name' in response.data).toBe(false)
+        expect('email' in response.data).toBe(false)
+      }
     })
 
     it("retourne un échec quand l'API refuse", async () => {

@@ -6,8 +6,9 @@ export interface User {
   userRoles: string[]
   // venant de l'IDP
   given_name: string
-  family_name: string
-  email: string
+  // Optionnels mode invité
+  family_name?: string
+  email?: string
   preferred_username?: string
 }
 
@@ -33,8 +34,6 @@ export namespace User {
   }
 }
 
-// Mode invité : bénéficiaire anonyme, sans IDP externe. C'est Connect lui-même
-// qui fabrique l'identité (aucune preuve à vérifier), d'où l'absence d'IdpService.
 export function estInvite(userStructure: User.Structure): boolean {
   return userStructure === User.Structure.INVITE
 }

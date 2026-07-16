@@ -99,14 +99,14 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         }
       )
 
+      // Ni family_name ni email : l'invité est anonyme. Les laisser absents
+      // plutôt que vides -> les claims sont omis du JWT.
       const user: User = {
         userId: apiUser.data.id,
         userType: apiUser.data.type,
         userStructure: apiUser.data.structure,
         userRoles: apiUser.data.roles ?? [],
-        given_name: apiUser.data.prenom,
-        family_name: apiUser.data.nom,
-        email: apiUser.data.email
+        given_name: apiUser.data.prenom
       }
       return success(user)
     } catch (e) {

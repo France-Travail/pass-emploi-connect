@@ -35,9 +35,21 @@ import { NonTrouveError } from '../utils/result/error'
 const INTERACTION_COOKIE = '_interaction'
 const INTERACTION_RESUME_COOKIE = '_interaction_resume'
 
-// 10 ans : « n'expire jamais » en pratique. Un invité n'ayant aucune identité,
-// il ne peut pas se reconnecter — un refresh expiré = compte et données perdus.
-const REFRESH_TOKEN_INVITE_TTL = 3600 * 24 * 365 * 10
+const TTL_42_JOURS = 3600 * 24 * 42
+
+// L'invité n'a aucune identité : il ne peut pas se reconnecter, donc un refresh
+// expiré = compte et données perdus définitivement. Son token ne doit jamais
+// expirer.
+//
+// undefined (et surtout pas 0) : oidc-provider fait `exp = this.exp || now + expiration`,
+// donc 0 donnerait `exp = now` -> expiré immédiatement. Avec undefined, `now + undefined`
+// = NaN (falsy) -> aucun `exp` dans le payload -> isExpired est toujours false, et le
+// RedisAdapter ne pose pas d'EXPIRE (`if (expiresIn)`). Token réellement perpétuel.
+//
+// Le cast est nécessaire : @types/oidc-provider (DefinitelyTyped) déclare
+// TTLFunction => number, alors que la lib gère undefined (base_token.js,
+// `static expiresIn` renvoie undefined si le ttl n'est ni number ni function).
+const TTL_INVITE_JAMAIS = undefined as unknown as number
 
 function estAccountInvite(accountId?: string): boolean {
   if (!accountId) return false
@@ -110,20 +122,12 @@ export class OidcService {
         userinfo: '/protocol/openid-connect/userinfo'
       },
       ttl: {
-        // L'invité n'a aucun moyen de se reconnecter (pas d'identité, pas de
-        // mot de passe) : si son refresh expire, son compte et ses données sont
-        // définitivement perdus. On lui donne donc un refresh de très longue
-        // durée -> en pratique « jamais de logout » tant que l'app est installée.
         RefreshToken: (_ctx, token) =>
-          estAccountInvite(token?.accountId)
-            ? REFRESH_TOKEN_INVITE_TTL
-            : 3600 * 24 * 42,
+          estAccountInvite(token?.accountId) ? TTL_INVITE_JAMAIS : TTL_42_JOURS,
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: (_ctx, grant) =>
-          estAccountInvite(grant?.accountId)
-            ? REFRESH_TOKEN_INVITE_TTL
-            : 3600 * 24 * 42,
-        Session: 3600 * 24 * 42,
+          estAccountInvite(grant?.accountId) ? TTL_INVITE_JAMAIS : TTL_42_JOURS,
+        Session: TTL_42_JOURS,
         AccessToken: accessTokenTtl,
         IdToken: accessTokenTtl, // Dans l'App Mobile, la validité de l'AccessToken est liée à celle de l'IdToken -> todo: à changer
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
@@ -428,8 +432,6 @@ export class OidcService {
           const connector = `${interaction.params.kc_idp_hint}`
 
           switch (connector) {
-            // Mode invité : ne redirige vers aucun IDP externe. La route résout
-            // l'invité auprès de l'API puis termine l'interaction directement.
             case 'invite':
               return `/invite/connect/${interaction.uid}`
             case 'similo-jeune':
