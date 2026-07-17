@@ -5,6 +5,7 @@ import { AccountModule } from './account/account.module'
 import { AppController } from './app.controller'
 import configuration from './config/configuration'
 import { ConseilDepartementalConseillerModule } from './idp/conseildepartemental-conseiller/conseildepartemental-conseiller.module'
+import { InviteModule } from './idp/invite/invite.module'
 import { FrancetravailConseillerModule } from './idp/francetravail-conseiller/francetravail-conseiller.module'
 import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
@@ -27,6 +28,7 @@ import { RequestContextModule } from './utils/monitoring/request-context.module'
     MiloConseillerModule,
     MiloJeuneModule,
     ConseilDepartementalConseillerModule,
+    InviteModule,
     AccountModule
   ],
   controllers: [AppController]

@@ -6,8 +6,9 @@ export interface User {
   userRoles: string[]
   // venant de l'IDP
   given_name: string
-  family_name: string
-  email: string
+  // Optionnels mode invité
+  family_name?: string
+  email?: string
   preferred_username?: string
 }
 
@@ -28,8 +29,13 @@ export namespace User {
     AVENIR_PRO = 'AVENIR_PRO',
     FT_ACCOMPAGNEMENT_INTENSIF = 'FT_ACCOMPAGNEMENT_INTENSIF',
     FT_ACCOMPAGNEMENT_GLOBAL = 'FT_ACCOMPAGNEMENT_GLOBAL',
-    FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT'
+    FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT',
+    INVITE = 'INVITE'
   }
+}
+
+export function estInvite(userStructure: User.Structure): boolean {
+  return userStructure === User.Structure.INVITE
 }
 
 function estFT(userStructure: User.Structure): boolean {
