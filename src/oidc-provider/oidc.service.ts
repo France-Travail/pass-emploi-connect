@@ -700,9 +700,9 @@ export class OidcService {
         context: 'OidcService',
         error: {
           type: errors.error ?? 'Unknown',
-          message: errors.error_description ?? JSON.stringify(errors)
-        },
-        ...(cause !== undefined && { cause: toEcsError(cause) })
+          message: errors.error_description ?? JSON.stringify(errors),
+          ...(cause !== undefined && { cause: toEcsError(cause) })
+        }
       },
       'oidc_render_error'
     )
