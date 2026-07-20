@@ -30,6 +30,14 @@ Exemple réel (jeune MiLo) :
 `sub` i-milo = `e096fa16-22ea-4fea-9c6f-38454a16fab5`, id interne api =
 `798c7f9a-97e9-4760-9d4c-fcb305dc1bb8`, `accountId` = `JEUNE|MILO|e096fa16-22ea-4fea-9c6f-38454a16fab5`.
 
+Légende du diagramme :
+- Chaque `Note req A/B/C…` ouvre une requête HTTP (un `http.request.id`). Tous
+  les logs listés dessous partagent ce même id. On liste les `event.action` émis.
+- Les `Note` **Corrélable via labels.interaction_id / labels.account_id**
+  délimitent les deux mondes de corrélation.
+- `authorization_succeeded` (étape 5) est **dans les deux mondes** : c'est la
+  jonction — le seul log portant `interaction_id` ET `account_id`.
+
 ```mermaid
 sequenceDiagram
     participant App as App mobile (RP)
@@ -37,50 +45,61 @@ sequenceDiagram
     participant Milo as sso.i-milo.fr (IdP)
     participant Api as pass-emploi-api
 
-    Note over App,Connect: Étape 1 — ouverture du flow
-    App->>Connect: GET /authorize<br/>client_id=pass-emploi-app<br/>kc_idp_hint=similo-jeune<br/>code_challenge=PKCE
-    Connect->>Connect: crée l'Interaction (uid)
+    Note over App,Api: ══ Corrélable via labels.interaction_id (étapes 1→5) ══
 
-    Note over App,Connect: Étape 2 — routage vers MiLo
+    Note over App,Connect: req A · Étape 1 — ouverture du flow
+    App->>Connect: GET /authorize<br/>client_id=pass-emploi-app<br/>kc_idp_hint=similo-jeune<br/>code_challenge=PKCE
+    Connect->>Connect: crée l'Interaction (uid)<br/>(si session : findAccount GET /auth/users)
+    Note right of Connect: event.action : login_flow_started,<br/>external_api_call (findAccount), request_completed
+
+    Note over App,Connect: req B · Étape 2 — routage vers MiLo
     Connect-->>App: 307 /milo-jeune/connect/:uid
-    App->>Connect: GET /milo-jeune/connect/eNh9V2gXJ...
+    App->>Connect: GET /milo-jeune/connect/:uid
     Connect->>Connect: MiloJeuneController.connect
     Connect-->>App: 307 vers sso.i-milo.fr/...
+    Note right of Connect: event.action : login_initiated,<br/>login_redirected, request_completed
 
-    Note over App,Milo: Étape 3 — mire i-milo (hors SI)
+    Note over App,Milo: Étape 3 — mire i-milo (hors SI, aucun log connect)
     App->>Milo: saisie user/mdp
-    Milo-->>App: 302 deep link broker<br/>?code=7dd058d1-...
+    Milo-->>App: 302 deep link broker ?code=...
 
-    Note over App,Api: Étape 4 — callback broker
-    App->>Connect: GET /broker/similo-jeune/endpoint?code=7dd058d1-...
+    Note over App,Api: req C · Étape 4 — callback broker
+    App->>Connect: GET /broker/similo-jeune/endpoint?code=...
     Connect->>Milo: POST /token (échange code i-milo)
     Milo-->>Connect: access_token + id_token i-milo
     Connect->>Milo: GET userinfo
     Milo-->>Connect: nom, prénom, email, sub=e096fa16-...
     Connect->>Api: PUT /auth/users/e096fa16-...
     Api-->>Connect: 200 { id: 798c7f9a-... }
-    Connect->>Connect: stocke tokens i-milo en Redis<br/>(TokenService, clé accountId)
+    Connect->>Connect: stocke tokens i-milo en Redis (clé accountId)
+    Note right of Connect: event.action : external_api_call (token),<br/>external_api_call (userinfo), login_completed (user.id !),<br/>external_api_call (PUT /auth/users), request_completed
 
-    Note over Connect: Étape 5 — resume /authorize, émission code
-    Connect-->>App: 303 vers /auth/eNh9V2gXJ... (resume)
-    App->>Connect: GET /auth/eNh9V2gXJ...
+    Note over App,Connect: req D · Étape 5 — resume /authorize, émission code
+    Connect-->>App: 303 vers /auth/:uid (resume)
+    App->>Connect: GET /auth/:uid
     Connect->>Connect: crée Grant + Session<br/>émet le code connect
     Connect-->>App: 303 fr.fabrique...://login-callback?code=...
+    Note right of Connect: event.action : authorization_succeeded<br/>(interaction_id + account_id → JONCTION), request_completed
 
-    Note over App,Connect: Étape 6 — échange final
+    Note over App,Api: ══ Corrélable via labels.account_id (étapes 6, 8, 9) ══
+
+    Note over App,Connect: req E · Étape 6 — échange final
     App->>Connect: POST /token grant_type=authorization_code<br/>code=... + code_verifier
     Connect-->>App: access_token + refresh_token + id_token
+    Note right of Connect: event.action : grant_succeeded (account_id),<br/>external_api_call (findAccount), request_completed
 
-    Note over App,Api: Étape 7 — usage normal
+    Note over App,Api: Étape 7 — usage normal (côté api, hors connect)
     App->>Api: GET /jeunes/798c7f9a-...<br/>Authorization: Bearer <access_token>
 
-    Note over App,Connect: Étape 8 — refresh
+    Note over App,Connect: req F · Étape 8 — refresh
     App->>Connect: POST /token grant_type=refresh_token
     Connect-->>App: nouveaux access_token + refresh_token
+    Note right of Connect: event.action : grant_succeeded (account_id),<br/>request_completed
 
-    Note over Api,Connect: Étape 9 — token exchange (trafic de fond)
+    Note over Api,Connect: req G · Étape 9 — token exchange (trafic de fond)
     Api->>Connect: POST /token grant_type=token-exchange<br/>subject_token=<JWT api>
     Connect-->>Api: token IdP du jeune (stocké en Redis à l'étape 4)
+    Note right of Connect: event.action : token_issued,<br/>grant_succeeded (account_id absent ⚠), request_completed
 ```
 
 ## Détail de chaque étape

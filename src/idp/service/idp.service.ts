@@ -149,7 +149,12 @@ export abstract class IdpService {
 
       codeErreur = 'Callback'
       const tokenSet = await logExternalCall(
-        { target: this.idpName, operation: 'token' },
+        {
+          target: this.idpName,
+          operation: 'token',
+          url: this.idp.tokenUrl,
+          method: 'POST'
+        },
         () =>
           this.client.callback(this.idp.redirectUri, params, {
             nonce: interactionDetails.uid,
@@ -165,7 +170,12 @@ export abstract class IdpService {
         userInfoOptions = { params: { realm: this.idp.realm } }
       }
       const userInfo = await logExternalCall(
-        { target: this.idpName, operation: 'userinfo' },
+        {
+          target: this.idpName,
+          operation: 'userinfo',
+          url: this.idp.userinfo,
+          method: 'GET'
+        },
         () => this.client.userinfo(tokenSet, userInfoOptions)
       )
 

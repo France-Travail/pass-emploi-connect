@@ -56,6 +56,9 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'token_refreshed', outcome: 'failure' },
+          labels: {
+            account_id: Account.fromAccountToAccountId(query.account)
+          },
           error: toEcsError(e instanceof Error ? e : new Error(String(e)))
         },
         'token_refreshed'
@@ -96,6 +99,7 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'token_refreshed', outcome: 'failure' },
+          labels: { account_id: Account.fromAccountToAccountId(account) },
           error: toEcsError(new Error("L'utilisateur n'a pas de refresh token"))
         },
         'token_refreshed'
@@ -123,12 +127,7 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'idp_refresh_requested' },
-          labels: {
-            account: serializeBodyForLog({
-              type: account.type,
-              structure: account.structure
-            })
-          }
+          labels: { account_id: Account.fromAccountToAccountId(account) }
         },
         'idp_refresh_requested'
       )
@@ -139,7 +138,10 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'idp_token_set_received' },
-          labels: { token_set: serializeBodyForLog(tokenSet) }
+          labels: {
+            account_id: Account.fromAccountToAccountId(account),
+            token_set: serializeBodyForLog(tokenSet)
+          }
         },
         'idp_token_set_received'
       )
@@ -160,7 +162,14 @@ export class GetAccessTokenUsecase {
         })
       } else {
         rootLogger.info(
-          { context: 'GetAccessTokenUsecase' },
+          {
+            context: 'GetAccessTokenUsecase',
+            event: {
+              action: 'refresh_token_absent_in_token_set',
+              outcome: 'success'
+            },
+            labels: { account_id: Account.fromAccountToAccountId(account) }
+          },
           'refresh_token_absent_in_token_set'
         )
       }
@@ -168,7 +177,8 @@ export class GetAccessTokenUsecase {
       rootLogger.info(
         {
           context: 'GetAccessTokenUsecase',
-          event: { action: 'token_refreshed', outcome: 'success' }
+          event: { action: 'token_refreshed', outcome: 'success' },
+          labels: { account_id: Account.fromAccountToAccountId(account) }
         },
         'token_refreshed'
       )
@@ -178,7 +188,10 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'idp_issuer_config_inspected' },
-          labels: { issuer_config: serializeBodyForLog(issuerConfig) }
+          labels: {
+            account_id: Account.fromAccountToAccountId(account),
+            issuer_config: serializeBodyForLog(issuerConfig)
+          }
         },
         'idp_issuer_config_inspected'
       )
@@ -187,6 +200,7 @@ export class GetAccessTokenUsecase {
         {
           context: 'GetAccessTokenUsecase',
           event: { action: 'token_refreshed', outcome: 'failure' },
+          labels: { account_id: Account.fromAccountToAccountId(account) },
           error: toEcsError(e instanceof Error ? e : new Error(String(e)))
         },
         'token_refreshed'
@@ -218,6 +232,17 @@ export class GetAccessTokenUsecase {
       retries--
       await new Promise(resolve => setTimeout(resolve, waitInMillis))
     }
+    rootLogger.error(
+      {
+        context: 'GetAccessTokenUsecase',
+        event: { action: 'token_refreshed', outcome: 'failure' },
+        labels: { account_id: Account.fromAccountToAccountId(account) },
+        error: toEcsError(
+          new Error('Attente du refresh concurrent épuisée sans access token')
+        )
+      },
+      'token_refreshed'
+    )
     return failure(new NonTrouveError('AcessToken'))
   }
 }
