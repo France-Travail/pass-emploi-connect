@@ -28,6 +28,7 @@ import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
+import { ContextKey, RequestContext } from '../utils/monitoring/request-context'
 import { NonTrouveError } from '../utils/result/error'
 
 // Noms par défaut des cookies d'interaction oidc-provider (cookies.names non surchargé).
@@ -58,11 +59,26 @@ function estAccountInvite(accountId?: string): boolean {
 
 type OidcInteraction = InstanceType<Provider['Interaction']>
 
+// Sur /token, l'utilisateur n'est pas dans le RequestContext (pas de session) :
+// l'accountId (type|structure|sub) se récupère sur les entités du grant en cours
+function accountIdFromGrantContext(
+  ctx: KoaContextWithOIDC
+): string | undefined {
+  return (
+    ctx.oidc?.entities?.Account?.accountId ??
+    ctx.oidc?.entities?.AuthorizationCode?.accountId ??
+    ctx.oidc?.entities?.RefreshToken?.accountId
+  )
+}
+
 @Injectable()
 export class OidcService {
   private readonly oidc: Provider
   private readonly jwks: JWKS
   protected apmService: APM.Agent
+
+  @Inject(RequestContext)
+  private readonly requestContext!: RequestContext
 
   constructor(
     private readonly configService: ConfigService,
@@ -288,7 +304,11 @@ export class OidcService {
           if (isFailure(apiUser)) {
             if (apiUser.error.code === NonTrouveError.CODE) {
               rootLogger.warn(
-                { context: 'OidcService', error: toEcsError(apiUser.error) },
+                {
+                  context: 'OidcService',
+                  labels: { account_id: accountId },
+                  error: toEcsError(apiUser.error)
+                },
                 'find_account_not_found'
               )
               // undefined = le compte n'existe pas pour findAccount, oidc-provider en déduit l'erreur selon le flow
@@ -479,6 +499,62 @@ export class OidcService {
 
     this.oidc.proxy = true
 
+    // Ancre de l'étape 1 (GET /authorize initial) : seul moment où l'uid de
+    // l'interaction est connu AVANT que MiloJeuneController (et donc
+    // ContextInterceptor) ne le reçoive en param de route. On pose l'uid dans
+    // le RequestContext (et pas seulement dans ce log) pour que le
+    // request_completed de CETTE MÊME requête /authorize (émis plus tard par
+    // pino-http) hérite aussi de labels.interaction_id via le mixin — sinon il
+    // ne serait retrouvable que par trace.id, un aller-retour en plus.
+    this.oidc.on('interaction.started', (ctx: KoaContextWithOIDC) => {
+      const interactionId = ctx.oidc?.entities?.Interaction?.uid
+      this.requestContext.set(ContextKey.INTERACTION_ID, interactionId)
+      rootLogger.info(
+        {
+          context: 'OidcService',
+          event: { action: 'login_flow_started', outcome: 'success' },
+          labels: { idp: ctx.oidc?.params?.kc_idp_hint as string | undefined }
+        },
+        'login_flow_started'
+      )
+    })
+
+    // Ancre de l'étape 5 (resume /auth/:uid, émission du code) : cette requête
+    // est routée par OidcController (catch-all), pas par MiloJeuneController,
+    // donc ContextInterceptor ne pose pas labels.interaction_id (pas de param
+    // de route nommé). Sans ce log, seule l'URL contient l'uid (en substring,
+    // non filtrable proprement) et aucun champ ne porte l'account_id.
+    this.oidc.on('authorization.success', (ctx: KoaContextWithOIDC) => {
+      rootLogger.info(
+        {
+          context: 'OidcService',
+          event: { action: 'authorization_succeeded', outcome: 'success' },
+          labels: {
+            interaction_id: ctx.oidc?.entities?.Interaction?.uid,
+            account_id: ctx.oidc?.account?.accountId
+          }
+        },
+        'authorization_succeeded'
+      )
+    })
+
+    // Trace de succès du /token : sans elle, impossible de savoir si une boucle
+    // de login vient de connect (grant_error) ou d'en aval (app mobile / api)
+    this.oidc.on('grant.success', (ctx: KoaContextWithOIDC) => {
+      rootLogger.info(
+        {
+          context: 'OidcService',
+          event: { action: 'grant_succeeded', outcome: 'success' },
+          grant: {
+            type: ctx.oidc?.params?.grant_type,
+            clientId: ctx.oidc?.client?.clientId
+          },
+          labels: { account_id: accountIdFromGrantContext(ctx) }
+        },
+        'grant_succeeded'
+      )
+    })
+
     // log error_detail avec la raison des erreurs de /token plutot que le message
     // generique par défaut de oidc-provider
     this.oidc.on('grant.error', (ctx: KoaContextWithOIDC, err) => {
@@ -495,6 +571,7 @@ export class OidcService {
           context: 'OidcService',
           event: { action: 'grant_error', outcome: 'failure' },
           grant: { type: grantType, clientId },
+          labels: { account_id: accountIdFromGrantContext(ctx) },
           error: { code: err.error, detail }
         },
         'grant_error'
@@ -620,9 +697,9 @@ export class OidcService {
         context: 'OidcService',
         error: {
           type: errors.error ?? 'Unknown',
-          message: errors.error_description ?? JSON.stringify(errors)
-        },
-        ...(cause !== undefined && { cause: toEcsError(cause) })
+          message: errors.error_description ?? JSON.stringify(errors),
+          ...(cause !== undefined && { cause: toEcsError(cause) })
+        }
       },
       'oidc_render_error'
     )

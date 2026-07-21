@@ -57,4 +57,7 @@ Mettre en PROD un **HOTFIX** : faire une nouvelle version (`yarn release`) et un
 
 ### Schéma du flow d'authorization utilisé
 
-![Authorization Code](https://i.imgur.com/xn6HjU0.png)
+Flow générique : ![Authorization Code](https://i.imgur.com/xn6HjU0.png)
+
+Détail de notre implémentation (broker, vocabulaire, étapes, exemple concret) :
+[docs/flow-authentification.md](./docs/flow-authentification.md)

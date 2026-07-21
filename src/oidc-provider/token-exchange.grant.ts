@@ -74,8 +74,9 @@ export class TokenExchangeGrant {
       throw new this.opm.errors.InvalidGrant(message)
     }
 
+    const accountIdAppelant = tokenPayloadResult.data.sub!
     const account: Account = {
-      sub: Account.getSubFromAccountId(tokenPayloadResult.data.sub!),
+      sub: Account.getSubFromAccountId(accountIdAppelant),
       type: tokenPayloadResult.data.userType! as User.Type,
       structure: tokenPayloadResult.data.userStructure! as User.Structure
     }
@@ -92,6 +93,14 @@ export class TokenExchangeGrant {
       else account.type = isConseiller ? User.Type.JEUNE : User.Type.CONSEILLER
     }
 
+    // account_id = compte dont le token est émis, actor_account_id = compte qui
+    // le demande. Ils diffèrent en cas de délégation (requested_token_sub) :
+    // sans les deux, une délégation est indistinguable d'un appel direct.
+    const labels = {
+      account_id: Account.fromAccountToAccountId(account),
+      ...(requestedTokenSub && { actor_account_id: accountIdAppelant })
+    }
+
     const resultTokenData = await this.getAccessTokenUsecase.execute({
       account
     })
@@ -102,6 +111,7 @@ export class TokenExchangeGrant {
         {
           context: 'TokenExchangeGrant',
           event: { action: 'token_failed', outcome: 'failure' },
+          labels,
           error: toEcsError(resultTokenData.error)
         },
         'token_failed'
@@ -123,7 +133,8 @@ export class TokenExchangeGrant {
     rootLogger.info(
       {
         context: 'TokenExchangeGrant',
-        event: { action: 'token_issued', outcome: 'success' }
+        event: { action: 'token_issued', outcome: 'success' },
+        labels
       },
       'token_issued'
     )
