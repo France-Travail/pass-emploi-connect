@@ -11,7 +11,12 @@ describe('logExternalCall', () => {
 
     // When
     const result = await logExternalCall(
-      { target: 'milo-jeune', operation: 'userinfo' },
+      {
+        target: 'milo-jeune',
+        operation: 'userinfo',
+        url: 'https://sso.i-milo.fr/userinfo',
+        method: 'GET'
+      },
       async () => ({ sub: 'abc' })
     )
 
@@ -36,7 +41,12 @@ describe('logExternalCall', () => {
     // When / Then
     await expect(
       logExternalCall(
-        { target: 'milo-jeune', operation: 'token' },
+        {
+          target: 'milo-jeune',
+          operation: 'token',
+          url: 'https://sso.i-milo.fr/token',
+          method: 'POST'
+        },
         async () => {
           throw boom
         }
