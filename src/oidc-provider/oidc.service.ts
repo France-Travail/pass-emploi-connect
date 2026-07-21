@@ -28,10 +28,7 @@ import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
-import {
-  ContextKey,
-  RequestContext
-} from '../utils/monitoring/request-context'
+import { ContextKey, RequestContext } from '../utils/monitoring/request-context'
 import { NonTrouveError } from '../utils/result/error'
 
 // Noms par défaut des cookies d'interaction oidc-provider (cookies.names non surchargé).

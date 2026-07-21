@@ -1,8 +1,4 @@
-import {
-  rootLogger,
-  serializeBodyForLog,
-  toEcsError
-} from './logger.module'
+import { rootLogger, serializeBodyForLog, toEcsError } from './logger.module'
 
 interface ExternalCallParams {
   // Nom de la cible (IDP) → log.logger via le champ context.
@@ -88,7 +84,10 @@ export async function logExternalCall<T>(
           duration: Number(process.hrtime.bigint() - startNs)
         },
         url: { path: params.url },
-        http: { request: { method: params.method }, ...diagnosticFromError(error) },
+        http: {
+          request: { method: params.method },
+          ...diagnosticFromError(error)
+        },
         labels: { operation: params.operation },
         error: toEcsError(error)
       },
