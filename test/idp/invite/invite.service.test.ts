@@ -12,6 +12,7 @@ import {
   isSuccess,
   success
 } from '../../../src/utils/result/result'
+import { RequestContext } from '../../../src/utils/monitoring/request-context'
 import { StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
@@ -61,6 +62,11 @@ describe('InviteService', () => {
       oidcService,
       passEmploiAPIClient
     )
+    // Injecté par Nest en production. `set` est best-effort (no-op hors
+    // requête), un vrai contexte suffit donc ici.
+    ;(
+      inviteService as unknown as { requestContext: RequestContext }
+    ).requestContext = new RequestContext()
   })
 
   describe('connect', () => {

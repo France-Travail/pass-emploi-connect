@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Response } from 'express'
@@ -10,6 +10,10 @@ import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../../utils/monitoring/logger.module'
+import {
+  ContextKey,
+  RequestContext
+} from '../../utils/monitoring/request-context'
 import { AuthError } from '../../utils/result/error'
 import {
   emptySuccess,
@@ -33,6 +37,11 @@ const IDP_LABEL = 'invite'
 @Injectable()
 export class InviteService {
   protected apmService: APM.Agent
+
+  // Alimente le mixin pino : sans lui, les logs invité seraient les seuls
+  // dépourvus de user.* et interaction_id, donc non corrélables.
+  @Inject(RequestContext)
+  private readonly requestContext!: RequestContext
 
   constructor(
     private readonly configService: ConfigService,
@@ -60,6 +69,8 @@ export class InviteService {
         throw new Error(`Interaction ${interactionId} introuvable`)
       }
 
+      this.requestContext.set(ContextKey.INTERACTION_ID, interaction.uid)
+
       // Identité fabriquée côté serveur : le sub n'est jamais fourni par le
       // client (un id envoyé par le mobile serait forgeable). Ce qui rattache
       // durablement l'invité à l'appareil, c'est le refresh token émis ensuite.
@@ -81,6 +92,12 @@ export class InviteService {
         this.apmService.captureError(new Error('Invite PUT user error'))
         return apiUserResult
       }
+
+      this.requestContext.set(ContextKey.USER, {
+        id: apiUserResult.data.userId,
+        type: apiUserResult.data.userType,
+        structure: apiUserResult.data.userStructure
+      })
 
       codeErreur = 'AccountId'
       const account: Account = {
