@@ -13,6 +13,10 @@ export interface CoordonneesFT {
   email: string
 }
 
+export interface StatutFT {
+  estDemandeurEmploi: boolean
+}
+
 @Injectable()
 export class FrancetravailAPIClient extends ExternalApiClient {
   private readonly apiUrl: string
@@ -50,6 +54,28 @@ export class FrancetravailAPIClient extends ExternalApiClient {
         e instanceof Error ? e : new Error(String(e))
       )
       return failure(new NonTrouveError('Coordonnées FT'))
+    }
+  }
+
+  async getStatut(accessTokenJeune: string): Promise<Result<StatutFT>> {
+    try {
+      const statut = await this.axios.get(
+        `${this.apiUrl}/peconnect-statut/v1/statut`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessTokenJeune}`
+          }
+        }
+      )
+
+      return success({
+        estDemandeurEmploi: statut.data.codeStatutIndividu === '1'
+      })
+    } catch (e) {
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
+      return failure(new NonTrouveError('Statut FT'))
     }
   }
 }

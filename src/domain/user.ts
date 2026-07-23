@@ -30,6 +30,8 @@ export namespace User {
     FT_ACCOMPAGNEMENT_INTENSIF = 'FT_ACCOMPAGNEMENT_INTENSIF',
     FT_ACCOMPAGNEMENT_GLOBAL = 'FT_ACCOMPAGNEMENT_GLOBAL',
     FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT',
+    FT_DEMANDEUR_D_EMPLOI = 'FT_DEMANDEUR_D_EMPLOI',
+    FT_NON_DEMANDEUR_D_EMPLOI = 'FT_NON_DEMANDEUR_D_EMPLOI',
     INVITE = 'INVITE'
   }
 }
@@ -47,7 +49,9 @@ function estFT(userStructure: User.Structure): boolean {
     User.Structure.AVENIR_PRO,
     User.Structure.FT_ACCOMPAGNEMENT_INTENSIF,
     User.Structure.FT_ACCOMPAGNEMENT_GLOBAL,
-    User.Structure.FT_EQUIP_EMPLOI_RECRUT
+    User.Structure.FT_EQUIP_EMPLOI_RECRUT,
+    User.Structure.FT_DEMANDEUR_D_EMPLOI,
+    User.Structure.FT_NON_DEMANDEUR_D_EMPLOI
   ].includes(userStructure)
 }
 

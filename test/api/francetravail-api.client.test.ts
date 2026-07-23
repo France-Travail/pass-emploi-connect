@@ -58,4 +58,54 @@ describe('FrancetravailAPIClient', () => {
       expect(result).toEqual(failure(new NonTrouveError('Coordonnées FT')))
     })
   })
+
+  describe('getStatut', () => {
+    it('retourne estDemandeurEmploi=true quand codeStatutIndividu vaut 1', async () => {
+      // Given
+      nock('https://pe.qvr', { reqheaders: { Authorization: () => true } })
+        .get('/peconnect-statut/v1/statut')
+        .reply(200, {
+          codeStatutIndividu: '1',
+          libelleStatutIndividu: "Demandeur d'emploi"
+        })
+        .isDone()
+
+      // When
+      const result = await francetravailAPIClient.getStatut('tok')
+
+      // Then
+      expect(result).toEqual(success({ estDemandeurEmploi: true }))
+    })
+
+    it('retourne estDemandeurEmploi=false quand codeStatutIndividu vaut 0', async () => {
+      // Given
+      nock('https://pe.qvr', { reqheaders: { Authorization: () => true } })
+        .get('/peconnect-statut/v1/statut')
+        .reply(200, {
+          codeStatutIndividu: '0',
+          libelleStatutIndividu: "Non demandeur d'emploi"
+        })
+        .isDone()
+
+      // When
+      const result = await francetravailAPIClient.getStatut('tok')
+
+      // Then
+      expect(result).toEqual(success({ estDemandeurEmploi: false }))
+    })
+
+    it("retourne failure lorsque l'appel est ko", async () => {
+      // Given
+      nock('https://pe.qvr', { reqheaders: { Authorization: () => true } })
+        .get('/peconnect-statut/v1/statut')
+        .reply(500)
+        .isDone()
+
+      // When
+      const result = await francetravailAPIClient.getStatut('tok')
+
+      // Then
+      expect(result).toEqual(failure(new NonTrouveError('Statut FT')))
+    })
+  })
 })

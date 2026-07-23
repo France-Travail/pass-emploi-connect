@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { UserinfoResponse } from 'openid-client'
 import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService } from '../../token/token.service'
+import { isSuccess } from '../../utils/result/result'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
@@ -27,5 +29,18 @@ export class FrancetravailBeneficiaireService extends IdpService {
       passemploiapi,
       francetravailAPIClient
     )
+  }
+
+  protected async resoudreStructureNonAccompagne(
+    _userInfo: UserinfoResponse,
+    accessToken: string
+  ): Promise<User.Structure | undefined> {
+    const statutResult = await this.francetravailapi!.getStatut(accessToken)
+
+    if (isSuccess(statutResult) && statutResult.data.estDemandeurEmploi) {
+      return User.Structure.FT_DEMANDEUR_D_EMPLOI
+    }
+
+    return User.Structure.FT_NON_DEMANDEUR_D_EMPLOI
   }
 }
