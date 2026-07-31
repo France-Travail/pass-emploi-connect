@@ -89,6 +89,7 @@
   "lint-staged": {
     "*.ts": "yarn lint:fix"
   },
+  "packageManager": "yarn@4.9.3",
   "resolutions": {
     "form-data": ">=4.0.6",
     "cross-spawn": "7.0.6",

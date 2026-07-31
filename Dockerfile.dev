@@ -7,19 +7,16 @@ FROM docker.io/library/node:22.14.0
 WORKDIR /usr/src/app
 
 # Define environment variables
-ENV YARN_VERSION 4.8.1
 ENV YARN_CACHE_FOLDER=/cache/yarn
 
-# Install Yarn
-RUN corepack enable && \
-    yarn set version $YARN_VERSION
+# Enable Yarn via corepack; the version is pinned by "packageManager" in package.json
+RUN corepack enable
 
 # Create cache directory
 RUN mkdir -p /cache/yarn
 
-# Copy yarn.lock, package.json, .yarnrc.yml, and .yarn directory
-COPY .yarn/releases ./.yarn/releases 
-COPY yarn.lock package.json .yarnrc.yml ./ 
+# Copy yarn.lock, package.json and .yarnrc.yml
+COPY yarn.lock package.json .yarnrc.yml ./
 
 # Use buildkit to mount cache for faster builds
 RUN --mount=type=cache,target=/cache/yarn \
