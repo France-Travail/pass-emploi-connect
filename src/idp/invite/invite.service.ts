@@ -52,6 +52,19 @@ export class InviteService {
   }
 
   async connect(interactionId: string, response: Response): Promise<Result> {
+    if (!this.configService.get<boolean>('appJeuneActif')) {
+      rootLogger.info(
+        {
+          context: 'InviteService',
+          event: { action: 'login_failed', outcome: 'failure' },
+          labels: { idp: IDP_LABEL },
+          login: { step: 'ModeInviteDesactive' }
+        },
+        'login_failed'
+      )
+      return failure(new AuthError('mode_invite_desactive'))
+    }
+
     let codeErreur = 'none'
     try {
       rootLogger.info(
