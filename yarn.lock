@@ -5143,9 +5143,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"joi@npm:^18.0.0":
-  version: 18.1.1
-  resolution: "joi@npm:18.1.1"
+"joi@npm:^18.2.1":
+  version: 18.2.1
+  resolution: "joi@npm:18.2.1"
   dependencies:
     "@hapi/address": "npm:^5.1.1"
     "@hapi/formula": "npm:^3.0.2"
@@ -5154,7 +5154,7 @@ __metadata:
     "@hapi/tlds": "npm:^1.1.1"
     "@hapi/topo": "npm:^6.0.2"
     "@standard-schema/spec": "npm:^1.1.0"
-  checksum: 10/95b6002ed87bbaa99c919f4fd6caab8b83bc54037d26b67ad90bd70a99a4925d7df944b1e1f5aa3eddf5d37307a2b0d89c803e872294330af949f86b2ace7049
+  checksum: 10/1525745571b0b0c60fdb51a8cb6f2e5717241b04314872259f68e10ea729e456d2d4883812013fc03913b03eb2b6cbca9d40d144bbd29e7b02fb57797edb0357
   languageName: node
   linkType: hard
 
@@ -6500,7 +6500,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^4.2.1"
     husky: "npm:^9.0.11"
     ioredis: "npm:^5.3.2"
-    joi: "npm:^18.0.0"
+    joi: "npm:^18.2.1"
     jose: "npm:^5.2.4"
     lint-staged: "npm:^16.0.0"
     luxon: "npm:^3.4.4"
