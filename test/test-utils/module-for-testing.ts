@@ -85,6 +85,7 @@ export const resetSandbox = (): void => {
 export const testConfig = (): ConfigService => {
   const config: Configuration = {
     environment: 'staging',
+    appJeuneActif: true,
     port: 5050,
     publicAddress: `http://localhost:5050`,
     cors: {

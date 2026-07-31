@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
 import sinon from 'sinon'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
@@ -67,6 +68,25 @@ describe('InviteService', () => {
     ;(
       inviteService as unknown as { requestContext: RequestContext }
     ).requestContext = new RequestContext()
+  })
+
+  describe('quand le mode app jeune est désactivé', () => {
+    it("échoue sans créer d'utilisateur ni chercher l'interaction", async () => {
+      // Given
+      const serviceDesactive = new InviteService(
+        new ConfigService({ appJeuneActif: false }),
+        oidcService,
+        passEmploiAPIClient
+      )
+
+      // When
+      const result = await serviceDesactive.connect(interactionId, response)
+
+      // Then
+      expect(isFailure(result)).toBe(true)
+      sinon.assert.notCalled(passEmploiAPIClient.putUtilisateurInvite)
+      sinon.assert.notCalled(oidcService.findInteraction)
+    })
   })
 
   describe('connect', () => {
