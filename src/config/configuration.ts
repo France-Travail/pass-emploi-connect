@@ -50,6 +50,7 @@ const OIDC_ACCESS_TOKEN_TTL_SECONDS = 60 * 30
 export default () => {
   const configuration: Configuration = {
     environment: process.env.ENVIRONMENT,
+    appJeuneActif: process.env.APP_JEUNE_ACTIF === 'true',
     port: process.env.PORT ? parseInt(process.env.PORT, 10) : 5050,
     publicAddress:
       process.env.PUBLIC_ADDRESS ||
