@@ -17,7 +17,9 @@ const config: APM.AgentConfigOptions = {
   environment,
   active,
   serviceVersion,
-  logUncaughtExceptions: true
+  // Depuis elastic-apm-node v4, logUncaughtExceptions n'existe plus : l'agent
+  // logue systématiquement les exceptions non catchées qu'il capture.
+  captureExceptions: true
 }
 
 export const initializeAPMAgent = (): void => {
