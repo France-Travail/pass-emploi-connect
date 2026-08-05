@@ -3,7 +3,7 @@ import { DynamicModule } from '@nestjs/common'
 import { Request } from 'express'
 import { IncomingMessage } from 'node:http'
 import { LoggerModule } from 'nestjs-pino'
-import pino, { Logger as PinoInstance } from 'pino'
+import pino, { LoggerOptions, Logger as PinoInstance } from 'pino'
 import { ReqId } from 'pino-http'
 import { v4 as uuidV4 } from 'uuid'
 import { getAPMInstance } from './apm.init'
@@ -91,7 +91,7 @@ const pinoOptions = {
 // Instance pino partagée : utilisée par pino-http ET par le code applicatif
 // via rootLogger.info(obj, action). Garantit la même config partout.
 export const rootLogger: PinoInstance = pino(
-  pinoOptions as unknown as Parameters<typeof pino>[0]
+  pinoOptions as unknown as LoggerOptions
 )
 
 // --- Redaction & sérialisation des bodies --------------------------------
