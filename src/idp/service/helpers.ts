@@ -53,7 +53,7 @@ function getIdpConfigIdentifier(
           case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
           case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
           case User.Structure.FT_DEMANDEUR_D_EMPLOI:
-          case User.Structure.FT_NON_DEMANDEUR_D_EMPLOI:
+          case User.Structure.FT_ESPACE_CANDIDAT:
             return IdpConfigIdentifier.FT_BENEFICIAIRE
           case User.Structure.INVITE:
             throw new Error("L'invité n'a pas de configuration IDP")
@@ -76,7 +76,7 @@ function getIdpConfigIdentifier(
           case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
             return IdpConfigIdentifier.FT_CONSEILLER
           case User.Structure.FT_DEMANDEUR_D_EMPLOI:
-          case User.Structure.FT_NON_DEMANDEUR_D_EMPLOI:
+          case User.Structure.FT_ESPACE_CANDIDAT:
           case User.Structure.INVITE:
             throw new Error('Structure sans configuration IDP conseiller')
         }

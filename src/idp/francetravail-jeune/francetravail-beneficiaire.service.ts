@@ -41,6 +41,6 @@ export class FrancetravailBeneficiaireService extends IdpService {
       return User.Structure.FT_DEMANDEUR_D_EMPLOI
     }
 
-    return User.Structure.FT_NON_DEMANDEUR_D_EMPLOI
+    return User.Structure.FT_ESPACE_CANDIDAT
   }
 }

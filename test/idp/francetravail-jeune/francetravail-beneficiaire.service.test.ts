@@ -50,7 +50,7 @@ describe('FrancetravailBeneficiaireService', () => {
       )
     })
 
-    it('renvoie FT_NON_DEMANDEUR_D_EMPLOI quand le statut est non demandeur', async () => {
+    it('renvoie FT_ESPACE_CANDIDAT quand le statut est non demandeur', async () => {
       // Given
       francetravailAPIClient.getStatut.resolves(
         success({ estDemandeurEmploi: false })
@@ -58,11 +58,11 @@ describe('FrancetravailBeneficiaireService', () => {
 
       // When / Then
       expect(await resoudreStructureNonAccompagne()).toEqual(
-        User.Structure.FT_NON_DEMANDEUR_D_EMPLOI
+        User.Structure.FT_ESPACE_CANDIDAT
       )
     })
 
-    it('renvoie FT_NON_DEMANDEUR_D_EMPLOI quand le statut est indisponible', async () => {
+    it('renvoie FT_ESPACE_CANDIDAT quand le statut est indisponible', async () => {
       // Given
       francetravailAPIClient.getStatut.resolves(
         failure(new NonTrouveError('Statut FT'))
@@ -70,7 +70,7 @@ describe('FrancetravailBeneficiaireService', () => {
 
       // When / Then
       expect(await resoudreStructureNonAccompagne()).toEqual(
-        User.Structure.FT_NON_DEMANDEUR_D_EMPLOI
+        User.Structure.FT_ESPACE_CANDIDAT
       )
     })
   })
