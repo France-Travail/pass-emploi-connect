@@ -29,6 +29,7 @@ import {
 } from '../../utils/monitoring/request-context'
 import { AuthError } from '../../utils/result/error'
 import {
+  Failure,
   Result,
   emptySuccess,
   failure,
@@ -43,6 +44,8 @@ import {
   getIdpConfig
 } from './helpers'
 import { encodeAuthState } from '../../oidc-provider/auth-state'
+
+const RAISON_UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT'
 
 export abstract class IdpService {
   private idpName: string
@@ -65,7 +68,7 @@ export abstract class IdpService {
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
     private readonly passemploiapi: PassEmploiAPIClient,
-    private readonly francetravailapi?: FrancetravailAPIClient
+    protected readonly francetravailapi?: FrancetravailAPIClient
   ) {
     this.apmService = getAPMInstance()
     this.idpName = idpName
@@ -195,7 +198,7 @@ export abstract class IdpService {
 
       codeErreur = 'ApiPassEmploi'
       // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
-      const apiUserResult = await this.passemploiapi.putUser(userInfo.sub, {
+      let apiUserResult = await this.passemploiapi.putUser(userInfo.sub, {
         nom,
         prenom,
         email,
@@ -203,6 +206,27 @@ export abstract class IdpService {
         type: this.userType,
         username: userInfo.preferred_username
       })
+
+      if (isFailure(apiUserResult) && estUtilisateurInexistant(apiUserResult)) {
+        codeErreur = 'ResolutionStructureNonAccompagne'
+        const structureNonAccompagne =
+          await this.resoudreStructureNonAccompagne(
+            userInfo,
+            tokenSet.access_token!
+          )
+
+        if (structureNonAccompagne) {
+          codeErreur = 'ApiPassEmploi'
+          apiUserResult = await this.passemploiapi.putUser(userInfo.sub, {
+            nom,
+            prenom,
+            email,
+            structure: structureNonAccompagne,
+            type: this.userType,
+            username: userInfo.preferred_username
+          })
+        }
+      }
 
       if (isFailure(apiUserResult)) {
         rootLogger.error(
@@ -321,6 +345,13 @@ export abstract class IdpService {
     }
   }
 
+  protected async resoudreStructureNonAccompagne(
+    _userInfo: UserinfoResponse,
+    _accessToken: string
+  ): Promise<User.Structure | undefined> {
+    return undefined
+  }
+
   private async getCoordonnees(
     userInfoFromIdToken: UserinfoResponse,
     accessToken: string
@@ -344,6 +375,11 @@ export abstract class IdpService {
 
     return { nom, prenom, email }
   }
+}
+
+function estUtilisateurInexistant(resultat: Failure): boolean {
+  const erreur = resultat.error as { reason?: string }
+  return erreur.reason === RAISON_UTILISATEUR_INEXISTANT
 }
 
 function verifierQueLUtilisateurEstUnConseillerDepartementalLegitime(
