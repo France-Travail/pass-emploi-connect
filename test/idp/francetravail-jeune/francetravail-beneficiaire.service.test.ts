@@ -62,16 +62,14 @@ describe('FrancetravailBeneficiaireService', () => {
       )
     })
 
-    it('renvoie FT_ESPACE_CANDIDAT quand le statut est indisponible', async () => {
+    it('renvoie undefined (échec de la connexion) quand le statut est indisponible', async () => {
       // Given
       francetravailAPIClient.getStatut.resolves(
         failure(new NonTrouveError('Statut FT'))
       )
 
       // When / Then
-      expect(await resoudreStructureNonAccompagne()).toEqual(
-        User.Structure.FT_ESPACE_CANDIDAT
-      )
+      expect(await resoudreStructureNonAccompagne()).toEqual(undefined)
     })
   })
 })
