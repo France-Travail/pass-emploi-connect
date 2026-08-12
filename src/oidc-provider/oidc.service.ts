@@ -560,7 +560,7 @@ export class OidcService {
     this.oidc.on('grant.error', (ctx: KoaContextWithOIDC, err) => {
       const grantType = ctx.oidc?.params?.grant_type
       const clientId = ctx.oidc?.client?.clientId
-      const detail = err.error_detail ?? 'n/a'
+      const message = err.error_detail ?? 'n/a'
       // Les 4xx sont des erreurs client OAuth attendues (refresh expiré/déjà utilisé, "refresh token not found", compte supprimé, invalid_target...) on log en warn mais on n'inonde PAS l'APM avec
       // Seules les erreurs serveur (5xx) ou inattendues remontent en error + APM
       const status = err.status ?? err.statusCode
@@ -572,14 +572,14 @@ export class OidcService {
           event: { action: 'grant_error', outcome: 'failure' },
           grant: { type: grantType, clientId },
           labels: { account_id: accountIdFromGrantContext(ctx) },
-          error: { code: err.error, detail }
+          error: { type: err.error, message }
         },
         'grant_error'
       )
       if (!isExpectedClientError) {
         this.apmService.captureError(
           new Error(
-            `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${detail}`
+            `grant.error grant_type=${grantType} client=${clientId} error=${err.error} detail=${message}`
           )
         )
       }
