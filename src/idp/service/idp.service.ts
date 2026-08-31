@@ -149,6 +149,14 @@ export abstract class IdpService {
       )
 
       this.requestContext.set(ContextKey.INTERACTION_ID, interactionDetails.uid)
+      // Tous les logs du callback (login_completed, login_failed,
+      // request_completed) portent ainsi labels.installation_id via le mixin.
+      const installationId = interactionDetails.params.installation_id as
+        | string
+        | undefined
+      if (installationId) {
+        this.requestContext.set(ContextKey.INSTALLATION_ID, installationId)
+      }
 
       codeErreur = 'Callback'
       const tokenSet = await logExternalCall(
@@ -204,7 +212,8 @@ export abstract class IdpService {
         email,
         structure: this.userStructure,
         type: this.userType,
-        username: userInfo.preferred_username
+        username: userInfo.preferred_username,
+        installationId
       })
 
       if (isFailure(apiUserResult) && estUtilisateurInexistant(apiUserResult)) {
@@ -223,7 +232,8 @@ export abstract class IdpService {
             email,
             structure: structureNonAccompagne,
             type: this.userType,
-            username: userInfo.preferred_username
+            username: userInfo.preferred_username,
+            installationId
           })
         }
       }

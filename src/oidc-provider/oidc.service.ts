@@ -158,7 +158,11 @@ export class OidcService {
       expiresWithSession: async ctx => {
         return ctx.oidc.client?.applicationType !== 'native'
       },
-      extraParams: ['kc_idp_hint'],
+      // installation_id : posé par l'app mobile sur le /authorize pour
+      // corréler les logs de tout le parcours login avec un device précis
+      // (les échecs pré-API sont sinon anonymes). Repris dans les labels via
+      // le RequestContext (mixin pino).
+      extraParams: ['kc_idp_hint', 'installation_id'],
       clients: [
         {
           client_id: clients.api.id,
@@ -440,8 +444,17 @@ export class OidcService {
       interactions: {
         policy,
         async url(ctx, interaction) {
+          let doitPersister = false
           if (ctx.request.query.kc_idp_hint) {
             interaction.params.kc_idp_hint = ctx.request.query.kc_idp_hint
+            doitPersister = true
+          }
+          if (ctx.request.query.installation_id) {
+            interaction.params.installation_id =
+              ctx.request.query.installation_id
+            doitPersister = true
+          }
+          if (doitPersister) {
             await interaction.persist()
           }
 
@@ -509,6 +522,10 @@ export class OidcService {
     this.oidc.on('interaction.started', (ctx: KoaContextWithOIDC) => {
       const interactionId = ctx.oidc?.entities?.Interaction?.uid
       this.requestContext.set(ContextKey.INTERACTION_ID, interactionId)
+      const installationId = ctx.oidc?.params?.installation_id
+      if (installationId) {
+        this.requestContext.set(ContextKey.INSTALLATION_ID, installationId)
+      }
       rootLogger.info(
         {
           context: 'OidcService',
@@ -531,7 +548,10 @@ export class OidcService {
           event: { action: 'authorization_succeeded', outcome: 'success' },
           labels: {
             interaction_id: ctx.oidc?.entities?.Interaction?.uid,
-            account_id: ctx.oidc?.account?.accountId
+            account_id: ctx.oidc?.account?.accountId,
+            installation_id: ctx.oidc?.params?.installation_id as
+              | string
+              | undefined
           }
         },
         'authorization_succeeded'

@@ -59,6 +59,12 @@ const mixin = (): Record<string, unknown> => {
   const user = getContextValue<ContextUser>(ContextKey.USER)
   const httpRequestId = getContextValue<string>(ContextKey.HTTP_REQUEST_ID)
   const interactionId = getContextValue<string>(ContextKey.INTERACTION_ID)
+  const installationId = getContextValue<string>(ContextKey.INSTALLATION_ID)
+
+  const labels = {
+    ...(interactionId && { interaction_id: interactionId }),
+    ...(installationId && { installation_id: installationId })
+  }
 
   return {
     ...apmTraceIds,
@@ -66,7 +72,7 @@ const mixin = (): Record<string, unknown> => {
       user: { id: user.id, type: user.type, structure: user.structure }
     }),
     ...(httpRequestId && { http: { request: { id: httpRequestId } } }),
-    ...(interactionId && { labels: { interaction_id: interactionId } })
+    ...(Object.keys(labels).length > 0 && { labels })
   }
 }
 

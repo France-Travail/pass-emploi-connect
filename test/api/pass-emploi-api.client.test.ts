@@ -53,6 +53,37 @@ describe('PassEmploiAPIClient', () => {
       // Then
       expect(response).toEqual(success(unUser()))
     })
+    it("transmet l'installationId dans le body et en header X-InstallationId", async () => {
+      // Given
+      const apiUser = {
+        id: 'un-id',
+        type: 'CONSEILLER',
+        structure: 'MILO',
+        prenom: 'Bruno',
+        roles: [],
+        nom: 'Dumont',
+        email: 'zema@octo.com',
+        username: 'b.dumont'
+      }
+      const utilisateur = unPassEmploiUser({
+        installationId: 'installation-uuid'
+      })
+
+      nock('https://api.pass-emploi.fr')
+        .put(
+          '/auth/users/un-sub',
+          utilisateur as unknown as nock.RequestBodyMatcher
+        )
+        .matchHeader('X-InstallationId', 'installation-uuid')
+        .reply(200, apiUser)
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
+
+      // Then
+      expect(response).toEqual(success(unUser()))
+    })
     it("retourne une failure quand l'appel d'API échoue avec un code NonTraitable connu", async () => {
       // Given
       const utilisateur = unPassEmploiUser({

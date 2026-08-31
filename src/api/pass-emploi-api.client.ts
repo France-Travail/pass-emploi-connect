@@ -21,6 +21,7 @@ export interface PassEmploiUser {
   type: User.Type
   structure: User.Structure
   username?: string
+  installationId?: string
 }
 
 @Injectable()
@@ -49,7 +50,12 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         passEmploiUser,
         {
           headers: {
-            'X-API-KEY': this.apiKey
+            'X-API-KEY': this.apiKey,
+            // Header en plus du body : il est dans la whitelist des logs de
+            // requêtes de l'API, le login y est donc traçable par device.
+            ...(passEmploiUser.installationId && {
+              'X-InstallationId': passEmploiUser.installationId
+            })
           }
         }
       )
