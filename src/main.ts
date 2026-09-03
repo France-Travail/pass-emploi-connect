@@ -7,18 +7,12 @@ import { ContextInterceptor } from './utils/monitoring/context.interceptor'
 import { RequestContext } from './utils/monitoring/request-context'
 
 import { custom } from 'openid-client'
-import * as https from 'node:https'
 
 // configure openid-client HTTP layer globally (runs once at startup)
-const httpsAgent = new https.Agent({
-  keepAlive: true,
-  maxSockets: 100,
-  maxFreeSockets: 20
-})
-
+// L'agent n'est pas posé ici : il dépend du protocole de la cible, et est donc
+// appliqué par instance (cf. utils/http-agent.ts).
 custom.setHttpOptionsDefaults({
-  timeout: 15000, // default was 3500ms
-  agent: httpsAgent
+  timeout: 15000 // default was 3500ms
 })
 
 initializeAPMAgent()

@@ -44,6 +44,7 @@ import {
   getIdpConfig
 } from './helpers'
 import { encodeAuthState } from '../../oidc-provider/auth-state'
+import { appliquerAgentHttp } from '../../utils/http-agent'
 
 const RAISON_UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT'
 
@@ -80,8 +81,8 @@ export abstract class IdpService {
     const clientConfig = createIdpClientConfig(this.idp)
     const issuerConfig = createIdpIssuerConfig(this.idp)
 
-    const issuer = new Issuer(issuerConfig)
-    this.client = new issuer.Client(clientConfig)
+    const issuer = appliquerAgentHttp(new Issuer(issuerConfig))
+    this.client = appliquerAgentHttp(new issuer.Client(clientConfig))
   }
 
   getAuthorizationUrl(interactionId: string, type?: string): Result<string> {
