@@ -61,7 +61,11 @@ export const configurationSchema = Joi.object({
   idps: Joi.object({
     francetravailBeneficiaire: Joi.object({
       issuer: Joi.string().required(),
-      realm: Joi.string().required(),
+      // Vide autorisé : idp.service.ts n'ajoute le paramètre realm aux
+      // requêtes que si la valeur est truthy, donc "" est le signal explicite
+      // de « pas de realm ». La variable reste obligatoire pour qu'on ne
+      // l'oublie pas par accident.
+      realm: Joi.string().allow('').required(),
       authorizationUrl: Joi.string().required(),
       tokenUrl: Joi.string().required(),
       jwks: Joi.string().required(),

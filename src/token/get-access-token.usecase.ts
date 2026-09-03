@@ -23,6 +23,7 @@ import {
 import { failure, Result, success } from '../utils/result/result'
 import { TokenData, TokenService, TokenType } from './token.service'
 import * as uuid from 'uuid'
+import { appliquerAgentHttp } from '../utils/http-agent'
 
 interface Inputs {
   account: Account
@@ -120,8 +121,8 @@ export class GetAccessTokenUsecase {
     const issuerConfig = createIdpIssuerConfig(idp)
 
     try {
-      const issuer = new Issuer(issuerConfig)
-      const client = new issuer.Client(clientConfig)
+      const issuer = appliquerAgentHttp(new Issuer(issuerConfig))
+      const client = appliquerAgentHttp(new issuer.Client(clientConfig))
 
       rootLogger.debug(
         {
