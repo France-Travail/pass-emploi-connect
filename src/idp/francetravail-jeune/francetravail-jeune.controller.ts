@@ -11,19 +11,13 @@ import {
 import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
-import { decodeAuthStateType } from '../../oidc-provider/auth-state'
-import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
-import { FrancetravailBRSAService } from './francetravail-brsa.service'
-import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
 import { User } from '../../domain/user'
 
+// Bouton unique FT Connect : un seul IdP bénéficiaire, l'API résout le dispositif en base.
 @Controller()
 export class FrancetravailJeuneController {
   constructor(
-    private readonly francetravailJeuneCEJService: FrancetravailJeuneCEJService,
-    private readonly francetravailAIJService: FrancetravailAIJService,
-    private readonly francetravailBRSAService: FrancetravailBRSAService,
     private readonly francetravailBeneficiaireService: FrancetravailBeneficiaireService
   ) {}
 
@@ -32,52 +26,20 @@ export class FrancetravailJeuneController {
   async connect(
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string,
-    @Query() ftQueryParams: { type: string }
+    @Query() ftQueryParams: { type?: string }
   ): Promise<{ url: string } | void> {
-    let authorizationUrlResult
-    let structure: User.Structure
-
-    switch (ftQueryParams.type) {
-      case 'aij': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_AIJ
-        authorizationUrlResult =
-          this.francetravailAIJService.getAuthorizationUrl(
-            interactionId,
-            ftQueryParams.type
-          )
-        break
-      case 'brsa': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_BRSA
-        authorizationUrlResult =
-          this.francetravailBRSAService.getAuthorizationUrl(
-            interactionId,
-            ftQueryParams.type
-          )
-        break
-      case 'cej': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_CEJ
-        authorizationUrlResult =
-          this.francetravailJeuneCEJService.getAuthorizationUrl(
-            interactionId,
-            ftQueryParams.type
-          )
-        break
-      case 'ft-beneficiaire':
-      default:
-        structure = User.Structure.FRANCE_TRAVAIL
-        authorizationUrlResult =
-          this.francetravailBeneficiaireService.getAuthorizationUrl(
-            interactionId,
-            ftQueryParams.type
-          )
-    }
+    const authorizationUrlResult =
+      this.francetravailBeneficiaireService.getAuthorizationUrl(
+        interactionId,
+        ftQueryParams.type
+      )
 
     if (isFailure(authorizationUrlResult))
       return redirectFailure(
         response,
         authorizationUrlResult,
         User.Type.JEUNE,
-        structure
+        User.Structure.FRANCE_TRAVAIL
       )
 
     return {
@@ -90,39 +52,16 @@ export class FrancetravailJeuneController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
-    // le `state` encode `${type}.${uid}` : on extrait le type pour dispatcher
-    const ftType = decodeAuthStateType(
-      typeof request.query.state === 'string' ? request.query.state : undefined
+    const result = await this.francetravailBeneficiaireService.callback(
+      request,
+      response
     )
-    let result
-    let structure: User.Structure
-
-    switch (ftType) {
-      case 'aij': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_AIJ
-        result = await this.francetravailAIJService.callback(request, response)
-        break
-      case 'brsa': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_BRSA
-        result = await this.francetravailBRSAService.callback(request, response)
-        break
-      case 'cej': // retrocompat
-        structure = User.Structure.POLE_EMPLOI_CEJ
-        result = await this.francetravailJeuneCEJService.callback(
-          request,
-          response
-        )
-        break
-      case 'ft-beneficiaire':
-      default:
-        structure = User.Structure.FRANCE_TRAVAIL
-        result = await this.francetravailBeneficiaireService.callback(
-          request,
-          response
-        )
-        break
-    }
     if (isFailure(result))
-      return redirectFailure(response, result, User.Type.JEUNE, structure)
+      return redirectFailure(
+        response,
+        result,
+        User.Type.JEUNE,
+        User.Structure.FRANCE_TRAVAIL
+      )
   }
 }

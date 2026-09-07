@@ -15,7 +15,7 @@ describe('User', () => {
     it('renvoie true si beneficiaire FT', () => {
       // When
       const result = estBeneficiaireFTConnect(
-        User.Type.BENEFICIAIRE,
+        User.Type.JEUNE,
         User.Structure.FRANCE_TRAVAIL
       )
 
@@ -25,7 +25,7 @@ describe('User', () => {
     it('renvoie false si beneficiaire Milo', () => {
       // When
       const result = estBeneficiaireFTConnect(
-        User.Type.BENEFICIAIRE,
+        User.Type.JEUNE,
         User.Structure.MILO
       )
 

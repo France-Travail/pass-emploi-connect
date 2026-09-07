@@ -120,7 +120,7 @@ describe('TokenExchangeGrant', () => {
       validateJWTUsecase.execute.resolves(
         success({
           sub: 'CONSEILLER|MILO|id-auth',
-          userType: 'BENEFICIAIRE',
+          userType: 'JEUNE',
           userStructure: 'MILO'
         })
       )

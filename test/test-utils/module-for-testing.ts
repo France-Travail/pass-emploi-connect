@@ -21,11 +21,8 @@ import { FrancetravailConseillerBRSAService } from '../../src/idp/francetravail-
 import { FrancetravailConseillerCEJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import { FrancetravailConseillerController } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.controller'
 import { FrancetravailConseillerService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
-import { FrancetravailAIJService } from '../../src/idp/francetravail-jeune/francetravail-aij.service'
 import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
-import { FrancetravailBRSAService } from '../../src/idp/francetravail-jeune/francetravail-brsa.service'
 import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
-import { FrancetravailJeuneCEJService } from '../../src/idp/francetravail-jeune/francetravail-jeune.service'
 import { MiloConseillerController } from '../../src/idp/milo-conseiller/milo-conseiller.controller'
 import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-conseiller.service'
 import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
@@ -248,20 +245,8 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: stubClassSandbox(FrancetravailConseillerBRSAService, sandbox)
     },
     {
-      provide: FrancetravailJeuneCEJService,
-      useValue: stubClassSandbox(FrancetravailJeuneCEJService, sandbox)
-    },
-    {
       provide: FrancetravailBeneficiaireService,
       useValue: stubClassSandbox(FrancetravailBeneficiaireService, sandbox)
-    },
-    {
-      provide: FrancetravailAIJService,
-      useValue: stubClassSandbox(FrancetravailAIJService, sandbox)
-    },
-    {
-      provide: FrancetravailBRSAService,
-      useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
     },
     {
       provide: FrancetravailConseillerAccompagnementIntensifService,

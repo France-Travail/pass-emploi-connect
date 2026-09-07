@@ -38,7 +38,6 @@ function getIdpConfigIdentifier(
 ): IdpConfigIdentifier {
   switch (type) {
     case User.Type.JEUNE:
-    case User.Type.BENEFICIAIRE:
       return ((): IdpConfigIdentifier => {
         switch (structure) {
           case User.Structure.MILO:

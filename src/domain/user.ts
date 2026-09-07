@@ -46,7 +46,6 @@ export interface User {
 export namespace User {
   export enum Type {
     JEUNE = 'JEUNE',
-    BENEFICIAIRE = 'BENEFICIAIRE',
     CONSEILLER = 'CONSEILLER'
   }
 
@@ -95,7 +94,7 @@ function estConseiller(userType: User.Type): boolean {
 }
 
 function estBeneficiaire(userType: User.Type): boolean {
-  return [User.Type.JEUNE, User.Type.BENEFICIAIRE].includes(userType)
+  return userType === User.Type.JEUNE
 }
 
 export function estBeneficiaireFTConnect(
