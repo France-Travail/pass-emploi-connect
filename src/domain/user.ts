@@ -1,8 +1,39 @@
+// Profil (structure × dispositif) renvoyé par l'API : la cible, recopié tel
+// quel dans le claim `userProfile`. `userStructure` (legacy) reste émis pour
+// l'app mobile et pour les clés Redis (accountId).
+export interface Profil {
+  structure: Profil.Structure
+  dispositif: Profil.Dispositif | null
+}
+
+export namespace Profil {
+  export enum Structure {
+    MILO = 'MILO',
+    FRANCE_TRAVAIL = 'FRANCE_TRAVAIL',
+    CONSEIL_DEPARTEMENTAL = 'CONSEIL_DEPARTEMENTAL',
+    INVITE = 'INVITE'
+  }
+
+  export enum Dispositif {
+    CEJ = 'CEJ',
+    PACEA = 'PACEA',
+    BRSA = 'BRSA',
+    AIJ = 'AIJ',
+    AVENIR_PRO = 'AVENIR_PRO',
+    ACCOMPAGNEMENT_INTENSIF = 'ACCOMPAGNEMENT_INTENSIF',
+    ACCOMPAGNEMENT_GLOBAL = 'ACCOMPAGNEMENT_GLOBAL',
+    EQUIP_EMPLOI_RECRUT = 'EQUIP_EMPLOI_RECRUT',
+    DEMANDEUR_D_EMPLOI = 'DEMANDEUR_D_EMPLOI',
+    ESPACE_CANDIDAT = 'ESPACE_CANDIDAT'
+  }
+}
+
 export interface User {
   // venant de l'API
   userId: string
   userType: User.Type
   userStructure: User.Structure
+  userProfile?: Profil
   userRoles: string[]
   // venant de l'IDP
   given_name: string

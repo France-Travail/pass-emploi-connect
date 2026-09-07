@@ -3,7 +3,7 @@ import { Response } from 'express'
 import sinon from 'sinon'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
 import { Account } from '../../../src/domain/account'
-import { User } from '../../../src/domain/user'
+import { Profil, User } from '../../../src/domain/user'
 import { InviteService } from '../../../src/idp/invite/invite.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { UtilisateurNonTraitable } from '../../../src/utils/result/error'
@@ -30,6 +30,7 @@ describe('InviteService', () => {
     userId: 'id-en-base',
     userType: User.Type.JEUNE,
     userStructure: User.Structure.INVITE,
+    userProfile: { structure: Profil.Structure.INVITE, dispositif: null },
     userRoles: [],
     given_name: 'Invité'
   })
@@ -122,6 +123,10 @@ describe('InviteService', () => {
       expect(interactionResults.consent).toEqual({ grantId: 'un-grant-id' })
       expect(interactionResults.userType).toEqual(User.Type.JEUNE)
       expect(interactionResults.userStructure).toEqual(User.Structure.INVITE)
+      expect(interactionResults.userProfile).toEqual({
+        structure: Profil.Structure.INVITE,
+        dispositif: null
+      })
       // userId = l'id en base : c'est lui que le mobile utilisera vers l'API
       expect(interactionResults.userId).toEqual('id-en-base')
     })

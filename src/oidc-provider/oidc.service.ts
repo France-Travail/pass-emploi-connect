@@ -12,7 +12,7 @@ import {
   KoaContextWithOIDC
 } from 'oidc-provider'
 import { Account } from '../domain/account'
-import { User } from '../domain/user'
+import { Profil, User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
@@ -294,6 +294,7 @@ export class OidcService {
             userId: context.oidc.result.id as string,
             userRoles: context.oidc.result.userRoles as string[],
             userStructure: context.oidc.result.userStructure as User.Structure,
+            userProfile: context.oidc.result.userProfile as Profil | undefined,
             userType: context.oidc.result.userType as User.Type,
             email: context.oidc.result.email as string,
             family_name: context.oidc.result.family_name as string,
@@ -346,6 +347,7 @@ export class OidcService {
           'userId',
           'userRoles',
           'userStructure',
+          'userProfile',
           'userType',
           'family_name',
           'given_name',
@@ -357,6 +359,7 @@ export class OidcService {
           userId: context.oidc.account?.userId,
           userRoles: context.oidc.account?.userRoles,
           userStructure: context.oidc.account?.userStructure,
+          userProfile: context.oidc.account?.userProfile,
           userType: context.oidc.account?.userType,
           email: context.oidc.account?.email,
           family_name: context.oidc.account?.family_name,

@@ -287,6 +287,7 @@ export abstract class IdpService {
         consent: { grantId: newGrantId },
         userType: typeUtilisateurFinal,
         userStructure: structureUtilisateurFinal,
+        userProfile: apiUserResult.data.userProfile,
         email: email,
         family_name: nom,
         given_name: prenom,

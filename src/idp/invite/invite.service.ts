@@ -139,6 +139,7 @@ export class InviteService {
         consent: { grantId },
         userType: User.Type.JEUNE,
         userStructure: User.Structure.INVITE,
+        userProfile: apiUserResult.data.userProfile,
         userRoles: apiUserResult.data.userRoles,
         userId: apiUserResult.data.userId
       }
