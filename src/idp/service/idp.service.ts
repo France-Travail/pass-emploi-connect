@@ -16,7 +16,8 @@ import { Account } from '../../domain/account'
 import {
   User,
   estBeneficiaireFTConnect,
-  estConseillerDept
+  estConseillerDept,
+  profilDeStructure
 } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService, TokenType } from '../../token/token.service'
@@ -211,7 +212,7 @@ export abstract class IdpService {
         nom,
         prenom,
         email,
-        structure: this.userStructure,
+        profil: profilDeStructure(this.userStructure),
         type: this.userType,
         username: userInfo.preferred_username,
         installationId
@@ -231,7 +232,7 @@ export abstract class IdpService {
             nom,
             prenom,
             email,
-            structure: structureNonAccompagne,
+            profil: profilDeStructure(structureNonAccompagne),
             type: this.userType,
             username: userInfo.preferred_username,
             installationId

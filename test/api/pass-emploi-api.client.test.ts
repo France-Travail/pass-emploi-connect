@@ -232,7 +232,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(200, apiUser)
         .isDone()
@@ -250,7 +250,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(404)
         .isDone()
@@ -270,7 +270,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(500)
         .isDone()

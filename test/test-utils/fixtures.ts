@@ -39,7 +39,7 @@ export const unPassEmploiUser = (
 ): PassEmploiUser => {
   const defaults: PassEmploiUser = {
     type: User.Type.CONSEILLER,
-    structure: User.Structure.MILO,
+    profil: { structure: Profil.Structure.MILO, dispositif: null },
     prenom: 'Bruno',
     nom: 'Dumont',
     email: 'zema@octo.com',

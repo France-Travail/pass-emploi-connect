@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { AxiosError } from 'axios'
 import * as APM from 'elastic-apm-node'
 import { Account } from '../domain/account'
-import { User } from '../domain/user'
+import { Profil, profilDeStructure, User } from '../domain/user'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { ExternalApiLoggerService } from '../utils/monitoring/external-api-logger.service'
 import {
@@ -19,7 +19,7 @@ export interface PassEmploiUser {
   prenom?: string
   email?: string
   type: User.Type
-  structure: User.Structure
+  profil: Profil
   username?: string
   installationId?: string
 }
@@ -131,13 +131,15 @@ export class PassEmploiAPIClient extends ExternalApiClient {
   }
 
   async getUser(account: Account): Promise<Result<User>> {
+    const profil = profilDeStructure(account.structure)
     try {
       const apiUser = await this.axios.get(
         `${this.apiUrl}/auth/users/${account.sub}`,
         {
           params: {
             typeUtilisateur: account.type,
-            structureUtilisateur: account.structure
+            structure: profil.structure,
+            dispositif: profil.dispositif ?? undefined
           },
           headers: {
             'X-API-KEY': this.apiKey
