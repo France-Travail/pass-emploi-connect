@@ -29,6 +29,7 @@ describe('PassEmploiAPIClient', () => {
         id: 'un-id',
         type: 'CONSEILLER',
         structure: 'MILO',
+        profil: { structure: 'MILO', dispositif: null },
         prenom: 'Bruno',
         roles: [],
         nom: 'Dumont',
@@ -59,6 +60,7 @@ describe('PassEmploiAPIClient', () => {
         id: 'un-id',
         type: 'CONSEILLER',
         structure: 'MILO',
+        profil: { structure: 'MILO', dispositif: null },
         prenom: 'Bruno',
         roles: [],
         nom: 'Dumont',
@@ -158,6 +160,7 @@ describe('PassEmploiAPIClient', () => {
         id: 'id-en-base',
         type: 'JEUNE',
         structure: 'INVITE',
+        profil: { structure: 'INVITE', dispositif: null },
         prenom: 'Invité',
         nom: '',
         roles: []
@@ -179,6 +182,7 @@ describe('PassEmploiAPIClient', () => {
           userId: 'id-en-base',
           userType: 'JEUNE',
           userStructure: 'INVITE',
+          userProfile: { structure: 'INVITE', dispositif: null },
           userRoles: [],
           given_name: 'Invité'
         })
@@ -217,6 +221,7 @@ describe('PassEmploiAPIClient', () => {
         id: 'un-id',
         type: 'CONSEILLER',
         structure: 'MILO',
+        profil: { structure: 'MILO', dispositif: null },
         prenom: 'Bruno',
         roles: [],
         nom: 'Dumont',
@@ -227,7 +232,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(200, apiUser)
         .isDone()
@@ -245,7 +250,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(404)
         .isDone()
@@ -265,7 +270,7 @@ describe('PassEmploiAPIClient', () => {
         .get('/auth/users/un-sub')
         .query({
           typeUtilisateur: account.type,
-          structureUtilisateur: account.structure
+          structure: 'MILO'
         })
         .reply(500)
         .isDone()

@@ -69,7 +69,7 @@ describe('TokenExchangeGrant', () => {
       })
     })
 
-    it('exchange le token pour un sub beneficiaire different', async () => {
+    it('exchange le token pour un sub jeune different', async () => {
       // Given
       const context = {
         oidc: {
@@ -120,7 +120,7 @@ describe('TokenExchangeGrant', () => {
       validateJWTUsecase.execute.resolves(
         success({
           sub: 'CONSEILLER|MILO|id-auth',
-          userType: 'BENEFICIAIRE',
+          userType: 'JEUNE',
           userStructure: 'MILO'
         })
       )

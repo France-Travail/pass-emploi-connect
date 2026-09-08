@@ -1,62 +1,75 @@
-import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
-import { Request, Response } from 'express'
+import { UserinfoResponse } from 'openid-client'
 import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
-import { FrancetravailJeuneCEJService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
+import { User } from '../../../src/domain/user'
+import { FrancetravailJeuneService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
-import { AuthError } from '../../../src/utils/result/error'
+import { NonTrouveError } from '../../../src/utils/result/error'
 import { failure, success } from '../../../src/utils/result/result'
-import { createSandbox, StubbedClass, stubClass } from '../../test-utils'
+import { StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
-describe('FrancetravailJeuneCEJService', () => {
-  let francetravailJeuneCEJService: FrancetravailJeuneCEJService
-  const configService = testConfig()
-  let tokenService: StubbedClass<TokenService>
-  let passEmploiAPIClient: StubbedClass<PassEmploiAPIClient>
+describe('FrancetravailJeuneService', () => {
+  let service: FrancetravailJeuneService
   let francetravailAPIClient: StubbedClass<FrancetravailAPIClient>
-  let oidcService: StubbedClass<OidcService>
+
+  const resoudreStructureNonAccompagne = (): Promise<
+    User.Structure | undefined
+  > =>
+    (
+      service as unknown as {
+        resoudreStructureNonAccompagne: (
+          u: UserinfoResponse,
+          t: string
+        ) => Promise<User.Structure | undefined>
+      }
+    ).resoudreStructureNonAccompagne({} as UserinfoResponse, 'tok')
 
   beforeEach(() => {
-    oidcService = stubClass(OidcService)
-    tokenService = stubClass(TokenService)
-    passEmploiAPIClient = stubClass(PassEmploiAPIClient)
     francetravailAPIClient = stubClass(FrancetravailAPIClient)
-    francetravailJeuneCEJService = new FrancetravailJeuneCEJService(
-      configService,
-      oidcService,
-      tokenService,
-      passEmploiAPIClient,
+    service = new FrancetravailJeuneService(
+      testConfig(),
+      stubClass(OidcService),
+      stubClass(TokenService),
+      stubClass(PassEmploiAPIClient),
       francetravailAPIClient
     )
   })
 
-  describe('getAuthorizationUrl', () => {
-    it('renvoie success', () => {
-      expect(francetravailJeuneCEJService.getAuthorizationUrl('test')).toEqual(
-        success(
-          'https://ft-jeune.com/authorize?client_id=ft-jeune&scope=&response_type=code&redirect_uri=&nonce=test&state=test&realm=individu'
-        )
+  describe('resoudreStructureNonAccompagne', () => {
+    it('renvoie FT_DEMANDEUR_D_EMPLOI quand le statut est demandeur', async () => {
+      // Given
+      francetravailAPIClient.getStatut.resolves(
+        success({ estDemandeurEmploi: true })
+      )
+
+      // When / Then
+      expect(await resoudreStructureNonAccompagne()).toEqual(
+        User.Structure.FT_DEMANDEUR_D_EMPLOI
       )
     })
-  })
 
-  describe('callback', () => {
-    it('renvoie erreur', async () => {
+    it('renvoie FT_ESPACE_CANDIDAT quand le statut est non demandeur', async () => {
       // Given
-      const sandbox = createSandbox()
-      const request: StubbedType<Request> = stubInterface(sandbox)
-      const response: StubbedType<Response> = stubInterface(sandbox)
-
-      // When
-      const result = await francetravailJeuneCEJService.callback(
-        request,
-        response
+      francetravailAPIClient.getStatut.resolves(
+        success({ estDemandeurEmploi: false })
       )
 
-      // Then
-      expect(result).toEqual(failure(new AuthError('CallbackParams')))
+      // When / Then
+      expect(await resoudreStructureNonAccompagne()).toEqual(
+        User.Structure.FT_ESPACE_CANDIDAT
+      )
+    })
+
+    it('renvoie undefined (échec de la connexion) quand le statut est indisponible', async () => {
+      // Given
+      francetravailAPIClient.getStatut.resolves(
+        failure(new NonTrouveError('Statut FT'))
+      )
+
+      // When / Then
+      expect(await resoudreStructureNonAccompagne()).toEqual(undefined)
     })
   })
 })

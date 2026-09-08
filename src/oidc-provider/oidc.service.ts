@@ -12,12 +12,11 @@ import {
   KoaContextWithOIDC
 } from 'oidc-provider'
 import { Account } from '../domain/account'
-import { User } from '../domain/user'
+import { Profil, User } from '../domain/user'
 import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
-import { decodeAuthStateInteractionId } from './auth-state'
 import {
   TokenExchangeGrant,
   grantType as tokenExchangeGrantType,
@@ -294,6 +293,7 @@ export class OidcService {
             userId: context.oidc.result.id as string,
             userRoles: context.oidc.result.userRoles as string[],
             userStructure: context.oidc.result.userStructure as User.Structure,
+            userProfile: context.oidc.result.userProfile as Profil,
             userType: context.oidc.result.userType as User.Type,
             email: context.oidc.result.email as string,
             family_name: context.oidc.result.family_name as string,
@@ -346,6 +346,7 @@ export class OidcService {
           'userId',
           'userRoles',
           'userStructure',
+          'userProfile',
           'userType',
           'family_name',
           'given_name',
@@ -357,6 +358,7 @@ export class OidcService {
           userId: context.oidc.account?.userId,
           userRoles: context.oidc.account?.userRoles,
           userStructure: context.oidc.account?.userStructure,
+          userProfile: context.oidc.account?.userProfile,
           userType: context.oidc.account?.userType,
           email: context.oidc.account?.email,
           family_name: context.oidc.account?.family_name,
@@ -472,31 +474,14 @@ export class OidcService {
             case 'similo-conseiller':
               return `/milo-conseiller/connect/${interaction.uid}`
             case 'pe-jeune': // retrocompat
-              return `/francetravail-jeune/connect/${interaction.uid}?type=cej`
             case 'pe-brsa-jeune': // retrocompat
-              return `/francetravail-jeune/connect/${interaction.uid}?type=brsa`
             case 'pe-aij-jeune': // retrocompat
-              return `/francetravail-jeune/connect/${interaction.uid}?type=aij`
-            case 'ft-beneficiaire':
-              return `/francetravail-jeune/connect/${interaction.uid}?type=ft-beneficiaire`
+            case 'ft-beneficiaire': // valeur envoyée par l'app mobile (contrat externe)
+              return `/francetravail-jeune/connect/${interaction.uid}`
             case 'ft-conseiller':
               return `/francetravail-conseiller/connect/${interaction.uid}`
-            case 'pe-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=cej`
-            case 'pe-brsa-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=brsa`
-            case 'pe-aij-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=aij`
-            case 'avenirpro-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=avenirpro`
             case 'conseildepartemental-conseiller':
               return `/conseildepartemental-conseiller/connect/${interaction.uid}`
-            case 'ft-accompagnement-intensif-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-intensif`
-            case 'ft-accompagnement-global-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-global`
-            case 'ft-equip-emploi-recrut-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}?type=equip-emploi-recrut`
             default:
               return `/choice/${interaction.uid}`
           }
@@ -635,9 +620,8 @@ export class OidcService {
     req: Request,
     res: Response
   ): Promise<OidcInteraction> {
-    const state =
+    const interactionId =
       typeof req.query.state === 'string' ? req.query.state : undefined
-    const interactionId = decodeAuthStateInteractionId(state)
     if (interactionId) {
       const interaction = await this.oidc.Interaction.find(interactionId)
       if (interaction) {

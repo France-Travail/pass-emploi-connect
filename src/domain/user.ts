@@ -1,8 +1,39 @@
+// Profil (structure × dispositif) renvoyé par l'API : la cible, recopié tel
+// quel dans le claim `userProfile`. `userStructure` (legacy) reste émis pour
+// l'app mobile et pour les clés Redis (accountId).
+export interface Profil {
+  structure: Profil.Structure
+  dispositif: Profil.Dispositif | null
+}
+
+export namespace Profil {
+  export enum Structure {
+    MILO = 'MILO',
+    FRANCE_TRAVAIL = 'FRANCE_TRAVAIL',
+    CONSEIL_DEPARTEMENTAL = 'CONSEIL_DEPARTEMENTAL',
+    INVITE = 'INVITE'
+  }
+
+  export enum Dispositif {
+    CEJ = 'CEJ',
+    PACEA = 'PACEA',
+    BRSA = 'BRSA',
+    AIJ = 'AIJ',
+    AVENIR_PRO = 'AVENIR_PRO',
+    ACCOMPAGNEMENT_INTENSIF = 'ACCOMPAGNEMENT_INTENSIF',
+    ACCOMPAGNEMENT_GLOBAL = 'ACCOMPAGNEMENT_GLOBAL',
+    EQUIP_EMPLOI_RECRUT = 'EQUIP_EMPLOI_RECRUT',
+    DEMANDEUR_D_EMPLOI = 'DEMANDEUR_D_EMPLOI',
+    ESPACE_CANDIDAT = 'ESPACE_CANDIDAT'
+  }
+}
+
 export interface User {
   // venant de l'API
   userId: string
   userType: User.Type
   userStructure: User.Structure
+  userProfile: Profil
   userRoles: string[]
   // venant de l'IDP
   given_name: string
@@ -15,7 +46,6 @@ export interface User {
 export namespace User {
   export enum Type {
     JEUNE = 'JEUNE',
-    BENEFICIAIRE = 'BENEFICIAIRE',
     CONSEILLER = 'CONSEILLER'
   }
 
@@ -63,16 +93,16 @@ function estConseiller(userType: User.Type): boolean {
   return userType === User.Type.CONSEILLER
 }
 
-function estBeneficiaire(userType: User.Type): boolean {
-  return [User.Type.JEUNE, User.Type.BENEFICIAIRE].includes(userType)
+function estJeune(userType: User.Type): boolean {
+  return userType === User.Type.JEUNE
 }
 
-export function estBeneficiaireFTConnect(
+export function estJeuneFTConnect(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
   return (
-    estBeneficiaire(userType) &&
+    estJeune(userType) &&
     (estFT(userStructure) || estConseilDepartemental(userStructure))
   )
 }
@@ -82,4 +112,42 @@ export function estConseillerDept(
   userStructure: User.Structure
 ): boolean {
   return estConseiller(userType) && estConseilDepartemental(userStructure)
+}
+
+export function profilDeStructure(userStructure: User.Structure): Profil {
+  switch (userStructure) {
+    case User.Structure.MILO:
+      return { structure: Profil.Structure.MILO, dispositif: null }
+    case User.Structure.CONSEIL_DEPT:
+      return {
+        structure: Profil.Structure.CONSEIL_DEPARTEMENTAL,
+        dispositif: null
+      }
+    case User.Structure.INVITE:
+      return { structure: Profil.Structure.INVITE, dispositif: null }
+    case User.Structure.FRANCE_TRAVAIL:
+      return { structure: Profil.Structure.FRANCE_TRAVAIL, dispositif: null }
+    case User.Structure.POLE_EMPLOI_CEJ:
+      return profilFranceTravail(Profil.Dispositif.CEJ)
+    case User.Structure.POLE_EMPLOI_BRSA:
+      return profilFranceTravail(Profil.Dispositif.BRSA)
+    case User.Structure.POLE_EMPLOI_AIJ:
+      return profilFranceTravail(Profil.Dispositif.AIJ)
+    case User.Structure.AVENIR_PRO:
+      return profilFranceTravail(Profil.Dispositif.AVENIR_PRO)
+    case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
+      return profilFranceTravail(Profil.Dispositif.ACCOMPAGNEMENT_INTENSIF)
+    case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
+      return profilFranceTravail(Profil.Dispositif.ACCOMPAGNEMENT_GLOBAL)
+    case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
+      return profilFranceTravail(Profil.Dispositif.EQUIP_EMPLOI_RECRUT)
+    case User.Structure.FT_DEMANDEUR_D_EMPLOI:
+      return profilFranceTravail(Profil.Dispositif.DEMANDEUR_D_EMPLOI)
+    case User.Structure.FT_ESPACE_CANDIDAT:
+      return profilFranceTravail(Profil.Dispositif.ESPACE_CANDIDAT)
+  }
+}
+
+function profilFranceTravail(dispositif: Profil.Dispositif): Profil {
+  return { structure: Profil.Structure.FRANCE_TRAVAIL, dispositif }
 }

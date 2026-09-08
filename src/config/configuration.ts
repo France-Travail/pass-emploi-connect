@@ -8,7 +8,7 @@ export enum IdpConfigIdentifier {
   MILO_CONSEILLER = 'miloConseiller',
   MILO_JEUNE = 'miloJeune',
   FT_CONSEILLER = 'francetravailConseiller',
-  FT_BENEFICIAIRE = 'francetravailBeneficiaire',
+  FT_JEUNE = 'francetravailJeune',
   CONSEILLER_DEPT = 'conseillerDept'
 }
 
@@ -111,7 +111,7 @@ export default () => {
     },
     jwks: JSON.parse(process.env.JWKS!),
     idps: {
-      francetravailBeneficiaire: {
+      francetravailJeune: {
         issuer: process.env.IDP_FT_JEUNE_ISSUER!,
         realm: process.env.IDP_FT_JEUNE_REALM,
         authorizationUrl: process.env.IDP_FT_JEUNE_AUTHORIZATION_URL!,

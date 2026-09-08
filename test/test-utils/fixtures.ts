@@ -1,6 +1,6 @@
 import { JWTPayload } from 'jose'
 import { Account } from '../../src/domain/account'
-import { User } from '../../src/domain/user'
+import { Profil, User } from '../../src/domain/user'
 import { PassEmploiUser } from '../../src/api/pass-emploi-api.client'
 import { TokenData } from '../../src/token/token.service'
 import { DateTime } from 'luxon'
@@ -23,6 +23,7 @@ export const unUser = (args: Partial<User> = {}): User => {
     userId: 'un-id',
     userType: User.Type.CONSEILLER,
     userStructure: User.Structure.MILO,
+    userProfile: { structure: Profil.Structure.MILO, dispositif: null },
     userRoles: [],
     given_name: 'Bruno',
     family_name: 'Dumont',
@@ -38,7 +39,7 @@ export const unPassEmploiUser = (
 ): PassEmploiUser => {
   const defaults: PassEmploiUser = {
     type: User.Type.CONSEILLER,
-    structure: User.Structure.MILO,
+    profil: { structure: Profil.Structure.MILO, dispositif: null },
     prenom: 'Bruno',
     nom: 'Dumont',
     email: 'zema@octo.com',

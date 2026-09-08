@@ -16,13 +16,6 @@ describe('Helpers', () => {
       ).toBe('milo-jeune.com')
     })
 
-    it('renvoie miloJeune pour BENEFICIAIRE MILO', () => {
-      expect(
-        getIdpConfig(configService, User.Type.BENEFICIAIRE, User.Structure.MILO)
-          .issuer
-      ).toBe('milo-jeune.com')
-    })
-
     it('renvoie miloConseiller pour CONSEILLER MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.CONSEILLER, User.Structure.MILO)
@@ -100,37 +93,27 @@ describe('Helpers', () => {
       ).toBe('ft-conseiller.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE FRANCE_TRAVAIL', () => {
+    it('renvoie francetravailJeune pour JEUNE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
-          User.Type.BENEFICIAIRE,
+          User.Type.JEUNE,
           User.Structure.FRANCE_TRAVAIL
         ).issuer
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE CONSEIL_DEPT', () => {
+    it('renvoie francetravailJeune pour JEUNE CONSEIL_DEPT', () => {
       expect(
         getIdpConfig(
           configService,
-          User.Type.BENEFICIAIRE,
+          User.Type.JEUNE,
           User.Structure.CONSEIL_DEPT
         ).issuer
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE PE CEJ', () => {
-      expect(
-        getIdpConfig(
-          configService,
-          User.Type.BENEFICIAIRE,
-          User.Structure.POLE_EMPLOI_CEJ
-        ).issuer
-      ).toBe('ft-jeune.com')
-    })
-
-    it('renvoie francetravailBeneficiaire pour JEUNE PE CEJ ', () => {
+    it('renvoie francetravailJeune pour JEUNE PE CEJ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -140,7 +123,17 @@ describe('Helpers', () => {
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE FRANCE_TRAVAIL', () => {
+    it('renvoie francetravailJeune pour JEUNE PE CEJ ', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.JEUNE,
+          User.Structure.POLE_EMPLOI_CEJ
+        ).issuer
+      ).toBe('ft-jeune.com')
+    })
+
+    it('renvoie francetravailJeune pour JEUNE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
