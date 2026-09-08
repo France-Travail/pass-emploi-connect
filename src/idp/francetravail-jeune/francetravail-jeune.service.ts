@@ -10,7 +10,7 @@ import { isFailure } from '../../utils/result/result'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
-export class FrancetravailBeneficiaireService extends IdpService {
+export class FrancetravailJeuneService extends IdpService {
   constructor(
     configService: ConfigService,
     oidcService: OidcService,
@@ -19,7 +19,7 @@ export class FrancetravailBeneficiaireService extends IdpService {
     francetravailAPIClient: FrancetravailAPIClient
   ) {
     super(
-      'FrancetravailBeneficiaireService',
+      'FrancetravailJeuneService',
       'francetravail-jeune',
       User.Type.JEUNE,
       User.Structure.FRANCE_TRAVAIL,

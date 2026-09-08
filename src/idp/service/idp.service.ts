@@ -15,7 +15,7 @@ import { IdpConfig } from '../../config/configuration'
 import { Account } from '../../domain/account'
 import {
   User,
-  estBeneficiaireFTConnect,
+  estJeuneFTConnect,
   estConseillerDept,
   profilDeStructure
 } from '../../domain/user'
@@ -44,7 +44,6 @@ import {
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
-import { encodeAuthState } from '../../oidc-provider/auth-state'
 import { appliquerAgentHttp } from '../../utils/http-agent'
 
 const RAISON_UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT'
@@ -86,7 +85,7 @@ export abstract class IdpService {
     this.client = appliquerAgentHttp(new issuer.Client(clientConfig))
   }
 
-  getAuthorizationUrl(interactionId: string, type?: string): Result<string> {
+  getAuthorizationUrl(interactionId: string): Result<string> {
     // login_initiated : marqueur d'entrée du flow, émis ici (et non dans les
     // controllers) pour que le label idp reste l'unique source de vérité de
     // l'IdpService. Suivi de login_redirected (success/failure) ci-dessous.
@@ -102,10 +101,10 @@ export abstract class IdpService {
       const params: AuthorizationParameters = {
         nonce: interactionId,
         scope: this.idp.scopes,
-        // uid encodé dans le state (qui transite par l'IDP) pour retrouver
-        // l'interaction au callback sans dépendre du cookie _interaction.
-        // cf. oidc-provider/auth-state + OidcService.recoverInteraction
-        state: encodeAuthState(interactionId, type)
+        // uid porté par le state (qui transite par l'IDP) pour retrouver
+        // l'interaction au callback sans dépendre du cookie _interaction,
+        // souvent perdu par les webviews mobiles. cf. OidcService.recoverInteraction
+        state: interactionId
       }
       if (this.idp.realm) {
         params.realm = this.idp.realm
@@ -374,7 +373,7 @@ export abstract class IdpService {
     email?: string
   }> {
     let coordonnees
-    if (estBeneficiaireFTConnect(this.userType, this.userStructure)) {
+    if (estJeuneFTConnect(this.userType, this.userStructure)) {
       const coordonneesResult = await this.francetravailapi!.getCoordonness(
         accessToken
       )

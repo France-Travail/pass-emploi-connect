@@ -6,22 +6,15 @@ import { TerminusModule } from '@nestjs/terminus'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
 import { createSandbox, SinonSandbox } from 'sinon'
-import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
-import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
-import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { AppController } from '../../src/app.controller'
 import { Configuration } from '../../src/config/configuration'
 import { ConseilDepartementalConseillerController } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.controller'
 import { ConseilDepartementalConseillerService } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
-import { FrancetravailConseillerAIJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
-import { FrancetravailConseillerAvenirProService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-avenirpro.service'
-import { FrancetravailConseillerBRSAService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
-import { FrancetravailConseillerCEJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import { FrancetravailConseillerController } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.controller'
 import { FrancetravailConseillerService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
-import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
+import { FrancetravailJeuneService } from '../../src/idp/francetravail-jeune/francetravail-jeune.service'
 import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
 import { MiloConseillerController } from '../../src/idp/milo-conseiller/milo-conseiller.controller'
 import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-conseiller.service'
@@ -130,7 +123,7 @@ export const testConfig = (): ConfigService => {
     },
     jwks: JSON.parse(process.env.JWKS!),
     idps: {
-      francetravailBeneficiaire: {
+      francetravailJeune: {
         issuer: 'ft-jeune.com',
         realm: 'individu',
         authorizationUrl: 'https://ft-jeune.com/authorize',
@@ -233,41 +226,8 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: stubClassSandbox(FrancetravailConseillerService, sandbox)
     },
     {
-      provide: FrancetravailConseillerCEJService,
-      useValue: stubClassSandbox(FrancetravailConseillerCEJService, sandbox)
-    },
-    {
-      provide: FrancetravailConseillerAIJService,
-      useValue: stubClassSandbox(FrancetravailConseillerAIJService, sandbox)
-    },
-    {
-      provide: FrancetravailConseillerBRSAService,
-      useValue: stubClassSandbox(FrancetravailConseillerBRSAService, sandbox)
-    },
-    {
-      provide: FrancetravailBeneficiaireService,
-      useValue: stubClassSandbox(FrancetravailBeneficiaireService, sandbox)
-    },
-    {
-      provide: FrancetravailConseillerAccompagnementIntensifService,
-      useValue: stubClassSandbox(
-        FrancetravailConseillerAccompagnementIntensifService,
-        sandbox
-      )
-    },
-    {
-      provide: FrancetravailConseillerAccompagnementGlobalService,
-      useValue: stubClassSandbox(
-        FrancetravailConseillerAccompagnementGlobalService,
-        sandbox
-      )
-    },
-    {
-      provide: FrancetravailConseillerEquipEmploiRecrutService,
-      useValue: stubClassSandbox(
-        FrancetravailConseillerEquipEmploiRecrutService,
-        sandbox
-      )
+      provide: FrancetravailJeuneService,
+      useValue: stubClassSandbox(FrancetravailJeuneService, sandbox)
     },
     {
       provide: MiloConseillerService,
@@ -280,13 +240,6 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: ConseilDepartementalConseillerService,
       useValue: stubClassSandbox(ConseilDepartementalConseillerService, sandbox)
-    },
-    {
-      provide: FrancetravailConseillerAvenirProService,
-      useValue: stubClassSandbox(
-        FrancetravailConseillerAvenirProService,
-        sandbox
-      )
     },
     {
       provide: DeleteAccountUsecase,

@@ -4,12 +4,12 @@ import { ConfigModule } from '@nestjs/config'
 import { APIModule } from '../../api/api.module'
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
-import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
+import { FrancetravailJeuneService } from './francetravail-jeune.service'
 import { FrancetravailJeuneController } from './francetravail-jeune.controller'
 
 @Module({
   imports: [ConfigModule, OidcModule, TokenModule, APIModule],
-  providers: [FrancetravailBeneficiaireService],
+  providers: [FrancetravailJeuneService],
   exports: [],
   controllers: [FrancetravailJeuneController]
 })

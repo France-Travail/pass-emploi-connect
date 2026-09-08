@@ -53,7 +53,7 @@ function getIdpConfigIdentifier(
           case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
           case User.Structure.FT_DEMANDEUR_D_EMPLOI:
           case User.Structure.FT_ESPACE_CANDIDAT:
-            return IdpConfigIdentifier.FT_BENEFICIAIRE
+            return IdpConfigIdentifier.FT_JEUNE
           case User.Structure.INVITE:
             throw new Error("L'invité n'a pas de configuration IDP")
         }

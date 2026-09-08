@@ -12,15 +12,15 @@ import {
   resetSandbox
 } from '../../test-utils/module-for-testing'
 import { AuthError } from '../../../src/utils/result/error'
-import { FrancetravailBeneficiaireService } from '../../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
+import { FrancetravailJeuneService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
 
 describe('FrancetravailJeuneController', () => {
-  let francetravailBeneficiaireService: StubbedClass<FrancetravailBeneficiaireService>
+  let francetravailJeuneService: StubbedClass<FrancetravailJeuneService>
   let app: INestApplication
   beforeAll(async () => {
     app = await getApplicationWithStubbedDependencies()
 
-    francetravailBeneficiaireService = app.get(FrancetravailBeneficiaireService)
+    francetravailJeuneService = app.get(FrancetravailJeuneService)
   })
 
   afterEach(() => {
@@ -28,38 +28,33 @@ describe('FrancetravailJeuneController', () => {
   })
 
   describe('GET /francetravail-jeune/connect/:interactionId', () => {
-    describe('default - ft beneficiaire', () => {
+    describe('default - ft jeune', () => {
       it('renvoie une url quand tout va bien', async () => {
         // Given
-        francetravailBeneficiaireService.getAuthorizationUrl.returns(
+        francetravailJeuneService.getAuthorizationUrl.returns(
           success('une-url')
         )
 
         // When - Then
         await request(app.getHttpServer())
-          .get(
-            '/francetravail-jeune/connect/interactionId?type=ft-beneficiaire'
-          )
+          .get('/francetravail-jeune/connect/interactionId')
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
         sinon.assert.calledOnceWithExactly(
-          francetravailBeneficiaireService.getAuthorizationUrl,
-          'interactionId',
-          'ft-beneficiaire'
+          francetravailJeuneService.getAuthorizationUrl,
+          'interactionId'
         )
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
-        francetravailBeneficiaireService.getAuthorizationUrl.returns(
+        francetravailJeuneService.getAuthorizationUrl.returns(
           failure(new AuthError('NO_REASON'))
         )
 
         // When - Then
         await request(app.getHttpServer())
-          .get(
-            '/francetravail-jeune/connect/interactionId?type=ft-beneficiaire'
-          )
+          .get('/francetravail-jeune/connect/interactionId')
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -67,45 +62,44 @@ describe('FrancetravailJeuneController', () => {
           )
 
         sinon.assert.calledOnceWithExactly(
-          francetravailBeneficiaireService.getAuthorizationUrl,
-          'interactionId',
-          'ft-beneficiaire'
+          francetravailJeuneService.getAuthorizationUrl,
+          'interactionId'
         )
       })
     })
   })
 
   describe('GET /auth/realms/pass-emploi/broker/pe-jeune/endpoint', () => {
-    describe('defualt - ft beneficiaire', () => {
+    describe('default - ft jeune', () => {
       it('termine sans erreur quand tout va bien', async () => {
         // Given
-        francetravailBeneficiaireService.callback.resolves(emptySuccess())
+        francetravailJeuneService.callback.resolves(emptySuccess())
 
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'ft-beneficiaire.interaction-id' })
+          .query({ state: 'interaction-id' })
           .expect(HttpStatus.OK)
 
-        sinon.assert.calledOnce(francetravailBeneficiaireService.callback)
+        sinon.assert.calledOnce(francetravailJeuneService.callback)
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
-        francetravailBeneficiaireService.callback.resolves(
+        francetravailJeuneService.callback.resolves(
           failure(new AuthError('NO_REASON'))
         )
 
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
-          .query({ state: 'ft-beneficiaire.interaction-id' })
+          .query({ state: 'interaction-id' })
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=FRANCE_TRAVAIL'
           )
 
-        sinon.assert.calledOnce(francetravailBeneficiaireService.callback)
+        sinon.assert.calledOnce(francetravailJeuneService.callback)
       })
     })
   })

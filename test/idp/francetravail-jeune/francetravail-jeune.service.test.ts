@@ -2,7 +2,7 @@ import { UserinfoResponse } from 'openid-client'
 import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
 import { User } from '../../../src/domain/user'
-import { FrancetravailBeneficiaireService } from '../../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
+import { FrancetravailJeuneService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
 import { NonTrouveError } from '../../../src/utils/result/error'
@@ -10,8 +10,8 @@ import { failure, success } from '../../../src/utils/result/result'
 import { StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
-describe('FrancetravailBeneficiaireService', () => {
-  let service: FrancetravailBeneficiaireService
+describe('FrancetravailJeuneService', () => {
+  let service: FrancetravailJeuneService
   let francetravailAPIClient: StubbedClass<FrancetravailAPIClient>
 
   const resoudreStructureNonAccompagne = (): Promise<
@@ -28,7 +28,7 @@ describe('FrancetravailBeneficiaireService', () => {
 
   beforeEach(() => {
     francetravailAPIClient = stubClass(FrancetravailAPIClient)
-    service = new FrancetravailBeneficiaireService(
+    service = new FrancetravailJeuneService(
       testConfig(),
       stubClass(OidcService),
       stubClass(TokenService),

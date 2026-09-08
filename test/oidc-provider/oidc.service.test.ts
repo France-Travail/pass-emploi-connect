@@ -23,7 +23,7 @@ describe('OidcService', () => {
   })
 
   describe('recoverInteraction', () => {
-    it("récupère l'interaction via le state (sans type) sans toucher au cookie", async () => {
+    it("récupère l'interaction via le state sans toucher au cookie", async () => {
       // Given
       const interaction = { uid: 'uid-123' }
       const find = sandbox.stub().resolves(interaction)
@@ -44,27 +44,6 @@ describe('OidcService', () => {
       sinon.assert.notCalled(interactionDetails)
     })
 
-    it("récupère l'interaction via le state encodé `${type}.${uid}`", async () => {
-      // Given
-      const interaction = { uid: 'uid-123' }
-      const find = sandbox.stub().resolves(interaction)
-      const service = buildOidcServiceWithProvider({
-        Interaction: { find },
-        interactionDetails: sandbox.stub()
-      })
-      const req = { query: { state: 'cej.uid-123' } } as unknown as Request
-
-      // When
-      const result = await service.recoverInteraction(
-        req,
-        {} as unknown as Response
-      )
-
-      // Then
-      expect(result).toBe(interaction)
-      sinon.assert.calledOnceWithExactly(find, 'uid-123')
-    })
-
     it('retombe sur le cookie (interactionDetails) si le state ne résout aucune interaction', async () => {
       // Given
       const fromCookie = { uid: 'uid-cookie' }
@@ -74,7 +53,7 @@ describe('OidcService', () => {
         Interaction: { find },
         interactionDetails
       })
-      const req = { query: { state: 'cej.uid-123' } } as unknown as Request
+      const req = { query: { state: 'uid-123' } } as unknown as Request
       const res = {} as unknown as Response
 
       // When

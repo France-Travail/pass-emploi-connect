@@ -3,7 +3,6 @@ import {
   Get,
   HttpStatus,
   Param,
-  Query,
   Redirect,
   Req,
   Res
@@ -11,28 +10,24 @@ import {
 import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
-import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
+import { FrancetravailJeuneService } from './francetravail-jeune.service'
 import { User } from '../../domain/user'
 
-// Bouton unique FT Connect : un seul IdP bénéficiaire, l'API résout le dispositif en base.
+// Bouton unique FT Connect : un seul IdP jeune, l'API résout le dispositif en base.
 @Controller()
 export class FrancetravailJeuneController {
   constructor(
-    private readonly francetravailBeneficiaireService: FrancetravailBeneficiaireService
+    private readonly francetravailJeuneService: FrancetravailJeuneService
   ) {}
 
   @Get('francetravail-jeune/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
     @Res({ passthrough: true }) response: Response,
-    @Param('interactionId') interactionId: string,
-    @Query() ftQueryParams: { type?: string }
+    @Param('interactionId') interactionId: string
   ): Promise<{ url: string } | void> {
     const authorizationUrlResult =
-      this.francetravailBeneficiaireService.getAuthorizationUrl(
-        interactionId,
-        ftQueryParams.type
-      )
+      this.francetravailJeuneService.getAuthorizationUrl(interactionId)
 
     if (isFailure(authorizationUrlResult))
       return redirectFailure(
@@ -52,7 +47,7 @@ export class FrancetravailJeuneController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
-    const result = await this.francetravailBeneficiaireService.callback(
+    const result = await this.francetravailJeuneService.callback(
       request,
       response
     )

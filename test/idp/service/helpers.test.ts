@@ -93,7 +93,7 @@ describe('Helpers', () => {
       ).toBe('ft-conseiller.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE FRANCE_TRAVAIL', () => {
+    it('renvoie francetravailJeune pour JEUNE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
@@ -103,7 +103,7 @@ describe('Helpers', () => {
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE CONSEIL_DEPT', () => {
+    it('renvoie francetravailJeune pour JEUNE CONSEIL_DEPT', () => {
       expect(
         getIdpConfig(
           configService,
@@ -113,7 +113,7 @@ describe('Helpers', () => {
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE PE CEJ', () => {
+    it('renvoie francetravailJeune pour JEUNE PE CEJ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -123,7 +123,7 @@ describe('Helpers', () => {
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE PE CEJ ', () => {
+    it('renvoie francetravailJeune pour JEUNE PE CEJ ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -133,7 +133,7 @@ describe('Helpers', () => {
       ).toBe('ft-jeune.com')
     })
 
-    it('renvoie francetravailBeneficiaire pour JEUNE FRANCE_TRAVAIL', () => {
+    it('renvoie francetravailJeune pour JEUNE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,

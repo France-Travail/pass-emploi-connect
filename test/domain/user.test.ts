@@ -1,10 +1,10 @@
-import { User, estBeneficiaireFTConnect } from '../../src/domain/user'
+import { User, estJeuneFTConnect } from '../../src/domain/user'
 
 describe('User', () => {
-  describe('estJeuneFT', () => {
-    it('renvoie true si jeune FT', () => {
+  describe('estJeuneFTConnect', () => {
+    it('renvoie true si jeune PE AIJ', () => {
       // When
-      const result = estBeneficiaireFTConnect(
+      const result = estJeuneFTConnect(
         User.Type.JEUNE,
         User.Structure.POLE_EMPLOI_AIJ
       )
@@ -12,9 +12,9 @@ describe('User', () => {
       // Then
       expect(result).toBe(true)
     })
-    it('renvoie true si beneficiaire FT', () => {
+    it('renvoie true si jeune FRANCE_TRAVAIL', () => {
       // When
-      const result = estBeneficiaireFTConnect(
+      const result = estJeuneFTConnect(
         User.Type.JEUNE,
         User.Structure.FRANCE_TRAVAIL
       )
@@ -22,29 +22,16 @@ describe('User', () => {
       // Then
       expect(result).toBe(true)
     })
-    it('renvoie false si beneficiaire Milo', () => {
-      // When
-      const result = estBeneficiaireFTConnect(
-        User.Type.JEUNE,
-        User.Structure.MILO
-      )
-
-      // Then
-      expect(result).toBe(false)
-    })
     it('renvoie false si jeune MILO', () => {
       // When
-      const result = estBeneficiaireFTConnect(
-        User.Type.JEUNE,
-        User.Structure.MILO
-      )
+      const result = estJeuneFTConnect(User.Type.JEUNE, User.Structure.MILO)
 
       // Then
       expect(result).toBe(false)
     })
     it('renvoie false si conseiller FT', () => {
       // When
-      const result = estBeneficiaireFTConnect(
+      const result = estJeuneFTConnect(
         User.Type.CONSEILLER,
         User.Structure.POLE_EMPLOI_BRSA
       )

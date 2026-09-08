@@ -59,7 +59,7 @@ export const configurationSchema = Joi.object({
     scopes: Joi.string().required()
   }),
   idps: Joi.object({
-    francetravailBeneficiaire: Joi.object({
+    francetravailJeune: Joi.object({
       issuer: Joi.string().required(),
       // Vide autorisé : idp.service.ts n'ajoute le paramètre realm aux
       // requêtes que si la valeur est truthy, donc "" est le signal explicite

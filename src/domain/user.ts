@@ -93,16 +93,16 @@ function estConseiller(userType: User.Type): boolean {
   return userType === User.Type.CONSEILLER
 }
 
-function estBeneficiaire(userType: User.Type): boolean {
+function estJeune(userType: User.Type): boolean {
   return userType === User.Type.JEUNE
 }
 
-export function estBeneficiaireFTConnect(
+export function estJeuneFTConnect(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
   return (
-    estBeneficiaire(userType) &&
+    estJeune(userType) &&
     (estFT(userStructure) || estConseilDepartemental(userStructure))
   )
 }
