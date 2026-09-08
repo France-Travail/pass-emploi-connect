@@ -64,7 +64,7 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         userId: apiUser.data.id,
         userType: apiUser.data.type,
         userStructure: apiUser.data.structure,
-        ...(apiUser.data.profil && { userProfile: apiUser.data.profil }),
+        userProfile: apiUser.data.profil,
         userRoles: apiUser.data.roles,
         given_name: apiUser.data.prenom,
         family_name: apiUser.data.nom,
@@ -112,7 +112,7 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         userId: apiUser.data.id,
         userType: apiUser.data.type,
         userStructure: apiUser.data.structure,
-        ...(apiUser.data.profil && { userProfile: apiUser.data.profil }),
+        userProfile: apiUser.data.profil,
         userRoles: apiUser.data.roles ?? [],
         given_name: apiUser.data.prenom
       }
@@ -151,7 +151,7 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         userId: apiUser.data.id,
         userType: account.type,
         userStructure: account.structure,
-        ...(apiUser.data.profil && { userProfile: apiUser.data.profil }),
+        userProfile: apiUser.data.profil,
         userRoles: apiUser.data.roles,
         given_name: apiUser.data.prenom,
         family_name: apiUser.data.nom,

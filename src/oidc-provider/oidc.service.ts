@@ -293,7 +293,7 @@ export class OidcService {
             userId: context.oidc.result.id as string,
             userRoles: context.oidc.result.userRoles as string[],
             userStructure: context.oidc.result.userStructure as User.Structure,
-            userProfile: context.oidc.result.userProfile as Profil | undefined,
+            userProfile: context.oidc.result.userProfile as Profil,
             userType: context.oidc.result.userType as User.Type,
             email: context.oidc.result.email as string,
             family_name: context.oidc.result.family_name as string,

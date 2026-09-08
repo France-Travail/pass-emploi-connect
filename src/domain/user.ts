@@ -33,7 +33,7 @@ export interface User {
   userId: string
   userType: User.Type
   userStructure: User.Structure
-  userProfile?: Profil
+  userProfile: Profil
   userRoles: string[]
   // venant de l'IDP
   given_name: string
@@ -128,26 +128,26 @@ export function profilDeStructure(userStructure: User.Structure): Profil {
     case User.Structure.FRANCE_TRAVAIL:
       return { structure: Profil.Structure.FRANCE_TRAVAIL, dispositif: null }
     case User.Structure.POLE_EMPLOI_CEJ:
-      return ft(Profil.Dispositif.CEJ)
+      return profilFranceTravail(Profil.Dispositif.CEJ)
     case User.Structure.POLE_EMPLOI_BRSA:
-      return ft(Profil.Dispositif.BRSA)
+      return profilFranceTravail(Profil.Dispositif.BRSA)
     case User.Structure.POLE_EMPLOI_AIJ:
-      return ft(Profil.Dispositif.AIJ)
+      return profilFranceTravail(Profil.Dispositif.AIJ)
     case User.Structure.AVENIR_PRO:
-      return ft(Profil.Dispositif.AVENIR_PRO)
+      return profilFranceTravail(Profil.Dispositif.AVENIR_PRO)
     case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
-      return ft(Profil.Dispositif.ACCOMPAGNEMENT_INTENSIF)
+      return profilFranceTravail(Profil.Dispositif.ACCOMPAGNEMENT_INTENSIF)
     case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
-      return ft(Profil.Dispositif.ACCOMPAGNEMENT_GLOBAL)
+      return profilFranceTravail(Profil.Dispositif.ACCOMPAGNEMENT_GLOBAL)
     case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
-      return ft(Profil.Dispositif.EQUIP_EMPLOI_RECRUT)
+      return profilFranceTravail(Profil.Dispositif.EQUIP_EMPLOI_RECRUT)
     case User.Structure.FT_DEMANDEUR_D_EMPLOI:
-      return ft(Profil.Dispositif.DEMANDEUR_D_EMPLOI)
+      return profilFranceTravail(Profil.Dispositif.DEMANDEUR_D_EMPLOI)
     case User.Structure.FT_ESPACE_CANDIDAT:
-      return ft(Profil.Dispositif.ESPACE_CANDIDAT)
+      return profilFranceTravail(Profil.Dispositif.ESPACE_CANDIDAT)
   }
 }
 
-function ft(dispositif: Profil.Dispositif): Profil {
+function profilFranceTravail(dispositif: Profil.Dispositif): Profil {
   return { structure: Profil.Structure.FRANCE_TRAVAIL, dispositif }
 }
