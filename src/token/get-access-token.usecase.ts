@@ -9,6 +9,7 @@ import {
   createIdpIssuerConfig,
   getIdpConfig
 } from '../idp/service/helpers'
+import { creerClientOidc } from '../idp/service/oidc-client'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import {
   rootLogger,
@@ -122,7 +123,7 @@ export class GetAccessTokenUsecase {
 
     try {
       const issuer = appliquerAgentHttp(new Issuer(issuerConfig))
-      const client = appliquerAgentHttp(new issuer.Client(clientConfig))
+      const client = appliquerAgentHttp(creerClientOidc(issuer, clientConfig))
 
       rootLogger.debug(
         {

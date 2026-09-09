@@ -44,6 +44,7 @@ import {
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
+import { creerClientOidc } from './oidc-client'
 import { appliquerAgentHttp } from '../../utils/http-agent'
 
 const RAISON_UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT'
@@ -82,7 +83,7 @@ export abstract class IdpService {
     const issuerConfig = createIdpIssuerConfig(this.idp)
 
     const issuer = appliquerAgentHttp(new Issuer(issuerConfig))
-    this.client = appliquerAgentHttp(new issuer.Client(clientConfig))
+    this.client = appliquerAgentHttp(creerClientOidc(issuer, clientConfig))
   }
 
   getAuthorizationUrl(interactionId: string): Result<string> {
