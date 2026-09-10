@@ -6,8 +6,12 @@ import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService } from '../../token/token.service'
-import { isFailure } from '../../utils/result/result'
-import { IdpService } from '../service/idp.service'
+import { AuthError } from '../../utils/result/error'
+import { failure, isFailure, Result, success } from '../../utils/result/result'
+import {
+  IdpService,
+  RAISON_FRANCE_TRAVAIL_INDISPONIBLE
+} from '../service/idp.service'
 
 @Injectable()
 export class FrancetravailJeuneService extends IdpService {
@@ -34,15 +38,17 @@ export class FrancetravailJeuneService extends IdpService {
   protected async resoudreStructureNonAccompagne(
     _userInfo: UserinfoResponse,
     accessToken: string
-  ): Promise<User.Structure | undefined> {
+  ): Promise<Result<User.Structure | undefined>> {
     const statutResult = await this.francetravailapi!.getStatut(accessToken)
 
     if (isFailure(statutResult)) {
-      return undefined
+      return failure(new AuthError(RAISON_FRANCE_TRAVAIL_INDISPONIBLE))
     }
 
-    return statutResult.data.estDemandeurEmploi
-      ? User.Structure.FT_DEMANDEUR_D_EMPLOI
-      : User.Structure.FT_ESPACE_CANDIDAT
+    return success(
+      statutResult.data.estDemandeurEmploi
+        ? User.Structure.FT_DEMANDEUR_D_EMPLOI
+        : User.Structure.FT_ESPACE_CANDIDAT
+    )
   }
 }

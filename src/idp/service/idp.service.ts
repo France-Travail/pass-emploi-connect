@@ -48,6 +48,8 @@ import { creerClientOidc } from './oidc-client'
 import { appliquerAgentHttp } from '../../utils/http-agent'
 
 const RAISON_UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT'
+// Le statut France Travail départage demandeur d'emploi et espace candidat : sans lui, on ne peut pas créer le compte, et ce n'est pas un refus mais une panne
+export const RAISON_FRANCE_TRAVAIL_INDISPONIBLE = 'FRANCE_TRAVAIL_INDISPONIBLE'
 
 export abstract class IdpService {
   private idpName: string
@@ -102,9 +104,7 @@ export abstract class IdpService {
       const params: AuthorizationParameters = {
         nonce: interactionId,
         scope: this.idp.scopes,
-        // uid porté par le state (qui transite par l'IDP) pour retrouver
-        // l'interaction au callback sans dépendre du cookie _interaction,
-        // souvent perdu par les webviews mobiles. cf. OidcService.recoverInteraction
+        // uid dans le state : retrouve l'interaction au callback sans le cookie, cf. recoverInteraction
         state: interactionId
       }
       if (this.idp.realm) {
@@ -220,12 +220,29 @@ export abstract class IdpService {
 
       if (isFailure(apiUserResult) && estUtilisateurInexistant(apiUserResult)) {
         codeErreur = 'ResolutionStructureNonAccompagne'
-        const structureNonAccompagne =
-          await this.resoudreStructureNonAccompagne(
-            userInfo,
-            tokenSet.access_token!
-          )
+        const resolutionResult = await this.resoudreStructureNonAccompagne(
+          userInfo,
+          tokenSet.access_token!
+        )
 
+        if (isFailure(resolutionResult)) {
+          rootLogger.error(
+            {
+              context: this.idpName,
+              event: { action: 'login_failed', outcome: 'failure' },
+              labels: { idp: this.idpLabel },
+              login: { step: codeErreur },
+              error: toEcsError(resolutionResult.error)
+            },
+            'login_failed'
+          )
+          this.apmService.captureError(
+            new Error('Callback resolution structure non accompagne error')
+          )
+          return resolutionResult
+        }
+
+        const structureNonAccompagne = resolutionResult.data
         if (structureNonAccompagne) {
           codeErreur = 'ApiPassEmploi'
           apiUserResult = await this.passemploiapi.putUser(userInfo.sub, {
@@ -361,8 +378,8 @@ export abstract class IdpService {
   protected async resoudreStructureNonAccompagne(
     _userInfo: UserinfoResponse,
     _accessToken: string
-  ): Promise<User.Structure | undefined> {
-    return undefined
+  ): Promise<Result<User.Structure | undefined>> {
+    return success(undefined)
   }
 
   private async getCoordonnees(

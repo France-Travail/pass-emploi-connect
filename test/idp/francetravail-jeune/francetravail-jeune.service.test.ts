@@ -3,10 +3,11 @@ import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.clien
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
 import { User } from '../../../src/domain/user'
 import { FrancetravailJeuneService } from '../../../src/idp/francetravail-jeune/francetravail-jeune.service'
+import { RAISON_FRANCE_TRAVAIL_INDISPONIBLE } from '../../../src/idp/service/idp.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
-import { NonTrouveError } from '../../../src/utils/result/error'
-import { failure, success } from '../../../src/utils/result/result'
+import { AuthError, NonTrouveError } from '../../../src/utils/result/error'
+import { failure, Result, success } from '../../../src/utils/result/result'
 import { StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
@@ -15,14 +16,14 @@ describe('FrancetravailJeuneService', () => {
   let francetravailAPIClient: StubbedClass<FrancetravailAPIClient>
 
   const resoudreStructureNonAccompagne = (): Promise<
-    User.Structure | undefined
+    Result<User.Structure | undefined>
   > =>
     (
       service as unknown as {
         resoudreStructureNonAccompagne: (
           u: UserinfoResponse,
           t: string
-        ) => Promise<User.Structure | undefined>
+        ) => Promise<Result<User.Structure | undefined>>
       }
     ).resoudreStructureNonAccompagne({} as UserinfoResponse, 'tok')
 
@@ -46,7 +47,7 @@ describe('FrancetravailJeuneService', () => {
 
       // When / Then
       expect(await resoudreStructureNonAccompagne()).toEqual(
-        User.Structure.FT_DEMANDEUR_D_EMPLOI
+        success(User.Structure.FT_DEMANDEUR_D_EMPLOI)
       )
     })
 
@@ -58,18 +59,20 @@ describe('FrancetravailJeuneService', () => {
 
       // When / Then
       expect(await resoudreStructureNonAccompagne()).toEqual(
-        User.Structure.FT_ESPACE_CANDIDAT
+        success(User.Structure.FT_ESPACE_CANDIDAT)
       )
     })
 
-    it('renvoie undefined (échec de la connexion) quand le statut est indisponible', async () => {
+    it('renvoie une erreur France Travail indisponible quand le statut est injoignable', async () => {
       // Given
       francetravailAPIClient.getStatut.resolves(
         failure(new NonTrouveError('Statut FT'))
       )
 
       // When / Then
-      expect(await resoudreStructureNonAccompagne()).toEqual(undefined)
+      expect(await resoudreStructureNonAccompagne()).toEqual(
+        failure(new AuthError(RAISON_FRANCE_TRAVAIL_INDISPONIBLE))
+      )
     })
   })
 })
