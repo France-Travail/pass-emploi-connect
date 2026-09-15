@@ -218,7 +218,15 @@ export abstract class IdpService {
         installationId
       })
 
-      if (isFailure(apiUserResult) && estUtilisateurInexistant(apiUserResult)) {
+      // Mode non accompagné : sans compte pré-créé, résout le dispositif via l'API statut FT ; sinon UTILISATEUR_INEXISTANT
+      const modeNonAccompagneActif = this.configService.get<boolean>(
+        'ftJeuneModeNonAccompagneActif'
+      )
+      if (
+        modeNonAccompagneActif &&
+        isFailure(apiUserResult) &&
+        estUtilisateurInexistant(apiUserResult)
+      ) {
         codeErreur = 'ResolutionStructureNonAccompagne'
         const resolutionResult = await this.resoudreStructureNonAccompagne(
           userInfo,

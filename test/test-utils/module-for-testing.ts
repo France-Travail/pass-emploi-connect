@@ -72,10 +72,13 @@ export const resetSandbox = (): void => {
   sandbox?.reset()
 }
 
-export const testConfig = (): ConfigService => {
+export const testConfig = (
+  overrides: Partial<Configuration> = {}
+): ConfigService => {
   const config: Configuration = {
     environment: 'staging',
     appJeuneActif: true,
+    ftJeuneModeNonAccompagneActif: true,
     port: 5050,
     publicAddress: `http://localhost:5050`,
     cors: {
@@ -204,7 +207,7 @@ export const testConfig = (): ConfigService => {
         process.env.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED
     }
   }
-  return new ConfigService(config)
+  return new ConfigService({ ...config, ...overrides })
 }
 
 const stubProviders = (sandbox: SinonSandbox): Provider[] => {

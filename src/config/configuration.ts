@@ -51,6 +51,9 @@ export default () => {
   const configuration: Configuration = {
     environment: process.env.ENVIRONMENT,
     appJeuneActif: process.env.APP_JEUNE_ACTIF === 'true',
+    // Opt-in strict : mode non accompagné FT jeune (DEMANDEUR_D_EMPLOI / ESPACE_CANDIDAT) actif seulement si 'true'
+    ftJeuneModeNonAccompagneActif:
+      process.env.FT_JEUNE_MODE_NON_ACCOMPAGNE_ACTIF === 'true',
     port: process.env.PORT ? parseInt(process.env.PORT, 10) : 5050,
     publicAddress:
       process.env.PUBLIC_ADDRESS ||
