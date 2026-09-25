@@ -22,6 +22,7 @@ export interface PassEmploiUser {
   profil: Profil
   username?: string
   installationId?: string
+  application?: string
 }
 
 @Injectable()

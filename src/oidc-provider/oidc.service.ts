@@ -161,7 +161,8 @@ export class OidcService {
       // corréler les logs de tout le parcours login avec un device précis
       // (les échecs pré-API sont sinon anonymes). Repris dans les labels via
       // le RequestContext (mixin pino).
-      extraParams: ['kc_idp_hint', 'installation_id'],
+      // application : posé par le front sur le /authorize (pass-emploi ou 1j1s), transmis à l'API pour moduler les contrôles au login
+      extraParams: ['kc_idp_hint', 'installation_id', 'application'],
       clients: [
         {
           client_id: clients.api.id,
@@ -454,6 +455,10 @@ export class OidcService {
           if (ctx.request.query.installation_id) {
             interaction.params.installation_id =
               ctx.request.query.installation_id
+            doitPersister = true
+          }
+          if (ctx.request.query.application) {
+            interaction.params.application = ctx.request.query.application
             doitPersister = true
           }
           if (doitPersister) {
