@@ -161,7 +161,8 @@ export class OidcService {
       // corréler les logs de tout le parcours login avec un device précis
       // (les échecs pré-API sont sinon anonymes). Repris dans les labels via
       // le RequestContext (mixin pino).
-      extraParams: ['kc_idp_hint', 'installation_id'],
+      // dispositif : posé par le web à la première visite d'un conseiller FT, repris dans le profil envoyé à l'API
+      extraParams: ['kc_idp_hint', 'installation_id', 'dispositif'],
       clients: [
         {
           client_id: clients.api.id,
@@ -454,6 +455,10 @@ export class OidcService {
           if (ctx.request.query.installation_id) {
             interaction.params.installation_id =
               ctx.request.query.installation_id
+            doitPersister = true
+          }
+          if (ctx.request.query.dispositif) {
+            interaction.params.dispositif = ctx.request.query.dispositif
             doitPersister = true
           }
           if (doitPersister) {

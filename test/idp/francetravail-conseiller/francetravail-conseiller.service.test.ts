@@ -4,6 +4,7 @@ import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
 import { FrancetravailConseillerService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
+import { Profil } from '../../../src/domain/user'
 import { AuthError } from '../../../src/utils/result/error'
 import { failure, success } from '../../../src/utils/result/result'
 import { createSandbox, StubbedClass, stubClass } from '../../test-utils'
@@ -37,6 +38,40 @@ describe('FrancetravailConseillerService', () => {
           'https://ft-conseiller.com/authorize?client_id=ft-conseiller&scope=&response_type=code&redirect_uri=&nonce=test&state=test&realm=agent'
         )
       )
+    })
+  })
+
+  describe('profilDeConnexion', () => {
+    const profilDeConnexion = (params: Record<string, unknown>): Profil =>
+      (
+        francetravailConseillerService as unknown as {
+          profilDeConnexion: (p: Record<string, unknown>) => Profil
+        }
+      ).profilDeConnexion(params)
+
+    it('reprend le dispositif choisi à la première visite', () => {
+      expect(profilDeConnexion({ dispositif: 'BRSA' })).toEqual({
+        structure: Profil.Structure.FRANCE_TRAVAIL,
+        dispositif: Profil.Dispositif.BRSA
+      })
+    })
+
+    it('reste sans dispositif pour le bouton unique', () => {
+      expect(profilDeConnexion({})).toEqual({
+        structure: Profil.Structure.FRANCE_TRAVAIL,
+        dispositif: null
+      })
+    })
+
+    it('ignore un dispositif qui n’est pas un accompagnement France Travail', () => {
+      expect(profilDeConnexion({ dispositif: 'PACEA' })).toEqual({
+        structure: Profil.Structure.FRANCE_TRAVAIL,
+        dispositif: null
+      })
+      expect(profilDeConnexion({ dispositif: 'n’importe quoi' })).toEqual({
+        structure: Profil.Structure.FRANCE_TRAVAIL,
+        dispositif: null
+      })
     })
   })
 

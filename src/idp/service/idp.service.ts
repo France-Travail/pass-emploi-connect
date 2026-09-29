@@ -14,6 +14,7 @@ import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { IdpConfig } from '../../config/configuration'
 import { Account } from '../../domain/account'
 import {
+  Profil,
   User,
   estJeuneFTConnect,
   estConseillerDept,
@@ -212,7 +213,7 @@ export abstract class IdpService {
         nom,
         prenom,
         email,
-        profil: profilDeStructure(this.userStructure),
+        profil: this.profilDeConnexion(interactionDetails.params),
         type: this.userType,
         username: userInfo.preferred_username,
         installationId
@@ -381,6 +382,11 @@ export abstract class IdpService {
       }
       return failure(new AuthError(codeErreur))
     }
+  }
+
+  // Profil envoyé à l'API au login : celui de l'IdP, sauf précision posée sur le /authorize
+  protected profilDeConnexion(_params: Record<string, unknown>): Profil {
+    return profilDeStructure(this.userStructure)
   }
 
   protected async resoudreStructureNonAccompagne(
