@@ -13,22 +13,18 @@ updates:
     open-pull-requests-limit: 15
     commit-message:
       prefix: 'chore(deps):'
+    # Laisse à la communauté le temps de repérer une version compromise avant qu'on l'installe,
+    # et aux majeures le temps de leurs premiers correctifs. Ne s'applique pas aux security updates.
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
     groups:
-      # Production dependencies - patch and minor (auto-merge côté CI)
-      prod-minor-patch:
+      # Une seule PR par jour, auto-mergée côté CI : pas de PR auto-mergée qui attend un rebase derrière une autre
+      minor-patch:
         applies-to: version-updates
-        dependency-type: production
         update-types:
           - patch
           - minor
-      # Development dependencies - patch and minor (auto-merge côté CI)
-      dev-minor-patch:
-        applies-to: version-updates
-        dependency-type: development
-        update-types:
-          - patch
-          - minor
-      # Majors : pas de groupe, chaque dépendance a sa propre PR
 
   # ===========================================
   # GitHub Actions
@@ -41,6 +37,8 @@ updates:
       timezone: Europe/Paris
     commit-message:
       prefix: 'ci(deps):'
+    cooldown:
+      default-days: 3
     groups:
       # GitHub Actions - patch and minor (auto-merge côté CI)
       actions-minor-patch:
