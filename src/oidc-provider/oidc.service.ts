@@ -23,12 +23,12 @@ import {
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
 import sanitizeHtml from 'sanitize-html'
-import { isFailure } from '../utils/result/result'
+import { isSuccess } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { ContextKey, RequestContext } from '../utils/monitoring/request-context'
-import { NonTrouveError } from '../utils/result/error'
+import { NonTrouveError, UtilisateurNonTraitable } from '../utils/result/error'
 
 // Noms par défaut des cookies d'interaction oidc-provider (cookies.names non surchargé).
 // cookieName() n'étant pas typé publiquement, on les fige ici.
@@ -285,7 +285,8 @@ export class OidcService {
         short: { path: '/', sameSite: 'lax' }
       },
       adapter: (name: string) => new RedisAdapter(name, this.redisClient),
-      findAccount: async (context, accountId: string) => {
+      // token : au refresh, le RefreshToken en cours ; son grant porte l'application mémorisée au login
+      findAccount: async (context, accountId: string, token) => {
         let user: User
 
         // présent uniquement dans le cas d'un authorize
@@ -304,32 +305,14 @@ export class OidcService {
         }
         // context non présent dans le cas d'un get/post token
         else {
-          const account = Account.fromAccountIdToAccount(accountId)
-          const apiUser = await this.passemploiapiService.getUser(account)
-          if (isFailure(apiUser)) {
-            if (apiUser.error.code === NonTrouveError.CODE) {
-              rootLogger.warn(
-                {
-                  context: 'OidcService',
-                  labels: { account_id: accountId },
-                  error: toEcsError(apiUser.error)
-                },
-                'find_account_not_found'
-              )
-              // undefined = le compte n'existe pas pour findAccount, oidc-provider en déduit l'erreur selon le flow
-              // flow token/refresh : lève un invalid_grant (400)
-              // flow authorization : le check de policy voit account = undefined et force un re-login
-              return undefined
-            }
-            const error = new Error('Could not get user from API')
-            rootLogger.error(
-              { context: 'OidcService', error: toEcsError(error) },
-              'find_account_failed'
-            )
-            this.apmService.captureError(error)
-            throw error
+          const utilisateur = await this.recupererUtilisateurDepuisApi(
+            accountId,
+            token?.grantId
+          )
+          if (!utilisateur) {
+            return undefined
           }
-          user = apiUser.data
+          user = utilisateur
         }
         return {
           ...user,
@@ -697,6 +680,77 @@ export class OidcService {
 
   findGrant(grantId: string) {
     return this.oidc.Grant.find(grantId)
+  }
+
+  // L'application (pass-emploi ou 1j1s) n'est connue qu'au login : mémorisée par grant, même durée de vie que lui
+  async memoriserApplicationDuGrant(
+    grantId: string,
+    application: string
+  ): Promise<void> {
+    await this.redisClient.set(
+      `application:${grantId}`,
+      application,
+      'EX',
+      TTL_42_JOURS
+    )
+  }
+
+  async applicationDuGrant(grantId: string): Promise<string | undefined> {
+    return (await this.redisClient.get(`application:${grantId}`)) ?? undefined
+  }
+
+  // Hors authorize (token, refresh, userinfo), l'utilisateur est relu dans l'API avec l'application du login.
+  // undefined = compte introuvable ou refusé (ex : jeune migré vers Parcours Emploi) ; oidc-provider en déduit l'erreur selon le flow :
+  // flow token/refresh : lève un invalid_grant (400), l'app déconnecte le jeune
+  // flow authorization : le check de policy voit account = undefined et force un re-login
+  async recupererUtilisateurDepuisApi(
+    accountId: string,
+    grantId?: string
+  ): Promise<User | undefined> {
+    const account = Account.fromAccountIdToAccount(accountId)
+    const application = grantId
+      ? await this.applicationDuGrant(grantId)
+      : undefined
+    const apiUser = await this.passemploiapiService.getUser(
+      account,
+      application
+    )
+    if (isSuccess(apiUser)) {
+      return apiUser.data
+    }
+    if (apiUser.error.code === NonTrouveError.CODE) {
+      rootLogger.warn(
+        {
+          context: 'OidcService',
+          labels: { account_id: accountId, application },
+          error: toEcsError(apiUser.error)
+        },
+        'find_account_not_found'
+      )
+      return undefined
+    }
+    if (apiUser.error.code === UtilisateurNonTraitable.CODE) {
+      rootLogger.warn(
+        {
+          context: 'OidcService',
+          labels: {
+            account_id: accountId,
+            application,
+            reason: apiUser.error.reason
+          },
+          error: toEcsError(apiUser.error)
+        },
+        'find_account_non_traitable'
+      )
+      return undefined
+    }
+    const error = new Error('Could not get user from API')
+    rootLogger.error(
+      { context: 'OidcService', error: toEcsError(error) },
+      'find_account_failed'
+    )
+    this.apmService.captureError(error)
+    throw error
   }
 
   private logErrors(errors: ErrorOut, cause?: unknown): string {

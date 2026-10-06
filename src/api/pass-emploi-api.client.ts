@@ -131,7 +131,8 @@ export class PassEmploiAPIClient extends ExternalApiClient {
     }
   }
 
-  async getUser(account: Account): Promise<Result<User>> {
+  // application : celle du login (pass-emploi ou 1j1s), l'API en tient compte pour refuser un jeune migré
+  async getUser(account: Account, application?: string): Promise<Result<User>> {
     const profil = profilDeStructure(account.structure)
     try {
       const apiUser = await this.axios.get(
@@ -140,7 +141,8 @@ export class PassEmploiAPIClient extends ExternalApiClient {
           params: {
             typeUtilisateur: account.type,
             structure: profil.structure,
-            dispositif: profil.dispositif ?? undefined
+            dispositif: profil.dispositif ?? undefined,
+            application
           },
           headers: {
             'X-API-KEY': this.apiKey
@@ -164,9 +166,18 @@ export class PassEmploiAPIClient extends ExternalApiClient {
       this.apmService.captureError(
         e instanceof Error ? e : new Error(String(e))
       )
-      const axiosError = e as AxiosError
+      const axiosError = e as AxiosError<{ reason?: string; email?: string }>
       if (axiosError.response?.status === 404) {
         return failure(new NonTrouveError('Utilisateur', account.sub))
+      }
+      // 422 : l'API refuse désormais cet utilisateur (ex : jeune migré vers Parcours Emploi)
+      if (axiosError.response?.status === 422) {
+        return failure(
+          new UtilisateurNonTraitable(
+            axiosError.response.data?.reason,
+            axiosError.response.data?.email
+          )
+        )
       }
       return failure(
         new ErreurReseauIDP(
