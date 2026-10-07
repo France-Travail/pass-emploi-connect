@@ -313,6 +313,13 @@ export abstract class IdpService {
         interactionDetails.params.client_id as string,
         grantId
       )
+      // Retrouvée au refresh pour re-vérifier la migration avec la même règle qu'au login
+      if (application) {
+        await this.oidcService.memoriserApplicationDuGrant(
+          newGrantId,
+          application
+        )
+      }
 
       codeErreur = 'CreateSession'
       const result: InteractionResults = {

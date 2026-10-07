@@ -1,7 +1,11 @@
 import nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { ExternalApiLoggerService } from '../../src/utils/monitoring/external-api-logger.service'
-import { ErreurReseauIDP, NonTrouveError } from '../../src/utils/result/error'
+import {
+  ErreurReseauIDP,
+  NonTrouveError,
+  UtilisateurNonTraitable
+} from '../../src/utils/result/error'
 import {
   failure,
   isFailure,
@@ -283,6 +287,64 @@ describe('PassEmploiAPIClient', () => {
       if (isFailure(response)) {
         expect(response.error.code).toBe(ErreurReseauIDP.CODE)
       }
+    })
+    it("transmet l'application du login à l'API", async () => {
+      // Given
+      const account = unAccount()
+      const apiUser = {
+        id: 'un-id',
+        type: 'CONSEILLER',
+        structure: 'MILO',
+        profil: { structure: 'MILO', dispositif: null },
+        prenom: 'Bruno',
+        roles: [],
+        nom: 'Dumont',
+        email: 'zema@octo.com',
+        username: 'b.dumont'
+      }
+      const scope = nock('https://api.pass-emploi.fr')
+        .get('/auth/users/un-sub')
+        .query({
+          typeUtilisateur: account.type,
+          structure: 'MILO',
+          application: '1j1s'
+        })
+        .reply(200, apiUser)
+
+      // When
+      const response = await passEmploiAPIClient.getUser(account, '1j1s')
+
+      // Then
+      expect(response).toEqual(success(unUser()))
+      expect(scope.isDone()).toBe(true)
+    })
+    it("retourne une UtilisateurNonTraitable avec la raison quand l'API refuse l'utilisateur (422)", async () => {
+      // Given
+      const account = unAccount()
+      nock('https://api.pass-emploi.fr')
+        .get('/auth/users/un-sub')
+        .query({
+          typeUtilisateur: account.type,
+          structure: 'MILO'
+        })
+        .reply(422, {
+          reason: 'MIGRATION_PARCOURS_EMPLOI',
+          email: 'zema@octo.com'
+        })
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.getUser(account)
+
+      // Then
+      expect(response).toEqual(
+        failure(
+          new UtilisateurNonTraitable(
+            'MIGRATION_PARCOURS_EMPLOI',
+            'zema@octo.com'
+          )
+        )
+      )
     })
   })
 })
