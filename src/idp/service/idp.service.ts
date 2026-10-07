@@ -159,6 +159,11 @@ export abstract class IdpService {
       if (installationId) {
         this.requestContext.set(ContextKey.INSTALLATION_ID, installationId)
       }
+      // Application qui a déclenché l'auth (pass-emploi ou 1j1s), posée par le front sur le /authorize.
+      // Indispensable en paramètre explicite : les deux apps partagent le même client_id.
+      const application = interactionDetails.params.application as
+        | string
+        | undefined
 
       codeErreur = 'Callback'
       const tokenSet = await logExternalCall(
@@ -215,7 +220,8 @@ export abstract class IdpService {
         profil: profilDeStructure(this.userStructure),
         type: this.userType,
         username: userInfo.preferred_username,
-        installationId
+        installationId,
+        application
       })
 
       // Mode non accompagné : sans compte pré-créé, résout le dispositif via l'API statut FT ; sinon UTILISATEUR_INEXISTANT
@@ -238,7 +244,7 @@ export abstract class IdpService {
             {
               context: this.idpName,
               event: { action: 'login_failed', outcome: 'failure' },
-              labels: { idp: this.idpLabel },
+              labels: { idp: this.idpLabel, application },
               login: { step: codeErreur },
               error: toEcsError(resolutionResult.error)
             },
@@ -260,7 +266,8 @@ export abstract class IdpService {
             profil: profilDeStructure(structureNonAccompagne),
             type: this.userType,
             username: userInfo.preferred_username,
-            installationId
+            installationId,
+            application
           })
         }
       }
@@ -270,7 +277,7 @@ export abstract class IdpService {
           {
             context: this.idpName,
             event: { action: 'login_failed', outcome: 'failure' },
-            labels: { idp: this.idpLabel },
+            labels: { idp: this.idpLabel, application },
             login: { step: 'ApiPassEmploi' },
             error: toEcsError(apiUserResult.error)
           },
@@ -349,7 +356,7 @@ export abstract class IdpService {
         {
           context: this.idpName,
           event: { action: 'login_completed', outcome: 'success' },
-          labels: { idp: this.idpLabel }
+          labels: { idp: this.idpLabel, application }
         },
         'login_completed'
       )
