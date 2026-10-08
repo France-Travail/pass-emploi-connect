@@ -37,6 +37,10 @@ const INTERACTION_RESUME_COOKIE = '_interaction_resume'
 
 const TTL_42_JOURS = 3600 * 24 * 42
 
+// Le grant invité n'expire jamais et ses clés Redis ne contiennent pas le sub :
+// sans cet index, rien ne permet de le retrouver pour le purger.
+const PREFIX_GRANT_INVITE = 'grant_invite'
+
 // L'invité n'a aucune identité : il ne peut pas se reconnecter, donc un refresh
 // expiré = compte et données perdus définitivement. Son token ne doit jamais
 // expirer.
@@ -697,6 +701,22 @@ export class OidcService {
 
   findGrant(grantId: string) {
     return this.oidc.Grant.find(grantId)
+  }
+
+  async indexerGrantInvite(accountId: string, grantId: string): Promise<void> {
+    await this.redisClient.set(`${PREFIX_GRANT_INVITE}:${accountId}`, grantId)
+  }
+
+  async revoquerGrantInvite(accountId: string): Promise<boolean> {
+    const cleIndex = `${PREFIX_GRANT_INVITE}:${accountId}`
+    const grantId = await this.redisClient.get(cleIndex)
+    if (!grantId) return false
+
+    await this.oidc.RefreshToken.revokeByGrantId(grantId)
+    const grant = await this.oidc.Grant.find(grantId)
+    await grant?.destroy()
+    await this.redisClient.del(cleIndex)
+    return true
   }
 
   private logErrors(errors: ErrorOut, cause?: unknown): string {
