@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import * as APM from 'elastic-apm-node'
+import { Account } from '../domain/account'
+import { User } from '../domain/user'
+import { OidcService } from '../oidc-provider/oidc.service'
 import { RedisClient } from '../redis/redis.client'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
@@ -14,17 +17,35 @@ interface Inputs {
 export class DeleteAccountUsecase {
   protected apmService: APM.Agent
 
-  constructor(private readonly redisClient: RedisClient) {
+  constructor(
+    private readonly redisClient: RedisClient,
+    private readonly oidcService: OidcService
+  ) {
     this.apmService = getAPMInstance()
   }
 
   async execute(inputs: Inputs): Promise<Result> {
+    let step = 'grant_invite'
     try {
+      // L'API ne transmet que le sub : on tente le grant invité pour tout le
+      // monde, l'index n'existe que pour les invités.
+      const accountIdInvite = Account.fromAccountToAccountId({
+        sub: inputs.idAuth,
+        type: User.Type.JEUNE,
+        structure: User.Structure.INVITE
+      })
+      const grantInviteRevoque = await this.oidcService.revoquerGrantInvite(
+        accountIdInvite
+      )
+
+      step = 'tokens_idp'
       await this.redisClient.deletePattern(inputs.idAuth)
+
       rootLogger.info(
         {
           context: 'DeleteAccountUsecase',
-          event: { action: 'account_deleted', outcome: 'success' }
+          event: { action: 'account_deleted', outcome: 'success' },
+          labels: { grant_invite: grantInviteRevoque ? 'revoque' : 'absent' }
         },
         'account_deleted'
       )
@@ -34,6 +55,7 @@ export class DeleteAccountUsecase {
         {
           context: 'DeleteAccountUsecase',
           event: { action: 'account_deleted', outcome: 'failure' },
+          labels: { step },
           error: toEcsError(e)
         },
         'account_deleted'

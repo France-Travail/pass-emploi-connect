@@ -17,7 +17,10 @@ export async function generateNewGrantId(
     // modification du grant existant dans la session
     grant = await oidcService.findGrant(grantId)
   }
-  if (!grantId || !grant) {
+  // Session précédente d'un autre compte (ex. invité qui se connecte) : son
+  // grant n'est pas réutilisable (`accountId mismatch` dans oidc-provider) et
+  // on le laisse intact, son refresh token sert encore à la reprise invité.
+  if (!grant || grant.accountId !== accountId) {
     grant = oidcService.createGrant(accountId, clientId)
   }
 

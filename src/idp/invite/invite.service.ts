@@ -133,6 +133,9 @@ export class InviteService {
         interaction.params.client_id as string
       )
 
+      codeErreur = 'IndexGrant'
+      await this.oidcService.indexerGrantInvite(accountId, grantId)
+
       codeErreur = 'CreateSession'
       const result: InteractionResults = {
         login: { accountId },

@@ -13,6 +13,15 @@ function buildOidcServiceWithProvider(oidc: object): OidcService {
   return service
 }
 
+function buildOidcServiceAvecRedis(
+  oidc: object,
+  redisClient: object
+): OidcService {
+  const service = buildOidcServiceWithProvider(oidc)
+  ;(service as unknown as { redisClient: object }).redisClient = redisClient
+  return service
+}
+
 type FinishableInteraction = Parameters<OidcService['finishInteraction']>[1]
 
 describe('OidcService', () => {
@@ -165,6 +174,103 @@ describe('OidcService', () => {
         login: { accountId: 'nouveau' },
         foo: 'bar'
       })
+    })
+  })
+
+  describe('indexerGrantInvite', () => {
+    it("indexe le grant par l'accountId de l'invité, sans expiration", async () => {
+      // Given
+      const redisClient = { set: sandbox.stub().resolves('OK') }
+      const service = buildOidcServiceAvecRedis({}, redisClient)
+
+      // When
+      await service.indexerGrantInvite('JEUNE|INVITE|sub-invite', 'grant-1')
+
+      // Then
+      sinon.assert.calledOnceWithExactly(
+        redisClient.set,
+        'grant_invite:JEUNE|INVITE|sub-invite',
+        'grant-1'
+      )
+    })
+  })
+
+  describe('revoquerGrantInvite', () => {
+    const accountId = 'JEUNE|INVITE|sub-invite'
+    const cleIndex = 'grant_invite:JEUNE|INVITE|sub-invite'
+
+    it("révoque les tokens, détruit le grant puis supprime l'index", async () => {
+      // Given
+      const grant = { destroy: sandbox.stub().resolves() }
+      const oidc = {
+        RefreshToken: { revokeByGrantId: sandbox.stub().resolves() },
+        Grant: { find: sandbox.stub().resolves(grant) }
+      }
+      const redisClient = {
+        get: sandbox.stub().resolves('grant-1'),
+        del: sandbox.stub().resolves(1)
+      }
+      const service = buildOidcServiceAvecRedis(oidc, redisClient)
+
+      // When
+      const revoque = await service.revoquerGrantInvite(accountId)
+
+      // Then
+      expect(revoque).toBe(true)
+      sinon.assert.calledOnceWithExactly(redisClient.get, cleIndex)
+      sinon.assert.calledOnceWithExactly(
+        oidc.RefreshToken.revokeByGrantId,
+        'grant-1'
+      )
+      sinon.assert.calledOnceWithExactly(oidc.Grant.find, 'grant-1')
+      sinon.assert.calledOnceWithExactly(redisClient.del, cleIndex)
+      // index en dernier : si une étape casse, le job de purge pourra rejouer
+      sinon.assert.callOrder(
+        oidc.RefreshToken.revokeByGrantId,
+        grant.destroy,
+        redisClient.del
+      )
+    })
+
+    it("supprime l'index même si le grant a déjà été détruit", async () => {
+      // Given
+      const oidc = {
+        RefreshToken: { revokeByGrantId: sandbox.stub().resolves() },
+        Grant: { find: sandbox.stub().resolves(undefined) }
+      }
+      const redisClient = {
+        get: sandbox.stub().resolves('grant-1'),
+        del: sandbox.stub().resolves(1)
+      }
+      const service = buildOidcServiceAvecRedis(oidc, redisClient)
+
+      // When
+      const revoque = await service.revoquerGrantInvite(accountId)
+
+      // Then
+      expect(revoque).toBe(true)
+      sinon.assert.calledOnceWithExactly(redisClient.del, cleIndex)
+    })
+
+    it("ne révoque rien quand l'invité n'a pas d'index", async () => {
+      // Given
+      const oidc = {
+        RefreshToken: { revokeByGrantId: sandbox.stub() },
+        Grant: { find: sandbox.stub() }
+      }
+      const redisClient = {
+        get: sandbox.stub().resolves(null),
+        del: sandbox.stub()
+      }
+      const service = buildOidcServiceAvecRedis(oidc, redisClient)
+
+      // When
+      const revoque = await service.revoquerGrantInvite(accountId)
+
+      // Then
+      expect(revoque).toBe(false)
+      sinon.assert.notCalled(oidc.RefreshToken.revokeByGrantId)
+      sinon.assert.notCalled(redisClient.del)
     })
   })
 })

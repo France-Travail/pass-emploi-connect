@@ -131,6 +131,54 @@ describe('InviteService', () => {
       expect(interactionResults.userId).toEqual('id-en-base')
     })
 
+    it("indexe le grant de l'invité pour pouvoir le purger", async () => {
+      // Given
+      oidcService.findInteraction.resolves(uneInteraction())
+      oidcService.createGrant.returns(
+        unGrant() as unknown as ReturnType<OidcService['createGrant']>
+      )
+      passEmploiAPIClient.putUtilisateurInvite.resolves(success(unInvite()))
+
+      // When
+      await inviteService.connect(interactionId, response)
+
+      // Then
+      const subAppele =
+        passEmploiAPIClient.putUtilisateurInvite.firstCall.args[0]
+      sinon.assert.calledOnceWithExactly(
+        oidcService.indexerGrantInvite,
+        Account.fromAccountToAccountId({
+          sub: subAppele,
+          type: User.Type.JEUNE,
+          structure: User.Structure.INVITE
+        }),
+        'un-grant-id'
+      )
+      sinon.assert.callOrder(
+        oidcService.indexerGrantInvite,
+        oidcService.finishInteraction
+      )
+    })
+
+    // Un invité sans index serait impurgeable à vie ; si Redis est indisponible,
+    // grant.save() juste avant aurait de toute façon échoué.
+    it("échoue si l'index du grant ne peut pas être posé", async () => {
+      // Given
+      oidcService.findInteraction.resolves(uneInteraction())
+      oidcService.createGrant.returns(
+        unGrant() as unknown as ReturnType<OidcService['createGrant']>
+      )
+      passEmploiAPIClient.putUtilisateurInvite.resolves(success(unInvite()))
+      oidcService.indexerGrantInvite.rejects(new Error('redis ko'))
+
+      // When
+      const result = await inviteService.connect(interactionId, response)
+
+      // Then
+      expect(isFailure(result)).toBe(true)
+      sinon.assert.notCalled(oidcService.finishInteraction)
+    })
+
     // Régression : l'invité fabrique un accountId neuf à chaque fois. Réutiliser
     // le grant d'une session précédente y laisserait l'ancien accountId, et
     // oidc-provider rejetterait l'autorisation en `accountId mismatch`.
