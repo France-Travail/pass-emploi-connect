@@ -1,0 +1,5 @@
+# Profil API-STAGING : connect branché sur pass-emploi-api de staging. Utilisé par `yarn start:api-staging` / `yarn watch:api-staging`.
+# Chargé AVANT .environment (premier fichier gagne). Committé, sans secret.
+# Les flows IDP externes nécessitent le domaine staging en local : /etc/hosts + nginx (docker compose).
+PUBLIC_ADDRESS=https://id.pass-emploi.incubateur.net/auth/realms/pass-emploi
+PASS_EMPLOI_API_URL=https://api.pass-emploi.incubateur.net
