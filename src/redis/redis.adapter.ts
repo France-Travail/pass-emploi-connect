@@ -62,9 +62,15 @@ export class RedisAdapter implements Adapter {
         multi.rpush(grantKey, key)
         // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
         // here to trim the list to an appropriate length
-        const ttl = await this.redisClient.ttl(grantKey)
-        if (expiresIn > ttl) {
-          multi.expire(grantKey, expiresIn)
+        if (!expiresIn) {
+          // Token sans expiration (refresh invité) : la liste doit lui survivre,
+          // sinon elle garde le TTL court du code d'autorisation émis avant lui.
+          multi.persist(grantKey)
+        } else {
+          const ttl = await this.redisClient.ttl(grantKey)
+          if (expiresIn > ttl) {
+            multi.expire(grantKey, expiresIn)
+          }
         }
       }
 

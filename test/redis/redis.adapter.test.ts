@@ -10,6 +10,7 @@ describe('RedisAdapter', () => {
     set: sinon.SinonStub
     expire: sinon.SinonStub
     rpush: sinon.SinonStub
+    persist: sinon.SinonStub
     del: sinon.SinonStub
     exec: sinon.SinonStub
   }
@@ -21,6 +22,7 @@ describe('RedisAdapter', () => {
       set: sinon.stub().returnsThis(),
       expire: sinon.stub().returnsThis(),
       rpush: sinon.stub().returnsThis(),
+      persist: sinon.stub().returnsThis(),
       del: sinon.stub().returnsThis(),
       exec: sinon.stub().resolves([])
     }
@@ -155,6 +157,40 @@ describe('RedisAdapter', () => {
           'grant:grant1',
           sinon.match.any
         )
+      })
+
+      // Refresh invité (TTL undefined) émis après le code d'autorisation (60 s) :
+      // sans PERSIST, la liste expire avec le code et le refresh devient
+      // injoignable par revokeByGrantId.
+      it("rend la liste du grant persistante quand le token n'expire pas", async () => {
+        // Given
+        redis.ttl.resolves(60)
+
+        // When
+        await adapter.upsert(
+          'id1',
+          { grantId: 'grant1' },
+          undefined as unknown as number
+        )
+
+        // Then
+        sinon.assert.calledWithExactly(multiStub.persist, 'grant:grant1')
+        sinon.assert.neverCalledWith(
+          multiStub.expire,
+          'grant:grant1',
+          sinon.match.any
+        )
+      })
+
+      it('ne rend pas la liste persistante quand le token expire', async () => {
+        // Given
+        redis.ttl.resolves(100)
+
+        // When
+        await adapter.upsert('id1', { grantId: 'grant1' }, 3600)
+
+        // Then
+        sinon.assert.notCalled(multiStub.persist)
       })
 
       it("n'ajoute pas au grant si le payload n'a pas de grantId", async () => {

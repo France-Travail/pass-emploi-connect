@@ -5,6 +5,7 @@
 > suivent le même schéma en remplaçant l'IdP et le `kc_idp_hint`.
 > Conventions de logging (taxonomie, ECS) : voir la doc d'équipe
 > `pass-emploi-tools/docs/logs-ecs/`, non dupliquées ici.
+> Clés Redis, TTL et nettoyage : voir `stockage-redis.md`.
 
 ## Vocabulaire
 
@@ -93,7 +94,7 @@ sequenceDiagram
 
     Note over App,Connect: req F · Étape 8 — refresh
     App->>Connect: POST /token grant_type=refresh_token
-    Connect-->>App: nouveaux access_token + refresh_token
+    Connect-->>App: nouvel access_token (même refresh_token, pas de rotation)
     Note right of Connect: event.action : grant_succeeded (account_id),<br/>request_completed
 
     Note over Api,Connect: req G · Étape 9 — token exchange (trafic de fond)

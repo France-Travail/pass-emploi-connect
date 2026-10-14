@@ -1,0 +1,9 @@
+# Profil API-LOCAL : connect branché sur pass-emploi-api local. Utilisé par `yarn start:api-local` / `yarn watch:api-local`.
+# Chargé AVANT .environment (premier fichier gagne). Committé, sans secret.
+# Sans nginx ni /etc/hosts : seuls les flows sans IDP externe (invité) fonctionnent, les
+# redirect URIs des IDP étant enregistrées sur le domaine staging.
+# Côté api, dans .environment.db-local : OIDC_ISSUER_URL=${OIDC_ISSUER_URL_LOCAL} et OIDC_ISSUER_API_URL=http://localhost:8082
+PORT=8082
+PUBLIC_ADDRESS=http://localhost:8082/auth/realms/pass-emploi
+PASS_EMPLOI_API_URL=http://localhost:5000
+PASS_EMPLOI_API_KEY=${PASS_EMPLOI_API_KEY_LOCAL}

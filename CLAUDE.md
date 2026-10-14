@@ -431,7 +431,8 @@ Chaque client a :
 
 - **Signing** : RS256 (asymétrique)
 - **JWKS** : Clés publiques exposées sur `/certs`
-- **Rotation** : Refresh token avec rotation automatique
+- **Pas de rotation** du refresh token (`rotateRefreshToken: false`) : TTL de 42 j compté depuis le login
+- **Access/ID tokens** : JWT non stockés dans Redis. Clés Redis, TTL et nettoyage : `docs/stockage-redis.md`
 
 ### Bonnes pratiques
 
