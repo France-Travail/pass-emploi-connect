@@ -29,5 +29,8 @@ export function redirectFailure(
   if (failure.error.prenom) {
     url += `&prenom=${failure.error.prenom}`
   }
+  if (failure.error.population) {
+    url += `&population=${encodeURIComponent(failure.error.population)}`
+  }
   response.redirect(HttpStatus.TEMPORARY_REDIRECT, url)
 }

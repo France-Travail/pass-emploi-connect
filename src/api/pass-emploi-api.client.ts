@@ -81,13 +81,15 @@ export class PassEmploiAPIClient extends ExternalApiClient {
         reason?: string
         code?: string
         email?: string
+        population?: string
       }>
       return failure(
         new UtilisateurNonTraitable(
           axiosError.response?.data?.reason ?? axiosError.response?.data?.code,
           axiosError.response?.data?.email,
           passEmploiUser.nom,
-          passEmploiUser.prenom
+          passEmploiUser.prenom,
+          axiosError.response?.data?.population
         )
       )
     }

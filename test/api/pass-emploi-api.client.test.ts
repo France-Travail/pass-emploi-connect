@@ -152,6 +152,42 @@ describe('PassEmploiAPIClient', () => {
         }
       })
     })
+    it("transmet la population quand l'API bloque pour migration", async () => {
+      // Given
+      const utilisateur = unPassEmploiUser({
+        prenom: 'Bruno',
+        nom: 'Dumont',
+        email: 'dumont@octo.com'
+      })
+      nock('https://api.pass-emploi.fr')
+        .put(
+          '/auth/users/un-sub',
+          utilisateur as unknown as nock.RequestBodyMatcher
+        )
+        .reply(422, {
+          reason: 'MIGRATION_PARCOURS_EMPLOI',
+          email: utilisateur.email,
+          population: 'POP_PASS_EMPLOI'
+        })
+        .isDone()
+
+      // When
+      const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
+
+      // Then
+      expect(response).toEqual({
+        _isSuccess: false,
+        error: {
+          code: 'UTILISATEUR_NON_TRAITABLE',
+          email: 'dumont@octo.com',
+          message: 'Utilisateur non traitable',
+          nom: 'Dumont',
+          prenom: 'Bruno',
+          reason: 'MIGRATION_PARCOURS_EMPLOI',
+          population: 'POP_PASS_EMPLOI'
+        }
+      })
+    })
   })
   describe('putUtilisateurInvite', () => {
     it("crée l'invité et retourne l'utilisateur, sans données d'IDP", async () => {

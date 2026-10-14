@@ -144,4 +144,26 @@ describe('redirectFailure', () => {
     expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
     expect(url.split('?').pop()).toBe('reason=')
   })
+
+  it('ajoute la population encodée quand elle est présente', () => {
+    // Given
+    const failure: Failure = {
+      error: {
+        code: 'UTILISATEUR_NON_TRAITABLE',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP PE&1',
+        message: ''
+      },
+      _isSuccess: false
+    }
+
+    // When
+    redirectFailure(response, failure, User.Type.JEUNE)
+
+    // Then
+    const [, url] = response.redirect.getCall(0).args
+    expect(url.split('?').pop()).toBe(
+      `reason=MIGRATION_PARCOURS_EMPLOI&typeUtilisateur=${User.Type.JEUNE}&population=POP%20PE%261`
+    )
+  })
 })
