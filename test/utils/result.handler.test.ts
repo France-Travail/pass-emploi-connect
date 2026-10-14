@@ -121,7 +121,7 @@ describe('redirectFailure', () => {
     expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
     expect(url.split('?').pop()).toBe(
       'reason=ERROR_CODE&typeUtilisateur=' +
-        `${User.Type.JEUNE}&structureUtilisateur=FRANCE_TRAVAIL&email=test@example.com` +
+        `${User.Type.JEUNE}&structureUtilisateur=FRANCE_TRAVAIL&email=test%40example.com` +
         `&nom=Doe&prenom=John`
     )
   })
@@ -165,5 +165,32 @@ describe('redirectFailure', () => {
     expect(url.split('?').pop()).toBe(
       `reason=MIGRATION_PARCOURS_EMPLOI&typeUtilisateur=${User.Type.JEUNE}&population=POP%20PE%261`
     )
+  })
+
+  it('encode email, nom et prénom pour ne pas perdre les paramètres suivants', () => {
+    // Given
+    const failure: Failure = {
+      error: {
+        code: 'UTILISATEUR_NON_TRAITABLE',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        email: 'a+b@example.com',
+        nom: 'Doe #2',
+        prenom: 'Jean&Paul',
+        population: 'POP_PASS_EMPLOI',
+        message: ''
+      },
+      _isSuccess: false
+    }
+
+    // When
+    redirectFailure(response, failure)
+
+    // Then
+    const [, url] = response.redirect.getCall(0).args
+    const params = new URL(url, 'https://web.test').searchParams
+    expect(params.get('email')).toBe('a+b@example.com')
+    expect(params.get('nom')).toBe('Doe #2')
+    expect(params.get('prenom')).toBe('Jean&Paul')
+    expect(params.get('population')).toBe('POP_PASS_EMPLOI')
   })
 })

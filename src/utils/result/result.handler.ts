@@ -21,13 +21,13 @@ export function redirectFailure(
     url += `&structureUtilisateur=${structureUtilisateur}`
   }
   if (failure.error.email) {
-    url += `&email=${failure.error.email}`
+    url += `&email=${encodeURIComponent(failure.error.email)}`
   }
   if (failure.error.nom) {
-    url += `&nom=${failure.error.nom}`
+    url += `&nom=${encodeURIComponent(failure.error.nom)}`
   }
   if (failure.error.prenom) {
-    url += `&prenom=${failure.error.prenom}`
+    url += `&prenom=${encodeURIComponent(failure.error.prenom)}`
   }
   if (failure.error.population) {
     url += `&population=${encodeURIComponent(failure.error.population)}`
