@@ -11,23 +11,21 @@ export function redirectFailure(
 ): void {
   // eslint-disable-next-line no-process-env
   const errorCallbackUrl = process.env.CLIENT_WEB_ERROR_CALLBACK!
-  let url = `${errorCallbackUrl}?reason=${
-    failure.error.reason ?? failure.error.code
-  }`
-  if (typeUtilisateur) {
-    url += `&typeUtilisateur=${typeUtilisateur}`
-  }
+  const params = new URLSearchParams({
+    reason: failure.error.reason ?? failure.error.code
+  })
+  if (typeUtilisateur) params.set('typeUtilisateur', typeUtilisateur)
   if (structureUtilisateur) {
-    url += `&structureUtilisateur=${structureUtilisateur}`
+    params.set('structureUtilisateur', structureUtilisateur)
   }
-  if (failure.error.email) {
-    url += `&email=${failure.error.email}`
+  if (failure.error.email) params.set('email', failure.error.email)
+  if (failure.error.nom) params.set('nom', failure.error.nom)
+  if (failure.error.prenom) params.set('prenom', failure.error.prenom)
+  if (failure.error.population) {
+    params.set('population', failure.error.population)
   }
-  if (failure.error.nom) {
-    url += `&nom=${failure.error.nom}`
-  }
-  if (failure.error.prenom) {
-    url += `&prenom=${failure.error.prenom}`
-  }
-  response.redirect(HttpStatus.TEMPORARY_REDIRECT, url)
+  response.redirect(
+    HttpStatus.TEMPORARY_REDIRECT,
+    `${errorCallbackUrl}?${params}`
+  )
 }

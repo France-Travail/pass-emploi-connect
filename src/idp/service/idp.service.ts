@@ -277,9 +277,16 @@ export abstract class IdpService {
           {
             context: this.idpName,
             event: { action: 'login_failed', outcome: 'failure' },
-            labels: { idp: this.idpLabel, application },
+            labels: {
+              idp: this.idpLabel,
+              application,
+              population_id: apiUserResult.error.population
+            },
             login: { step: 'ApiPassEmploi' },
-            error: toEcsError(apiUserResult.error)
+            error: {
+              ...toEcsError(apiUserResult.error),
+              code: apiUserResult.error.reason
+            }
           },
           'login_failed'
         )
