@@ -169,7 +169,6 @@ describe('PassEmploiAPIClient', () => {
           email: utilisateur.email,
           population: 'POP_PASS_EMPLOI'
         })
-        .isDone()
 
       // When
       const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
@@ -187,6 +186,22 @@ describe('PassEmploiAPIClient', () => {
           population: 'POP_PASS_EMPLOI'
         }
       })
+    })
+    it("n'ajoute pas de population quand l'API n'en renvoie pas", async () => {
+      // Given
+      const utilisateur = unPassEmploiUser()
+      nock('https://api.pass-emploi.fr')
+        .put(
+          '/auth/users/un-sub',
+          utilisateur as unknown as nock.RequestBodyMatcher
+        )
+        .reply(422, { reason: 'MIGRATION_PARCOURS_EMPLOI' })
+
+      // When
+      const response = await passEmploiAPIClient.putUser('un-sub', utilisateur)
+
+      // Then
+      expect(isFailure(response) && response.error.population).toBeUndefined()
     })
   })
   describe('putUtilisateurInvite', () => {

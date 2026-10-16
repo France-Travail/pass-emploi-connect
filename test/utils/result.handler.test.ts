@@ -31,7 +31,7 @@ describe('redirectFailure', () => {
     // Then
     const [status, url] = response.redirect.getCall(0).args
     expect(status).toBe(HttpStatus.TEMPORARY_REDIRECT)
-    expect(url.split('?').pop()).toBe('reason=Test error')
+    expect(url.split('?').pop()).toBe('reason=Test+error')
   })
 
   it('retourne le code quand il attend la raison', () => {
@@ -163,8 +163,29 @@ describe('redirectFailure', () => {
     // Then
     const [, url] = response.redirect.getCall(0).args
     expect(url.split('?').pop()).toBe(
-      `reason=MIGRATION_PARCOURS_EMPLOI&typeUtilisateur=${User.Type.JEUNE}&population=POP%20PE%261`
+      `reason=MIGRATION_PARCOURS_EMPLOI&typeUtilisateur=${User.Type.JEUNE}&population=POP+PE%261`
     )
+  })
+
+  it('encode la raison pour ne pas injecter de paramètres', () => {
+    // Given
+    const failure: Failure = {
+      error: {
+        code: 'ERROR_CODE',
+        reason: 'Erreur&typeUtilisateur=CONSEILLER#',
+        message: ''
+      },
+      _isSuccess: false
+    }
+
+    // When
+    redirectFailure(response, failure, User.Type.JEUNE)
+
+    // Then
+    const [, url] = response.redirect.getCall(0).args
+    const params = new URL(url, 'https://web.test').searchParams
+    expect(params.get('reason')).toBe('Erreur&typeUtilisateur=CONSEILLER#')
+    expect(params.getAll('typeUtilisateur')).toEqual([User.Type.JEUNE])
   })
 
   it('encode email, nom et prénom pour ne pas perdre les paramètres suivants', () => {
