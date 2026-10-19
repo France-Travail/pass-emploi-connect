@@ -43,7 +43,8 @@ describe('revoquerAcces', () => {
       grants: 1,
       sessions: 1,
       tokensIdp: 3,
-      clesSupprimees: 0
+      clesSupprimees: 0,
+      clesIllisibles: []
     })
     expect(await redis.exists('Grant:grant-compromis')).toBe(1)
     expect(await redis.exists('RefreshToken:rt-compromis')).toBe(1)
@@ -72,6 +73,25 @@ describe('revoquerAcces', () => {
 
     // Then
     expect(bilan.subsSansTrace).toEqual(['sub-inconnu'])
+  })
+
+  it('met de côté les objets illisibles sans interrompre la révocation', async () => {
+    // Given
+    await redis.set('Grant:corrompu', 'pas du json')
+    await redis.hset('Session:mauvais-type', { payload: '{}' })
+
+    // When
+    const bilan = await revoquerAcces(redis, new Set([SUB_COMPROMIS]), {
+      execute: true
+    })
+
+    // Then
+    expect(bilan.clesIllisibles).toEqual([
+      'Grant:corrompu',
+      'Session:mauvais-type'
+    ])
+    expect(bilan.grants).toBe(1)
+    expect(await redis.exists('Grant:grant-compromis')).toBe(0)
   })
 })
 

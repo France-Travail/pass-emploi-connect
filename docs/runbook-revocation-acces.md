@@ -73,6 +73,10 @@ LOG [RevoquerAccesScript]   3b1c9d2e-5678-4fed-9cba-9876543210fe
 - **Subs sans aucune trace** : aucune session ni aucun token chez nous. Pour une
   investigation, ça veut dire que l'utilisateur ne s'est pas connecté via nos
   apps ces 42 derniers jours, ou qu'il s'est déconnecté depuis (sur le web).
+- **Clés illisibles** (n'apparaît que s'il y en a) : `Grant` ou `Session` dont
+  le contenu n'est pas du JSON. Le script les saute sans s'arrêter, mais elles
+  peuvent appartenir à un sub visé : les lire avec `GET 'oidc:<clé>'` et les
+  supprimer à la main si besoin.
 
 Après l'exécution, relancer le dry-run doit afficher `Grants : 0, sessions : 0,
 tokens IdP : 0` : tous les subs passent alors en « sans aucune trace ».

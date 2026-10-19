@@ -62,6 +62,12 @@ async function main(): Promise<void> {
     bilan.accountIds.forEach(accountId => logger.log(`  ${accountId}`))
     logger.log(`Subs sans aucune trace (${bilan.subsSansTrace.length}) :`)
     bilan.subsSansTrace.forEach(sub => logger.log(`  ${sub}`))
+    if (bilan.clesIllisibles.length > 0) {
+      logger.error(
+        `Clés illisibles, à inspecter à la main (${bilan.clesIllisibles.length}) :`
+      )
+      bilan.clesIllisibles.forEach(cle => logger.error(`  ${cle}`))
+    }
   } finally {
     await context.close()
   }

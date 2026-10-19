@@ -8,6 +8,7 @@ export interface BilanRevocation {
   sessions: number
   tokensIdp: number
   clesSupprimees: number
+  clesIllisibles: string[]
 }
 
 interface ObjetOidc {
@@ -31,7 +32,10 @@ export async function revoquerAcces(
   subs: ReadonlySet<string>,
   options: { execute: boolean }
 ): Promise<BilanRevocation> {
-  const { grants, sessions, tokensIdp } = await trouverObjets(redis, subs)
+  const { grants, sessions, tokensIdp, clesIllisibles } = await trouverObjets(
+    redis,
+    subs
+  )
 
   const clesTokensDesGrants = await lireClesTokensDesGrants(redis, grants)
   const clesASupprimer = [
@@ -66,7 +70,8 @@ export async function revoquerAcces(
     grants: grants.length,
     sessions: sessions.length,
     tokensIdp: tokensIdp.length,
-    clesSupprimees
+    clesSupprimees,
+    clesIllisibles: clesIllisibles.sort()
   }
 }
 
@@ -77,10 +82,12 @@ async function trouverObjets(
   grants: ObjetOidc[]
   sessions: ObjetOidc[]
   tokensIdp: ObjetOidc[]
+  clesIllisibles: string[]
 }> {
   const grants: ObjetOidc[] = []
   const sessions: ObjetOidc[] = []
   const tokensIdp: ObjetOidc[] = []
+  const clesIllisibles: string[] = []
   const prefixe = redis.options.keyPrefix ?? ''
 
   let cursor = '0'
@@ -108,32 +115,59 @@ async function trouverObjets(
     const clesObjets = cles.filter(
       cle => cle.startsWith('Grant:') || cle.startsWith('Session:')
     )
-    for (const objet of await lireObjets(redis, clesObjets)) {
+    const lecture = await lireObjets(redis, clesObjets)
+    clesIllisibles.push(...lecture.clesIllisibles)
+    for (const objet of lecture.objets) {
       if (!subs.has(Account.getSubFromAccountId(objet.accountId))) continue
       if (objet.cle.startsWith('Grant:')) grants.push(objet)
       else sessions.push(objet)
     }
   } while (cursor !== '0')
 
-  return { grants, sessions, tokensIdp }
+  return { grants, sessions, tokensIdp, clesIllisibles }
 }
 
-async function lireObjets(redis: Redis, cles: string[]): Promise<ObjetOidc[]> {
-  if (cles.length === 0) return []
+// Une clé illisible ne doit pas bloquer la révocation des autres : elle est
+// remontée dans le bilan pour être inspectée à la main, car elle peut
+// appartenir à un sub visé.
+async function lireObjets(
+  redis: Redis,
+  cles: string[]
+): Promise<{ objets: ObjetOidc[]; clesIllisibles: string[] }> {
+  const objets: ObjetOidc[] = []
+  const clesIllisibles: string[] = []
+  if (cles.length === 0) return { objets, clesIllisibles }
   const pipeline = redis.pipeline()
   cles.forEach(cle => pipeline.get(cle))
   const resultats = (await pipeline.exec()) ?? []
 
-  return resultats.flatMap(([erreur, valeur], index) => {
-    if (erreur) throw erreur
+  resultats.forEach(([erreur, valeur], index) => {
+    const cle = cles[index]
     // clé expirée entre le SCAN et le GET
-    if (typeof valeur !== 'string') return []
-    const payload = JSON.parse(valeur)
-    if (typeof payload.accountId !== 'string') return []
-    return [
-      { cle: cles[index], accountId: payload.accountId, uid: payload.uid }
-    ]
+    if (!erreur && valeur === null) return
+    const payload = erreur ? undefined : parserObjetJson(valeur as string)
+    if (!payload) {
+      clesIllisibles.push(cle)
+      return
+    }
+    // Session ouverte avant le login : pas encore d'accountId
+    if (typeof payload.accountId !== 'string') return
+    objets.push({
+      cle,
+      accountId: payload.accountId,
+      uid: typeof payload.uid === 'string' ? payload.uid : undefined
+    })
   })
+  return { objets, clesIllisibles }
+}
+
+function parserObjetJson(valeur: string): Record<string, unknown> | undefined {
+  try {
+    const payload = JSON.parse(valeur)
+    return typeof payload === 'object' && payload !== null ? payload : undefined
+  } catch {
+    return undefined
+  }
 }
 
 async function lireClesTokensDesGrants(
