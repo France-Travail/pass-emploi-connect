@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express'
 
-const BROKER_CALLBACK_PATH = /^\/auth\/realms\/pass-emploi\/broker\/[^/]+\/endpoint$/
+const BROKER_CALLBACK_PATH =
+  /^\/auth\/realms\/pass-emploi\/broker\/[^/]+\/endpoint$/
 
 export function requestFilter(blockedIps: string[]): RequestHandler {
   const blockedIpSet = new Set(blockedIps)
