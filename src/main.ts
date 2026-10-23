@@ -5,6 +5,7 @@ import { AppModule } from './app.module'
 import { initializeAPMAgent } from './utils/monitoring/apm.init'
 import { ContextInterceptor } from './utils/monitoring/context.interceptor'
 import { RequestContext } from './utils/monitoring/request-context'
+import { requestFilter } from './utils/request-filter.middleware'
 
 import { custom } from 'openid-client'
 
@@ -19,14 +20,17 @@ initializeAPMAgent()
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+  const appConfig = app.get(ConfigService)
+
+  // Enregistré avant app.listen() : passe avant les middlewares des modules,
+  // dont pino-http, donc une requête filtrée ne coûte aucun log.
+  app.use(requestFilter(appConfig.get<string[]>('blockedIps') ?? []))
 
   const logger = app.get(Logger)
   app.useLogger(logger)
 
   const requestContext = app.get(RequestContext)
   app.useGlobalInterceptors(new ContextInterceptor(requestContext))
-
-  const appConfig = app.get(ConfigService)
 
   const corsAllowedOrigins = appConfig.get('cors.allowedOrigins')
   if (corsAllowedOrigins && corsAllowedOrigins.length > 0) {
