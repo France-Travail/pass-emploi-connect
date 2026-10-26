@@ -26,8 +26,6 @@
     "cover:report": "vitest run --coverage",
     "test": "yarn cover",
     "test:ci": "vitest run --coverage",
-    "seed:migration-test": "tsx src/scripts/seed-migration-test.ts",
-    "cleanup:migration-test": "tsx src/scripts/cleanup-migration-test.ts",
     "generate-key-pair": "node scripts/generate-key-pair.mjs",
     "release:patch": "scripts/release-version.sh patch",
     "release:minor": "scripts/release-version.sh minor",
@@ -89,7 +87,6 @@
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",
     "supertest": "^7.2.2",
-    "tsx": "^4.23.7",
     "vitest": "^4.1.10"
   },
   "lint-staged": {
