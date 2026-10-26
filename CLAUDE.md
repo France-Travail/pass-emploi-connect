@@ -16,6 +16,11 @@
 | Tests        | `yarn test:local` (Vitest, démarre Redis Docker)                  |
 | Un fichier   | `yarn test:local test/chemin/fichier.test.ts`                     |
 
+Depuis un worktree, `yarn test:local` échoue : le conteneur Redis (`cej-auth-redis`) a un nom
+fixe, et le script ne charge pas `.environment`. Réutiliser le Redis déjà lancé, sur une base
+isolée :
+`REDIS_URL=redis://:myredispassword@localhost:6777/15 yarn dotenv -e ../pass-emploi-connect/.environment -- vitest run`
+
 Pas de scan sécurité local : il ne tourne qu'en CI (`security-checks.yml`).
 
 ---
