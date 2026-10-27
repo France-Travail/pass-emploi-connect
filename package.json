@@ -77,7 +77,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "dotenv-cli": "^11.0.0",
     "dotvault": "^0.0.9",
-    "eslint": "^8.0.0",
+    "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^9.0.11",
