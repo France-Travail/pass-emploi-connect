@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config'
-import { ClientAuthMethod } from 'oidc-provider'
 import { ClientMetadata, IssuerMetadata } from 'openid-client'
 import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
 import { User } from '../../domain/user'
@@ -114,6 +113,6 @@ export function createIdpClientConfig(idp: IdpConfig): ClientMetadata {
     response_types: ['code'],
     grant_types: ['authorization_code', 'refresh_token'],
     scope: idp.scopes,
-    token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
+    token_endpoint_auth_method: 'client_secret_post'
   }
 }
