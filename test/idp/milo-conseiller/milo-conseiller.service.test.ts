@@ -32,7 +32,7 @@ describe('MiloConseillerService', () => {
     it('renvoie success', () => {
       expect(miloConseillerService.getAuthorizationUrl('test')).toEqual(
         success(
-          'https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif/protocol/openid-connect/auth?client_id=sue-portail-conseiller&scope=openid%20email%20profile%20offline_access&response_type=code&redirect_uri=https%3A%2F%2Fid.pass-emploi.incubateur.net%2Fauth%2Frealms%2Fpass-emploi%2Fbroker%2Fsimilo-conseiller%2Fendpoint&nonce=test&state=test'
+          'https://milo-conseiller.com/authorize?client_id=milo-conseiller&scope=openid%20profile%20email&response_type=code&redirect_uri=https%3A%2F%2Ftest.com%2Fcallback&nonce=test&state=test'
         )
       )
     })

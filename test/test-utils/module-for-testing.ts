@@ -21,6 +21,7 @@ import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-consei
 import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
+import { getTestKeyPair } from './jwt-test-helper'
 
 dotenv.config({ path: '.environment' })
 
@@ -124,7 +125,7 @@ export const testConfig = (
       url: 'rsrc',
       scopes: ''
     },
-    jwks: JSON.parse(process.env.JWKS!),
+    jwks: getTestKeyPair().privateJWKS,
     idps: {
       francetravailJeune: {
         issuer: 'ft-jeune.com',
@@ -157,15 +158,15 @@ export const testConfig = (
         refreshTokenMaxAge: IDP_FT_CONSEILLER_REFRESH_TOKEN_MAX_AGE
       },
       miloConseiller: {
-        issuer: process.env.IDP_MILO_CONSEILLER_ISSUER!,
-        authorizationUrl: process.env.IDP_MILO_CONSEILLER_AUTHORIZATION_URL!,
-        tokenUrl: process.env.IDP_MILO_CONSEILLER_TOKEN_URL!,
-        jwks: process.env.IDP_MILO_CONSEILLER_JWKS!,
-        userinfo: process.env.IDP_MILO_CONSEILLER_USERINFO!,
-        clientId: process.env.IDP_MILO_CONSEILLER_CLIENT_ID!,
-        clientSecret: process.env.IDP_MILO_CONSEILLER_CLIENT_SECRET!,
-        scopes: process.env.IDP_MILO_CONSEILLER_SCOPES!,
-        redirectUri: process.env.IDP_MILO_CONSEILLER_REDIRECT_URI!,
+        issuer: 'milo-conseiller.com',
+        authorizationUrl: 'https://milo-conseiller.com/authorize',
+        tokenUrl: 'milo-conseiller.com/token',
+        jwks: 'milo-conseiller.com/jwks',
+        userinfo: 'milo-conseiller.com/userinfo',
+        clientId: 'milo-conseiller',
+        clientSecret: 'milo-conseiller-secret',
+        scopes: 'openid profile email',
+        redirectUri: 'https://test.com/callback',
         logout: '',
         accessTokenMaxAge: IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE,
         refreshTokenMaxAge: IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE
@@ -200,11 +201,9 @@ export const testConfig = (
       }
     },
     test: {
-      miloConseillerOfflineToken:
-        process.env.TEST_MILO_CONSEILLER_OFFLINE_TOKEN,
-      miloConseillerCEJJWT: process.env.TEST_MILO_CONSEILLER_CEJ_JWT,
-      miloConseillerCEJJWTExpired:
-        process.env.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED
+      miloConseillerOfflineToken: 'fake-offline-token',
+      miloConseillerCEJJWT: undefined,
+      miloConseillerCEJJWTExpired: undefined
     }
   }
   return new ConfigService({ ...config, ...overrides })
@@ -250,3 +249,5 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     }
   ]
 }
+
+export { getTestKeyPair as testKeyPair }

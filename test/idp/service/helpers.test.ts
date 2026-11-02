@@ -24,7 +24,7 @@ describe('Helpers', () => {
       expect(
         getIdpConfig(configService, User.Type.CONSEILLER, User.Structure.MILO)
           .issuer
-      ).toBe('https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif')
+      ).toBe('milo-conseiller.com')
     })
 
     it('renvoie conseillerDept pour CONSEILLER CONSEIL_DEPT', () => {
