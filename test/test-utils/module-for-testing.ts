@@ -21,7 +21,7 @@ import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-consei
 import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
-import { getTestKeyPair } from './jwt-test-helper'
+import { testJWKS } from './jwt-test-helper'
 
 dotenv.config({ path: '.environment' })
 
@@ -125,7 +125,7 @@ export const testConfig = (
       url: 'rsrc',
       scopes: ''
     },
-    jwks: getTestKeyPair().privateJWKS,
+    jwks: testJWKS.private,
     idps: {
       francetravailJeune: {
         issuer: 'ft-jeune.com',
@@ -201,9 +201,7 @@ export const testConfig = (
       }
     },
     test: {
-      miloConseillerOfflineToken: 'fake-offline-token',
-      miloConseillerCEJJWT: undefined,
-      miloConseillerCEJJWTExpired: undefined
+      miloConseillerOfflineToken: 'fake-offline-token'
     }
   }
   return new ConfigService({ ...config, ...overrides })
@@ -249,5 +247,3 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     }
   ]
 }
-
-export { getTestKeyPair as testKeyPair }

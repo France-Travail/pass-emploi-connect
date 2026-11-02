@@ -1,61 +1,38 @@
-import { generateKeyPair, exportJWK, SignJWT, JWTPayload } from 'jose'
+import { generateKeyPairSync } from 'node:crypto'
+import { SignJWT, JWTPayload } from 'jose'
 import { JWKS } from 'oidc-provider'
 
-interface TestKeyPair {
-  publicJWKS: JWKS
-  privateJWKS: JWKS
-  signJWT: (payload: JWTPayload, expiresIn: string) => Promise<string>
-}
+const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+  modulusLength: 2048
+})
 
-let cachedKeyPair: TestKeyPair | null = null
+const publicJWK = publicKey.export({ format: 'jwk' })
+publicJWK.kid = 'test-key-id'
+publicJWK.use = 'sig'
+publicJWK.alg = 'RS256'
 
-export async function initializeTestKeyPair(): Promise<void> {
-  if (cachedKeyPair) {
-    return
-  }
+const privateJWK = privateKey.export({ format: 'jwk' })
+privateJWK.kid = 'test-key-id'
+privateJWK.use = 'sig'
+privateJWK.alg = 'RS256'
 
-  const { publicKey, privateKey } = await generateKeyPair('RS256', {
-    modulusLength: 2048
-  })
-
-  const publicJWK = await exportJWK(publicKey)
-  publicJWK.kid = 'test-key-id'
-  publicJWK.use = 'sig'
-  publicJWK.alg = 'RS256'
-
-  const privateJWK = await exportJWK(privateKey)
-  privateJWK.kid = 'test-key-id'
-  privateJWK.use = 'sig'
-  privateJWK.alg = 'RS256'
-
-  const publicJWKS: JWKS = {
+export const testJWKS = {
+  public: {
     keys: [publicJWK]
-  }
-
-  const privateJWKS: JWKS = {
+  } as JWKS,
+  private: {
     keys: [privateJWK]
-  }
-
-  const signJWT = async (
-    payload: JWTPayload,
-    expiresIn: string
-  ): Promise<string> => {
-    const jwt = new SignJWT(payload)
-      .setProtectedHeader({ alg: 'RS256', kid: 'test-key-id' })
-      .setIssuedAt()
-      .setExpirationTime(expiresIn)
-
-    return await jwt.sign(privateKey)
-  }
-
-  cachedKeyPair = { publicJWKS, privateJWKS, signJWT }
+  } as JWKS
 }
 
-export function getTestKeyPair(): TestKeyPair {
-  if (!cachedKeyPair) {
-    throw new Error(
-      'Test key pair not initialized. Call initializeTestKeyPair() first.'
-    )
-  }
-  return cachedKeyPair
+export async function signTestJWT(
+  payload: JWTPayload,
+  expiresIn: string
+): Promise<string> {
+  const jwt = new SignJWT(payload)
+    .setProtectedHeader({ alg: 'RS256', kid: 'test-key-id' })
+    .setIssuedAt()
+    .setExpirationTime(expiresIn)
+
+  return await jwt.sign(privateKey)
 }

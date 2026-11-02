@@ -1,6 +1,7 @@
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { unJwtPayloadValide, uneDatetime } from '../test-utils/fixtures'
-import { testConfig, testKeyPair } from '../test-utils/module-for-testing'
+import { testConfig } from '../test-utils/module-for-testing'
+import { signTestJWT } from '../test-utils/jwt-test-helper'
 import { StubbedClass, stubClass } from '../test-utils'
 import { DateService } from '../../src/utils/date.service'
 import { errors } from 'jose'
@@ -21,7 +22,7 @@ describe('ValidateJWTUsecase', () => {
     it('retourne le JWTPayload quand tout est ok', async () => {
       // Given
       const payload = unJwtPayloadValide()
-      const validToken = await testKeyPair().signJWT(payload, '100y')
+      const validToken = await signTestJWT(payload, '100y')
       const inputs = {
         token: validToken
       }
@@ -31,17 +32,20 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result._isSuccess).toBe(true)
-      if (result._isSuccess) {
-        expect(result.data.sub).toEqual(payload.sub)
-        expect(result.data.email).toEqual(payload.email)
-        expect(result.data.preferred_username).toEqual(payload.preferred_username)
-      }
+      expect(result).toEqual(
+        success(
+          expect.objectContaining({
+            sub: payload.sub,
+            email: payload.email,
+            preferred_username: payload.preferred_username
+          })
+        )
+      )
     })
     it("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
       // Given
       const payload = unJwtPayloadValide()
-      const tokenExpiringIn100Years = await testKeyPair().signJWT(payload, '100y')
+      const tokenExpiringIn100Years = await signTestJWT(payload, '100y')
       const inputs = {
         token: tokenExpiringIn100Years
       }
@@ -57,7 +61,7 @@ describe('ValidateJWTUsecase', () => {
     it('retourne une erreur JWKS expired JWT est expiré (peu importe la date now)', async () => {
       // Given
       const payload = unJwtPayloadValide()
-      const expiredToken = await testKeyPair().signJWT(payload, '0s')
+      const expiredToken = await signTestJWT(payload, '0s')
       const inputs = {
         token: expiredToken
       }
