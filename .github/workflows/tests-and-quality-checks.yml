@@ -32,7 +32,6 @@ jobs:
 
     env:
       REDIS_URL: redis://localhost:6767
-      CLIENT_WEB_ERROR_CALLBACK: ${{ secrets.CLIENT_WEB_ERROR_CALLBACK }}
 
     steps:
       - uses: France-Travail/pass-emploi-tools/.github/actions/test-and-upload@645baca94d9825a7502bc1b143097cc8a9c6b707

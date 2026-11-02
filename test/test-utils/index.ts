@@ -12,3 +12,6 @@ export { stubClass, StubbedClass }
 
 const instanceMock: StubbedType<apm.Agent> = stubInterface(createSandbox())
 setAPMInstance(instanceMock)
+
+process.env.CLIENT_WEB_ERROR_CALLBACK =
+  'https://web.pass-emploi.incubateur.net/autherror'
