@@ -1558,14 +1558,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/oidc-provider@npm:~9.11.1":
-  version: 9.11.1
-  resolution: "@types/oidc-provider@npm:9.11.1"
+"@types/oidc-provider@npm:~9.13.1":
+  version: 9.13.1
+  resolution: "@types/oidc-provider@npm:9.13.1"
   dependencies:
     "@types/keygrip": "npm:*"
     "@types/koa": "npm:*"
     "@types/node": "npm:*"
-  checksum: 10/6343137db01bd29a227e92bb1a038aabe78ae3a077a8c944f96bfda23972bf40d90ed2f37f0d5de2ec3d6c14f97f9e8a3ef9cafc2fc64cdc01e624d1f9597492
+  checksum: 10/9dcaf2836f1cf77cb3a0de12103296e88304529551889ee98b710f517ea93f984e98881f026545172a808e545a78f3ebfd18488649bb6c807ca1aec7c788259b
   languageName: node
   linkType: hard
 
@@ -4799,7 +4799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^6.2.10":
+"jose@npm:^6.2.13":
   version: 6.2.15
   resolution: "jose@npm:6.2.15"
   checksum: 10/57ea834a3aae6612b603dc04e5e068dabf1582934ffc759f004a0c654632bec06e6184aee73246157d03fb56179d50ac4e5c56ad02cf939086ef888ae8d8ebec
@@ -5874,14 +5874,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oidc-provider@npm:~9.11.5":
-  version: 9.11.5
-  resolution: "oidc-provider@npm:9.11.5"
+"oidc-provider@npm:~9.13.3":
+  version: 9.13.3
+  resolution: "oidc-provider@npm:9.13.3"
   dependencies:
     debug: "npm:^4.4.3"
-    jose: "npm:^6.2.10"
+    jose: "npm:^6.2.13"
     koa: "npm:^3.2.1"
-  checksum: 10/b507afe95b0abcb197e8d31999f389ed193376b1bfb2f35f07a1b535fb2dece853ca173d18b8bb83d79ae77d29c4bcecd4fc7f11418f982e63e5ac96f87593e6
+  checksum: 10/d75896e5242d7ee8df69ee2924493cd248cebbb0402977d2f916de415fe1a7d8268eedda945c9d5bd417b1d9cb83c67e7a48ae1dd29feccd4a2b2b1c7b9bcc7c
   languageName: node
   linkType: hard
 
@@ -6079,7 +6079,7 @@ __metadata:
     "@types/express": "npm:^5.0.0"
     "@types/luxon": "npm:^3.7.6"
     "@types/node": "npm:^22.0.0"
-    "@types/oidc-provider": "npm:~9.11.1"
+    "@types/oidc-provider": "npm:~9.13.1"
     "@types/pino-multi-stream": "npm:^5.1.6"
     "@types/sanitize-html": "npm:^2.16.2"
     "@types/sinon": "npm:^17.0.3"
@@ -6104,7 +6104,7 @@ __metadata:
     nestjs-pino: "npm:^4.0.0"
     nock: "npm:^14.0.0"
     npm-check-updates: "npm:^19.2.0"
-    oidc-provider: "npm:~9.11.5"
+    oidc-provider: "npm:~9.13.3"
     openid-client: "npm:^5.6.5"
     pino: "npm:^10.4.0"
     pino-http: "npm:^11.0.0"
