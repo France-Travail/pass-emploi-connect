@@ -1,10 +1,10 @@
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { unJwtPayloadValide, uneDatetime } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
+import { signTestJWT } from '../test-utils/jwt-test-helper'
 import { StubbedClass, stubClass } from '../test-utils'
 import { DateService } from '../../src/utils/date.service'
 import { errors } from 'jose'
-import { DateTime } from 'luxon'
 import { failure, success } from '../../src/utils/result/result'
 import { JWTError } from '../../src/utils/result/error'
 
@@ -19,11 +19,12 @@ describe('ValidateJWTUsecase', () => {
     validateJWTUsecase = new ValidateJWTUsecase(configService, dateService)
   })
   describe('execute', () => {
-    // TODO regénérer un jwt access token valide très longtemps
-    it.skip('retourne le JWTPayload quand tout est ok', async () => {
+    it('retourne le JWTPayload quand tout est ok', async () => {
       // Given
+      const payload = unJwtPayloadValide()
+      const validToken = await signTestJWT(payload, '100y')
       const inputs = {
-        token: configService.get('test.miloConseillerCEJJWT')
+        token: validToken
       }
       dateService.now.returns(maintenant)
 
@@ -31,15 +32,25 @@ describe('ValidateJWTUsecase', () => {
       const result = await validateJWTUsecase.execute(inputs)
 
       // Then
-      expect(result).toEqual(success(unJwtPayloadValide()))
+      expect(result).toEqual(
+        success(
+          expect.objectContaining({
+            sub: payload.sub,
+            email: payload.email,
+            preferred_username: payload.preferred_username
+          })
+        )
+      )
     })
-    it.skip("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
+    it("retourne une erreur expired quand l'exp du token est inferieur à maintenant", async () => {
       // Given
+      const payload = unJwtPayloadValide()
+      const tokenExpiringIn100Years = await signTestJWT(payload, '100y')
       const inputs = {
-        token: configService.get('test.miloConseillerCEJJWT')
+        token: tokenExpiringIn100Years
       }
-      // à mettre à jour si on change le token de test
-      dateService.now.returns(DateTime.fromISO('2025-10-02T20:00:00Z'))
+      const dateIn200Years = maintenant.plus({ years: 200 })
+      dateService.now.returns(dateIn200Years)
 
       // When
       const result = await validateJWTUsecase.execute(inputs)
@@ -49,8 +60,10 @@ describe('ValidateJWTUsecase', () => {
     })
     it('retourne une erreur JWKS expired JWT est expiré (peu importe la date now)', async () => {
       // Given
+      const payload = unJwtPayloadValide()
+      const expiredToken = await signTestJWT(payload, '0s')
       const inputs = {
-        token: configService.get('test.miloConseillerCEJJWTExpired')
+        token: expiredToken
       }
       dateService.now.returns(maintenant)
 
