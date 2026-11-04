@@ -7,7 +7,7 @@ FROM docker.io/library/node:22.14.0
 WORKDIR /usr/src/app
 
 # Define environment variables
-ENV YARN_VERSION 4.8.1
+ENV YARN_VERSION 4.9.3
 ENV YARN_CACHE_FOLDER=/cache/yarn
 
 # Install Yarn

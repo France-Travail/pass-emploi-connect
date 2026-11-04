@@ -64,7 +64,7 @@ services:
       REDIS_ARGS: '--requirepass myredispassword --appendonly yes --save 60 1 --loglevel warning'
 
   https:
-    image: docker.io/nginxproxy/nginx-proxy
+    image: docker.io/nginxproxy/nginx-proxy:1.11.6-alpine
     ports:
       - '443:443'
     volumes:
