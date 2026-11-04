@@ -80,6 +80,9 @@ export default () => {
     authorizedConseillersDept: process.env.AUTHORIZED_CONSEILLERS_DEPT
       ? JSON.parse(process.env.AUTHORIZED_CONSEILLERS_DEPT)
       : [],
+    blockedIps: process.env.BLOCKED_IPS
+      ? JSON.parse(process.env.BLOCKED_IPS)
+      : [],
     redis: {
       url: process.env.REDIS_URL
     },
