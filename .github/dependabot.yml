@@ -1,9 +1,6 @@
 version: 2
 
 updates:
-  # ===========================================
-  # NPM Dependencies
-  # ===========================================
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -13,26 +10,37 @@ updates:
     open-pull-requests-limit: 15
     commit-message:
       prefix: 'chore(deps):'
+    # Majeures npm montées hors Dependabot : elles demandent souvent une refacto.
+    # Sans effet sur les security updates, créées quel que soit le type de montée.
+    allow:
+      - dependency-type: direct
+        update-types:
+          - version-update:semver-patch
+          - version-update:semver-minor
+    # Laisse à la communauté le temps de repérer une version compromise. Ne s'applique pas aux security updates.
+    cooldown:
+      default-days: 3
+    # oidc-provider >= 9.12 exige une durée de vie finie pour le refresh token et le grant,
+    # or ceux de l'invité n'expirent jamais : à lever une fois cette durée choisie.
+    ignore:
+      - dependency-name: 'oidc-provider'
+        versions: ['>=9.12.0']
+      - dependency-name: '@types/oidc-provider'
+        versions: ['>=9.12.0']
     groups:
-      # Production dependencies - patch and minor (auto-merge côté CI)
       prod-minor-patch:
         applies-to: version-updates
         dependency-type: production
         update-types:
           - patch
           - minor
-      # Development dependencies - patch and minor (auto-merge côté CI)
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
         update-types:
           - patch
           - minor
-      # Majors : pas de groupe, chaque dépendance a sa propre PR
 
-  # ===========================================
-  # GitHub Actions
-  # ===========================================
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -41,11 +49,31 @@ updates:
       timezone: Europe/Paris
     commit-message:
       prefix: 'ci(deps):'
+    cooldown:
+      default-days: 3
     groups:
-      # GitHub Actions - patch and minor (auto-merge côté CI)
       actions-minor-patch:
         applies-to: version-updates
         update-types:
           - patch
           - minor
-      # Majors : pas de groupe, chaque action a sa propre PR
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: daily
+      time: '07:00'
+      timezone: Europe/Paris
+    commit-message:
+      prefix: 'chore(docker):'
+    # Images qui doublent les addons Scalingo : leur version suit celle de la prod, pas la dernière publiée
+    ignore:
+      - dependency-name: 'redis'
+    cooldown:
+      default-days: 3
+    groups:
+      docker-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - patch
+          - minor
