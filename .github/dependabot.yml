@@ -10,19 +10,17 @@ updates:
     open-pull-requests-limit: 15
     commit-message:
       prefix: 'chore(deps):'
-    # Majeures npm montées hors Dependabot : elles demandent souvent une refacto.
-    # Sans effet sur les security updates, créées quel que soit le type de montée.
-    allow:
-      - dependency-type: direct
-        update-types:
-          - version-update:semver-patch
-          - version-update:semver-minor
-    # Laisse à la communauté le temps de repérer une version compromise. Ne s'applique pas aux security updates.
+    # Laisse à la communauté le temps de repérer une version compromise, plus longtemps pour une majeure.
+    # Ne s'applique pas aux security updates.
     cooldown:
       default-days: 3
-    # oidc-provider >= 9.12 exige une durée de vie finie pour le refresh token et le grant,
-    # or ceux de l'invité n'expirent jamais : à lever une fois cette durée choisie.
+      semver-major-days: 14
     ignore:
+      # La majeure de @types/node suit celle de Node en prod, montée à la main avec le runtime.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # oidc-provider >= 9.12 exige une durée de vie finie pour le refresh token et le grant,
+      # or ceux de l'invité n'expirent jamais : à lever une fois cette durée choisie.
       - dependency-name: 'oidc-provider'
         versions: ['>=9.12.0']
       - dependency-name: '@types/oidc-provider'
@@ -34,12 +32,22 @@ updates:
         update-types:
           - patch
           - minor
+      prod-major:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - major
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
         update-types:
           - patch
           - minor
+      dev-major:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - major
 
   - package-ecosystem: github-actions
     directory: /
