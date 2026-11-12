@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
-    "@salesforce/ts-sinon": "^1.4.39",
+    "@salesforce/ts-sinon": "^1.4.45",
     "@types/sinon": "^17.0.3",
     "@types/supertest": "^7",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
@@ -86,7 +86,7 @@
     "npm-check-updates": "^19.2.0",
     "prettier": "^2.8.0",
     "sinon": "^21.0.0",
-    "supertest": "^7.3.1",
+    "supertest": "^7.3.2",
     "vitest": "^4.1.10"
   },
   "lint-staged": {
