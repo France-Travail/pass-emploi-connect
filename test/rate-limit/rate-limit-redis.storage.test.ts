@@ -79,6 +79,20 @@ describe('RateLimitRedisStorage', () => {
       expect(result.timeToExpire).toBeLessThanOrEqual(5)
       expect(result.timeToBlockExpire).toBe(result.timeToExpire)
     })
+
+    it('repose le TTL sur une clé qui en est privée', async () => {
+      // Given
+      const key = 'test-key-sans-ttl'
+      await redis.set(key, '5')
+
+      // When
+      const result = await storage.increment(key, 5000, 10, 0, 'test')
+
+      // Then
+      expect(result.totalHits).toBe(6)
+      expect(result.timeToExpire).toBeGreaterThan(0)
+      expect(await redis.pttl(key)).toBeGreaterThan(0)
+    })
   })
 
   describe('fail-open sur timeout Redis', () => {
@@ -150,6 +164,89 @@ describe('RateLimitRedisStorage', () => {
         error: { type: string; message: string }
       }
       expect(firstCall.error.message).toMatch(/INCR failed/)
+    })
+
+    it('repose le TTL si PTTL indique une clé sans expiration', async () => {
+      // Given
+      redis.multi.returns({
+        incr: sinon.stub().returnsThis(),
+        pexpire: sinon.stub().returnsThis(),
+        pttl: sinon.stub().returnsThis(),
+        exec: sinon.stub().resolves([
+          [null, 6],
+          [null, 0],
+          [null, -1]
+        ])
+      } as never)
+      redis.pexpire.resolves(1)
+      storage = new RateLimitRedisStorage(redis)
+
+      // When
+      const result = await storage.increment('key', 5000, 10, 0, 'test')
+
+      // Then
+      sinon.assert.calledOnce(redis.pexpire)
+      expect(redis.pexpire.firstCall.args).toEqual(['key', 5000])
+      expect(result.totalHits).toBe(6)
+      expect(result.timeToExpire).toBe(5)
+    })
+
+    it('laisse passer si PEXPIRE échoue', async () => {
+      // Given
+      const failingMulti = {
+        incr: sinon.stub().returnsThis(),
+        pexpire: sinon.stub().returnsThis(),
+        pttl: sinon.stub().returnsThis(),
+        exec: sinon.stub().resolves([
+          [null, 1],
+          [new Error('PEXPIRE failed'), null],
+          [null, 100]
+        ])
+      }
+      redis.multi.returns(failingMulti as never)
+      storage = new RateLimitRedisStorage(redis)
+      const errorSpy = sinon.spy(rootLogger, 'error')
+
+      // When
+      const result = await storage.increment('key', 1000, 10, 0, 'test')
+
+      // Then
+      expect(result.totalHits).toBe(0)
+      expect(result.isBlocked).toBe(false)
+      sinon.assert.calledOnce(errorSpy)
+    })
+  })
+
+  describe('timer de timeout', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+      sinon.restore()
+    })
+
+    it('est nettoyé quand Redis répond à temps', async () => {
+      // Given
+      const redis = stubClass(Redis)
+      redis.multi.returns({
+        incr: sinon.stub().returnsThis(),
+        pexpire: sinon.stub().returnsThis(),
+        pttl: sinon.stub().returnsThis(),
+        exec: sinon.stub().resolves([
+          [null, 1],
+          [null, 1],
+          [null, 1000]
+        ])
+      } as never)
+      const storage = new RateLimitRedisStorage(redis)
+
+      // When
+      await storage.increment('key', 1000, 10, 0, 'test')
+
+      // Then
+      expect(vi.getTimerCount()).toBe(0)
     })
   })
 

@@ -143,6 +143,31 @@ describe('RateLimitGuard', () => {
       expect(retryAfter).toBeLessThanOrEqual(60)
     })
 
+    it("n'expose ni les seuils ni les Retry-After par throttler", async () => {
+      // Given
+      const ip = '10.1.0.12'
+      const reponseAcceptee = await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', ip)
+      await request(app.getHttpServer()).get(ROUTE_IDP).set('x-real-ip', ip)
+
+      // When
+      const reponseRefusee = await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', ip)
+
+      // Then
+      expect(reponseRefusee.status).toBe(HttpStatus.TOO_MANY_REQUESTS)
+      expect(reponseRefusee.headers['retry-after']).toBeDefined()
+      for (const reponse of [reponseAcceptee, reponseRefusee]) {
+        const enTetes = Object.keys(reponse.headers)
+        expect(enTetes.filter(nom => nom.startsWith('x-ratelimit'))).toEqual([])
+        expect(enTetes.filter(nom => nom.startsWith('retry-after-'))).toEqual(
+          []
+        )
+      }
+    })
+
     it('compte /token à part quand le quota ip est épuisé', async () => {
       // Given
       const ip = '10.1.0.2'

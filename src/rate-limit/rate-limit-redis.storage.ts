@@ -22,13 +22,14 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
     _throttlerName: string
   ): Promise<ThrottlerStorageRecord> {
     let timeoutHandle: NodeJS.Timeout | undefined
+    const timeout = new Promise<null>(resolve => {
+      timeoutHandle = setTimeout(() => resolve(null), REDIS_TIMEOUT_MS)
+      timeoutHandle.unref()
+    })
     try {
       const result = await Promise.race([
         this.redisIncrement(key, ttl),
-        this.timeout().then(timer => {
-          timeoutHandle = timer
-          return null
-        })
+        timeout
       ])
 
       if (result === null) {
@@ -49,9 +50,7 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
       this.logError(error)
       return this.neutralRecord()
     } finally {
-      if (timeoutHandle) {
-        clearTimeout(timeoutHandle)
-      }
+      clearTimeout(timeoutHandle)
     }
   }
 
@@ -71,13 +70,12 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
     }
 
     const [incrErr, totalHits] = results[0] ?? []
+    const [pexpireErr] = results[1] ?? []
     const [pttlErr, ttlResult] = results[2] ?? []
 
-    if (incrErr) {
-      throw incrErr
-    }
-    if (pttlErr) {
-      throw pttlErr
+    const erreur = incrErr ?? pexpireErr ?? pttlErr
+    if (erreur) {
+      throw erreur
     }
     if (typeof totalHits !== 'number' || typeof ttlResult !== 'number') {
       throw new Error(
@@ -85,14 +83,12 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
       )
     }
 
-    return [totalHits, ttlResult]
-  }
+    if (ttlResult < 0) {
+      await this.redis.pexpire(key, ttl)
+      return [totalHits, ttl]
+    }
 
-  private timeout(): Promise<NodeJS.Timeout> {
-    return new Promise(resolve => {
-      const timer = setTimeout(() => resolve(timer), REDIS_TIMEOUT_MS)
-      timer.unref()
-    })
+    return [totalHits, ttlResult]
   }
 
   private neutralRecord(): ThrottlerStorageRecord {

@@ -33,7 +33,6 @@ export function estUnClientServeurAuthentifie(
   }
 }
 
-// Même priorité qu'oidc-provider : le client_secret du corps l'emporte sur le header Basic.
 function identifiantsFournis(req: Request): IdentifiantsClient | undefined {
   const corps: Record<string, unknown> | undefined = req.body
   if (typeof corps?.client_secret === 'string') {

@@ -29,23 +29,21 @@ export interface IdpConfig {
 }
 type Idp = Record<IdpConfigIdentifier, IdpConfig>
 
-export interface RateLimitConfig {
-  actif?: boolean
-  ip?: {
-    fenetreSecondes?: number
-    limite?: number
-    limiteToken?: number
-  }
-  creationInvite?: {
-    fenetreSecondes?: number
-    limite?: number
-  }
-}
-
 export interface Configuration {
   clients: Client
   idps: Idp
-  rateLimit?: RateLimitConfig
+  rateLimit?: {
+    actif?: boolean
+    ip?: {
+      fenetreSecondes?: number
+      limite?: number
+      limiteToken?: number
+    }
+    creationInvite?: {
+      fenetreSecondes?: number
+      limite?: number
+    }
+  }
   [key: string]: unknown
 }
 

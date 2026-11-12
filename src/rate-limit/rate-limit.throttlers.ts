@@ -58,7 +58,8 @@ export function creerThrottlers(
       limit: () => config!.ip.limite,
       skipIf: estUneRequeteToken,
       getTracker: ipDuClient,
-      generateKey: cleDuThrottler
+      generateKey: cleDuThrottler,
+      setHeaders: false
     },
     {
       name: 'ip-token',
@@ -71,7 +72,8 @@ export function creerThrottlers(
           clientsServeur
         ),
       getTracker: ipDuClient,
-      generateKey: cleDuThrottler
+      generateKey: cleDuThrottler,
+      setHeaders: false
     },
     {
       name: 'creation-invite',
@@ -79,7 +81,8 @@ export function creerThrottlers(
       limit: () => config!.creationInvite.limite,
       skipIf: context => !estUneCreationInvite(context),
       getTracker: () => 'global',
-      generateKey: cleDuThrottler
+      generateKey: cleDuThrottler,
+      setHeaders: false
     }
   ]
 }
