@@ -1,6 +1,8 @@
 import { ConfigService } from '@nestjs/config'
 import { rootLogger } from '../utils/monitoring/logger.module'
 
+export const RATE_LIMIT_CONFIG = 'RateLimitConfig'
+
 export interface RateLimitConfig {
   ip: { fenetreMs: number; limite: number; limiteToken: number }
   creationInvite: { fenetreMs: number; limite: number }

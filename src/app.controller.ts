@@ -8,6 +8,7 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception'
+import { SkipThrottle } from '@nestjs/throttler'
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
 import { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface'
 import { DeleteAccountUsecase } from './account/delete-account.usecase'
@@ -15,6 +16,7 @@ import { ApiKeyAuthGuard } from './guards/api-key.auth-guard'
 import { isFailure } from './utils/result/result'
 
 @Controller()
+@SkipThrottle({ ip: true, 'ip-token': true })
 export class AppController {
   constructor(
     private health: HealthCheckService,
