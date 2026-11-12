@@ -116,3 +116,38 @@ export function createIdpClientConfig(idp: IdpConfig): ClientMetadata {
     token_endpoint_auth_method: 'client_secret_post'
   }
 }
+
+export function erreurDeLogin(
+  codeErreur: string,
+  e: unknown
+): { error: Record<string, unknown>; captureApm: boolean } {
+  if (codeErreur === 'SessionNotFound') {
+    const errorObj =
+      e instanceof Error
+        ? { type: e.name, message: e.message }
+        : e && typeof e === 'object' && 'code' in e && 'message' in e
+        ? {
+            type: String((e as { code: unknown }).code),
+            message: String((e as { message: unknown }).message)
+          }
+        : { type: 'Unknown', message: String(e) }
+
+    return { error: errorObj, captureApm: false }
+  }
+
+  const error =
+    e instanceof Error
+      ? {
+          type: e.name,
+          message: e.message,
+          ...(e.stack && { stack_trace: e.stack })
+        }
+      : e && typeof e === 'object' && 'code' in e && 'message' in e
+      ? {
+          type: String((e as { code: unknown }).code),
+          message: String((e as { message: unknown }).message)
+        }
+      : { type: 'Unknown', message: String(e) }
+
+  return { error, captureApm: true }
+}

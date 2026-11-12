@@ -41,6 +41,7 @@ import {
 import {
   createIdpClientConfig,
   createIdpIssuerConfig,
+  erreurDeLogin,
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
@@ -369,16 +370,19 @@ export abstract class IdpService {
       )
       return emptySuccess()
     } catch (e) {
-      this.apmService.captureError(
-        e instanceof Error ? e : new Error(String(e))
-      )
+      const { error, captureApm } = erreurDeLogin(codeErreur, e)
+      if (captureApm) {
+        this.apmService.captureError(
+          e instanceof Error ? e : new Error(String(e))
+        )
+      }
       rootLogger.error(
         {
           context: this.idpName,
           event: { action: 'login_failed', outcome: 'failure' },
           labels: { idp: this.idpLabel },
           login: { step: codeErreur },
-          error: toEcsError(e)
+          error
         },
         'login_failed'
       )

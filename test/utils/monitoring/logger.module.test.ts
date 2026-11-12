@@ -1,7 +1,8 @@
 import {
   isSensitiveKey,
   serializeBodyForLog,
-  toEcsError
+  toEcsError,
+  customLogLevel
 } from '../../../src/utils/monitoring/logger.module'
 
 describe('logger.module helpers', () => {
@@ -64,6 +65,31 @@ describe('logger.module helpers', () => {
 
     it('convertit une valeur inconnue', () => {
       expect(toEcsError('oops')).toEqual({ type: 'Unknown', message: 'oops' })
+    })
+  })
+
+  describe('customLogLevel', () => {
+    it('ne logue pas une réponse 429', () => {
+      // Given
+      const req = {} as any
+      const res = { statusCode: 429 }
+
+      // When
+      const level = customLogLevel(req, res)
+
+      // Then
+      expect(level).toEqual('silent')
+    })
+
+    it('logue en error les 5xx', () => {
+      expect(customLogLevel({} as any, { statusCode: 500 })).toEqual('error')
+      expect(customLogLevel({} as any, { statusCode: 503 })).toEqual('error')
+    })
+
+    it('logue en info les autres statuts', () => {
+      expect(customLogLevel({} as any, { statusCode: 200 })).toEqual('info')
+      expect(customLogLevel({} as any, { statusCode: 400 })).toEqual('info')
+      expect(customLogLevel({} as any, { statusCode: 404 })).toEqual('info')
     })
   })
 })
