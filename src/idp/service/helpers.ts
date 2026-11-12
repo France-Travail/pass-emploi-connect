@@ -3,6 +3,7 @@ import { ClientMetadata, IssuerMetadata } from 'openid-client'
 import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
+import { toEcsError } from '../../utils/monitoring/logger.module'
 
 export async function generateNewGrantId(
   configService: ConfigService,
@@ -121,33 +122,10 @@ export function erreurDeLogin(
   codeErreur: string,
   e: unknown
 ): { error: Record<string, unknown>; captureApm: boolean } {
+  const error = toEcsError(e)
   if (codeErreur === 'SessionNotFound') {
-    const errorObj =
-      e instanceof Error
-        ? { type: e.name, message: e.message }
-        : e && typeof e === 'object' && 'code' in e && 'message' in e
-        ? {
-            type: String((e as { code: unknown }).code),
-            message: String((e as { message: unknown }).message)
-          }
-        : { type: 'Unknown', message: String(e) }
-
-    return { error: errorObj, captureApm: false }
+    const { stack_trace: _stackTrace, ...sansStackTrace } = error
+    return { error: sansStackTrace, captureApm: false }
   }
-
-  const error =
-    e instanceof Error
-      ? {
-          type: e.name,
-          message: e.message,
-          ...(e.stack && { stack_trace: e.stack })
-        }
-      : e && typeof e === 'object' && 'code' in e && 'message' in e
-      ? {
-          type: String((e as { code: unknown }).code),
-          message: String((e as { message: unknown }).message)
-        }
-      : { type: 'Unknown', message: String(e) }
-
   return { error, captureApm: true }
 }
