@@ -30,6 +30,9 @@ import { testConfig } from '../test-utils/module-for-testing'
 
 const ROUTE_IDP = '/milo-jeune/connect/interaction'
 const ROUTE_TOKEN = '/auth/realms/pass-emploi/protocol/openid-connect/token'
+const ROUTE_DECOUVERTE =
+  '/auth/realms/pass-emploi/.well-known/openid-configuration'
+const ROUTE_JWKS = '/auth/realms/pass-emploi/protocol/openid-connect/certs'
 
 const rateLimitDeTest = (
   creationInviteLimite: number
@@ -166,6 +169,54 @@ describe('RateLimitGuard', () => {
           []
         )
       }
+    })
+
+    it('ne limite pas la découverte OIDC ni le JWKS', async () => {
+      // Given
+      const ip = '10.1.0.13'
+
+      // When - Then
+      for (let i = 0; i < 3; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_DECOUVERTE)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+        await request(app.getHttpServer())
+          .get(ROUTE_JWKS)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+      }
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_IDP)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+      }
+      await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', ip)
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+    })
+
+    it('compte ensemble deux IPv6 du même /64 et logue la vraie IP', async () => {
+      // Given
+      const loggerInfo: SinonSpy = spies.spy(rootLogger, 'info')
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_IDP)
+          .set('x-real-ip', '2001:db8:1:2::1')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+      }
+
+      // When - Then
+      await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', '2001:db8:1:2:ffff::5')
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+      const refus = loggerInfo
+        .getCalls()
+        .find(call => call.args[1] === 'rate_limit_exceeded')
+      expect(refus?.args[0].client).toEqual({ ip: '2001:db8:1:2:ffff::5' })
     })
 
     it('compte /token à part quand le quota ip est épuisé', async () => {
