@@ -21,10 +21,14 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
     _blockDuration: number,
     _throttlerName: string
   ): Promise<ThrottlerStorageRecord> {
+    let timeoutHandle: NodeJS.Timeout | undefined
     try {
       const result = await Promise.race([
         this.redisIncrement(key, ttl),
-        this.timeout()
+        this.timeout().then(timer => {
+          timeoutHandle = timer
+          return null
+        })
       ])
 
       if (result === null) {
@@ -44,6 +48,10 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
     } catch (error) {
       this.logError(error)
       return this.neutralRecord()
+    } finally {
+      if (timeoutHandle) {
+        clearTimeout(timeoutHandle)
+      }
     }
   }
 
@@ -62,15 +70,27 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
       throw new Error('Redis multi exec returned null')
     }
 
-    const totalHits = results[0]?.[1] as number
-    const ttlResult = results[2]?.[1] as number
+    const [incrErr, totalHits] = results[0] ?? []
+    const [pttlErr, ttlResult] = results[2] ?? []
+
+    if (incrErr) {
+      throw incrErr
+    }
+    if (pttlErr) {
+      throw pttlErr
+    }
+    if (typeof totalHits !== 'number' || typeof ttlResult !== 'number') {
+      throw new Error(
+        `Invalid Redis response: totalHits=${totalHits}, ttl=${ttlResult}`
+      )
+    }
 
     return [totalHits, ttlResult]
   }
 
-  private timeout(): Promise<null> {
+  private timeout(): Promise<NodeJS.Timeout> {
     return new Promise(resolve => {
-      const timer = setTimeout(() => resolve(null), REDIS_TIMEOUT_MS)
+      const timer = setTimeout(() => resolve(timer), REDIS_TIMEOUT_MS)
       timer.unref()
     })
   }

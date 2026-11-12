@@ -119,6 +119,38 @@ describe('RateLimitRedisStorage', () => {
       expect(elapsed).toBeLessThan(250)
       sinon.assert.calledOnce(errorSpy)
     })
+
+    it('laisse passer si une commande du MULTI échoue', async () => {
+      // Given
+      const failingMulti = {
+        incr: sinon.stub().returnsThis(),
+        pexpire: sinon.stub().returnsThis(),
+        pttl: sinon.stub().returnsThis(),
+        exec: sinon.stub().resolves([
+          [new Error('INCR failed'), null],
+          [null, 1],
+          [null, 100]
+        ])
+      }
+      redis.multi.returns(failingMulti as never)
+
+      storage = new RateLimitRedisStorage(redis)
+      const errorSpy = sinon.spy(rootLogger, 'error')
+
+      // When
+      const result = await storage.increment('key', 1000, 10, 0, 'test')
+
+      // Then
+      expect(result.isBlocked).toBe(false)
+      expect(result.totalHits).toBe(0)
+      expect(result.timeToExpire).toBe(0)
+      expect(result.timeToBlockExpire).toBe(0)
+      sinon.assert.calledOnce(errorSpy)
+      const firstCall = errorSpy.firstCall.args[0] as {
+        error: { type: string; message: string }
+      }
+      expect(firstCall.error.message).toMatch(/INCR failed/)
+    })
   })
 
   describe('logging des pannes', () => {
