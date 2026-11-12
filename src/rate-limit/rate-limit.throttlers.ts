@@ -2,6 +2,10 @@ import { ExecutionContext } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { ThrottlerOptions } from '@nestjs/throttler'
 import { Request } from 'express'
+import {
+  estUnClientServeurAuthentifie,
+  IdentifiantsClient
+} from './client-serveur'
 import { CREATION_INVITE_KEY } from './creation-invite.decorator'
 import { RateLimitConfig } from './rate-limit.config'
 
@@ -44,7 +48,8 @@ export function nomDuThrottler(cle: string): string {
 
 // Les limites ne sont lues que si le guard ne s'est pas désactivé (config définie).
 export function creerThrottlers(
-  config: RateLimitConfig | undefined
+  config: RateLimitConfig | undefined,
+  clientsServeur: IdentifiantsClient[]
 ): ThrottlerOptions[] {
   return [
     {
@@ -59,7 +64,12 @@ export function creerThrottlers(
       name: 'ip-token',
       ttl: () => config!.ip.fenetreMs,
       limit: () => config!.ip.limiteToken,
-      skipIf: context => !estUneRequeteToken(context),
+      skipIf: context =>
+        !estUneRequeteToken(context) ||
+        estUnClientServeurAuthentifie(
+          context.switchToHttp().getRequest<Request>(),
+          clientsServeur
+        ),
       getTracker: ipDuClient,
       generateKey: cleDuThrottler
     },

@@ -8,6 +8,7 @@ import {
   RateLimitConfig
 } from './rate-limit.config'
 import { RateLimitRedisStorage } from './rate-limit-redis.storage'
+import { lireClientsServeur } from './client-serveur'
 import { creerThrottlers } from './rate-limit.throttlers'
 
 @Module({
@@ -29,12 +30,16 @@ class RateLimitConfigModule {}
   imports: [
     RateLimitConfigModule,
     ThrottlerModule.forRootAsync({
-      imports: [RateLimitConfigModule],
-      inject: [RATE_LIMIT_CONFIG, RateLimitRedisStorage],
+      imports: [RateLimitConfigModule, ConfigModule],
+      inject: [RATE_LIMIT_CONFIG, RateLimitRedisStorage, ConfigService],
       useFactory: (
         config: RateLimitConfig | undefined,
-        storage: RateLimitRedisStorage
-      ) => ({ storage, throttlers: creerThrottlers(config) })
+        storage: RateLimitRedisStorage,
+        configService: ConfigService
+      ) => ({
+        storage,
+        throttlers: creerThrottlers(config, lireClientsServeur(configService))
+      })
     })
   ],
   exports: [RateLimitConfigModule]

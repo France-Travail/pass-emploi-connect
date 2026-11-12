@@ -189,6 +189,85 @@ describe('RateLimitGuard', () => {
         .expect(HttpStatus.TOO_MANY_REQUESTS)
     })
 
+    it("n'exempte pas un client inconnu ou un secret faux", async () => {
+      // Given
+      const ip = '10.1.0.8'
+      await request(app.getHttpServer())
+        .post(ROUTE_TOKEN)
+        .set('x-real-ip', ip)
+        .type('form')
+        .send({ client_id: 'inconnu', client_secret: 'api-secret' })
+        .expect(HttpStatus.OK)
+      await request(app.getHttpServer())
+        .post(ROUTE_TOKEN)
+        .set('x-real-ip', ip)
+        .type('form')
+        .send({ client_id: 'api', client_secret: 'faux' })
+        .expect(HttpStatus.OK)
+      await request(app.getHttpServer())
+        .post(ROUTE_TOKEN)
+        .set('x-real-ip', ip)
+        .auth('web', 'web-secret-faux')
+        .expect(HttpStatus.OK)
+
+      // When - Then
+      await request(app.getHttpServer())
+        .post(ROUTE_TOKEN)
+        .set('x-real-ip', ip)
+        .type('form')
+        .send({ client_id: 'api' })
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+    })
+
+    it('exempte le client api authentifié par le corps', async () => {
+      // Given
+      const ip = '10.1.0.9'
+
+      // When - Then
+      for (let i = 0; i < 5; i++) {
+        await request(app.getHttpServer())
+          .post(ROUTE_TOKEN)
+          .set('x-real-ip', ip)
+          .type('form')
+          .send({ client_id: 'api', client_secret: 'api-secret' })
+          .expect(HttpStatus.OK)
+      }
+    })
+
+    it('exempte le client web authentifié en Basic', async () => {
+      // Given
+      const ip = '10.1.0.10'
+
+      // When - Then
+      for (let i = 0; i < 5; i++) {
+        await request(app.getHttpServer())
+          .post(ROUTE_TOKEN)
+          .set('x-real-ip', ip)
+          .auth('web', 'web-secret')
+          .expect(HttpStatus.OK)
+      }
+    })
+
+    it("n'exempte jamais le client app", async () => {
+      // Given
+      const ip = '10.1.0.11'
+      for (let i = 0; i < 3; i++) {
+        await request(app.getHttpServer())
+          .post(ROUTE_TOKEN)
+          .set('x-real-ip', ip)
+          .auth('app', 'app-secret')
+          .expect(HttpStatus.OK)
+      }
+
+      // When - Then
+      await request(app.getHttpServer())
+        .post(ROUTE_TOKEN)
+        .set('x-real-ip', ip)
+        .type('form')
+        .send({ client_id: 'app', client_secret: 'app-secret' })
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+    })
+
     it('distingue deux IP', async () => {
       // Given
       for (let i = 0; i < 3; i++) {
@@ -326,6 +405,41 @@ describe('RateLimitGuard', () => {
         .get('/invite/connect/c')
         .set('x-real-ip', ip)
         .expect(HttpStatus.TOO_MANY_REQUESTS)
+    })
+  })
+
+  describe("avec un plafond de création d'invités à 3", () => {
+    let app: INestApplication
+
+    beforeAll(async () => {
+      app = await creerApplication(rateLimitDeTest(3))
+    })
+
+    afterAll(async () => {
+      await app.close()
+    })
+
+    it("un flood refusé par ip ne consomme pas le plafond de création d'invités", async () => {
+      // Given
+      const ipA = '10.4.0.1'
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(`/invite/connect/a${i}`)
+          .set('x-real-ip', ipA)
+          .expect(HttpStatus.OK)
+      }
+      for (let i = 0; i < 5; i++) {
+        await request(app.getHttpServer())
+          .get(`/invite/connect/flood${i}`)
+          .set('x-real-ip', ipA)
+          .expect(HttpStatus.TOO_MANY_REQUESTS)
+      }
+
+      // When - Then
+      await request(app.getHttpServer())
+        .get('/invite/connect/b')
+        .set('x-real-ip', '10.4.0.2')
+        .expect(HttpStatus.OK)
     })
   })
 
