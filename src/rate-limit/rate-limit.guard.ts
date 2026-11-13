@@ -14,7 +14,7 @@ import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { RATE_LIMIT_CONFIG, RateLimitConfig } from './rate-limit.config'
 import { nomDuThrottler } from './rate-limit.throttlers'
 
-const THROTTLERS_PAR_IP = ['ip', 'ip-token']
+const THROTTLERS_PAR_IP = new Set(['ip', 'ip-token'])
 const INTERVALLE_LOG_ECHEC_MS = 60000
 
 export interface RequeteRefuseeParLeRateLimit {
@@ -78,7 +78,7 @@ export class RateLimitGuard extends ThrottlerGuard {
           labels: { rate_limit: nom, rate_limit_palier: String(refus) },
           url: { path: req.path },
           http: { request: { id: req.id } },
-          ...(THROTTLERS_PAR_IP.includes(nom) && {
+          ...(THROTTLERS_PAR_IP.has(nom) && {
             client: { ip: detail.tracker }
           })
         },

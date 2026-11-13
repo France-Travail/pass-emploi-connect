@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config'
-import { timingSafeEqual } from 'crypto'
+import { timingSafeEqual } from 'node:crypto'
 import { Request } from 'express'
 
 export interface IdentifiantsClient {

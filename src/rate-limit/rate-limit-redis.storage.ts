@@ -78,7 +78,7 @@ export class RateLimitRedisStorage implements ThrottlerStorage {
       throw erreur
     }
     if (typeof totalHits !== 'number' || typeof ttlResult !== 'number') {
-      throw new Error(
+      throw new TypeError(
         `Invalid Redis response: totalHits=${totalHits}, ttl=${ttlResult}`
       )
     }
