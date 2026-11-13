@@ -54,7 +54,7 @@
     "joi": "^18.3.1",
     "jose": "^5.2.4",
     "luxon": "^3.4.4",
-    "nestjs-pino": "^4.0.0",
+    "nestjs-pino": "^5.3.1",
     "oidc-provider": "~9.11.5",
     "openid-client": "^5.6.5",
     "pino": "^10.4.0",
