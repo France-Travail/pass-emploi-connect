@@ -37,11 +37,15 @@ const ROUTE_DECOUVERTE =
 const ROUTE_JWKS = '/auth/realms/pass-emploi/protocol/openid-connect/certs'
 
 const rateLimitDeTest = (
-  creationInviteLimite: number
+  creationInviteLimite: number,
+  creationInviteFenetreSecondes = 60
 ): Configuration['rateLimit'] => ({
   actif: true,
   ip: { fenetreSecondes: 60, limite: 2, limiteToken: 3 },
-  creationInvite: { fenetreSecondes: 60, limite: creationInviteLimite }
+  creationInvite: {
+    fenetreSecondes: creationInviteFenetreSecondes,
+    limite: creationInviteLimite
+  }
 })
 
 describe('RateLimitGuard', () => {
@@ -577,6 +581,41 @@ describe('RateLimitGuard', () => {
       await request(app.getHttpServer())
         .get('/invite/connect/b')
         .set('x-real-ip', '10.4.0.2')
+        .expect(HttpStatus.OK)
+    })
+  })
+
+  describe("avec une fenêtre de création d'invités plus courte que la fenêtre ip", () => {
+    let app: INestApplication
+
+    beforeAll(async () => {
+      app = await creerApplication(rateLimitDeTest(3, 30))
+    })
+
+    afterAll(async () => {
+      await app.close()
+    })
+
+    it("évalue ip avant le plafond de création d'invités", async () => {
+      // Given
+      const ipA = '10.5.0.1'
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(`/invite/connect/a${i}`)
+          .set('x-real-ip', ipA)
+          .expect(HttpStatus.OK)
+      }
+      for (let i = 0; i < 5; i++) {
+        await request(app.getHttpServer())
+          .get(`/invite/connect/flood${i}`)
+          .set('x-real-ip', ipA)
+          .expect(HttpStatus.TOO_MANY_REQUESTS)
+      }
+
+      // When - Then
+      await request(app.getHttpServer())
+        .get('/invite/connect/b')
+        .set('x-real-ip', '10.5.0.2')
         .expect(HttpStatus.OK)
     })
   })

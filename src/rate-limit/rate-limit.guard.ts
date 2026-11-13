@@ -7,6 +7,7 @@ import {
   ThrottlerGuard,
   ThrottlerLimitDetail,
   ThrottlerModuleOptions,
+  ThrottlerOptions,
   ThrottlerStorage
 } from '@nestjs/throttler'
 import { Request, Response } from 'express'
@@ -41,6 +42,21 @@ export class RateLimitGuard extends ThrottlerGuard {
     private readonly config: RateLimitConfig | undefined
   ) {
     super(options, storageService, reflector)
+  }
+
+  async onModuleInit(): Promise<void> {
+    if (!this.config) {
+      return
+    }
+    // La lib trie les throttlers par ttl croissant, en place : sans l'ordre de déclaration,
+    // creation-invite passerait avant ip et un flood refusé par ip consommerait le plafond global.
+    const declares = [
+      ...(Array.isArray(this.options) ? this.options : this.options.throttlers)
+    ]
+    await super.onModuleInit()
+    const rang = (throttler: ThrottlerOptions): number =>
+      declares.findIndex(declare => declare.name === throttler.name)
+    this.throttlers.sort((a, b) => rang(a) - rang(b))
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

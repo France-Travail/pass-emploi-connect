@@ -38,7 +38,9 @@ class RateLimitConfigModule {}
         configService: ConfigService
       ) => ({
         storage,
-        throttlers: creerThrottlers(config, lireClientsServeur(configService))
+        throttlers: config
+          ? creerThrottlers(config, lireClientsServeur(configService))
+          : []
       })
     })
   ],

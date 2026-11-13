@@ -55,16 +55,15 @@ export function nomDuThrottler(cle: string): string {
   return cle.split(':')[1]
 }
 
-// Les limites ne sont lues que si le guard ne s'est pas désactivé (config définie).
 export function creerThrottlers(
-  config: RateLimitConfig | undefined,
+  config: RateLimitConfig,
   clientsServeur: IdentifiantsClient[]
 ): ThrottlerOptions[] {
   return [
     {
       name: 'ip',
-      ttl: () => config!.ip.fenetreMs,
-      limit: () => config!.ip.limite,
+      ttl: config.ip.fenetreMs,
+      limit: config.ip.limite,
       skipIf: context =>
         estUneRequeteToken(context) || estUneRequeteStatique(context),
       getTracker: ipDuClient,
@@ -73,8 +72,8 @@ export function creerThrottlers(
     },
     {
       name: 'ip-token',
-      ttl: () => config!.ip.fenetreMs,
-      limit: () => config!.ip.limiteToken,
+      ttl: config.ip.fenetreMs,
+      limit: config.ip.limiteToken,
       skipIf: context =>
         !estUneRequeteToken(context) ||
         estUnClientServeurAuthentifie(
@@ -87,8 +86,8 @@ export function creerThrottlers(
     },
     {
       name: 'creation-invite',
-      ttl: () => config!.creationInvite.fenetreMs,
-      limit: () => config!.creationInvite.limite,
+      ttl: config.creationInvite.fenetreMs,
+      limit: config.creationInvite.limite,
       skipIf: context => !estUneCreationInvite(context),
       getTracker: () => 'global',
       generateKey: cleDuThrottler,
