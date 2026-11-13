@@ -65,13 +65,15 @@ export async function revoquerAcces(
     [...accountIds].map(accountId => Account.getSubFromAccountId(accountId))
   )
   return {
-    accountIds: [...accountIds].sort(),
-    subsSansTrace: [...subs].filter(sub => !subsTrouves.has(sub)).sort(),
+    accountIds: [...accountIds].sort(parOrdreAlphabetique),
+    subsSansTrace: [...subs]
+      .filter(sub => !subsTrouves.has(sub))
+      .sort(parOrdreAlphabetique),
     grants: grants.length,
     sessions: sessions.length,
     tokensIdp: tokensIdp.length,
     clesSupprimees,
-    clesIllisibles: clesIllisibles.sort()
+    clesIllisibles: clesIllisibles.sort(parOrdreAlphabetique)
   }
 }
 
@@ -200,4 +202,8 @@ async function supprimer(redis: Redis, cles: string[]): Promise<number> {
     if (erreur) throw erreur
     return total + (supprimees as number)
   }, 0)
+}
+
+function parOrdreAlphabetique(a: string, b: string): number {
+  return a.localeCompare(b)
 }
