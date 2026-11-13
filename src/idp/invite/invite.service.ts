@@ -9,7 +9,7 @@ import { Account } from '../../domain/account'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
-import { rootLogger, toEcsError } from '../../utils/monitoring/logger.module'
+import { rootLogger } from '../../utils/monitoring/logger.module'
 import {
   ContextKey,
   RequestContext
@@ -21,7 +21,7 @@ import {
   isFailure,
   Result
 } from '../../utils/result/result'
-import { generateNewGrantId } from '../service/helpers'
+import { erreurDeLogin, generateNewGrantId } from '../service/helpers'
 
 const IDP_LABEL = 'invite'
 
@@ -92,17 +92,23 @@ export class InviteService {
       const apiUserResult = await this.passemploiapi.putUtilisateurInvite(sub)
 
       if (isFailure(apiUserResult)) {
+        const { error, captureApm } = erreurDeLogin(
+          'ApiPassEmploi',
+          apiUserResult.error
+        )
         rootLogger.error(
           {
             context: 'InviteService',
             event: { action: 'login_failed', outcome: 'failure' },
             labels: { idp: IDP_LABEL },
             login: { step: 'ApiPassEmploi' },
-            error: toEcsError(apiUserResult.error)
+            error
           },
           'login_failed'
         )
-        this.apmService.captureError(new Error('Invite PUT user error'))
+        if (captureApm) {
+          this.apmService.captureError(new Error('Invite PUT user error'))
+        }
         return apiUserResult
       }
 
@@ -161,16 +167,19 @@ export class InviteService {
       )
       return emptySuccess()
     } catch (e) {
-      this.apmService.captureError(
-        e instanceof Error ? e : new Error(String(e))
-      )
+      const { error, captureApm } = erreurDeLogin(codeErreur, e)
+      if (captureApm) {
+        this.apmService.captureError(
+          e instanceof Error ? e : new Error(String(e))
+        )
+      }
       rootLogger.error(
         {
           context: 'InviteService',
           event: { action: 'login_failed', outcome: 'failure' },
           labels: { idp: IDP_LABEL },
           login: { step: codeErreur },
-          error: toEcsError(e)
+          error
         },
         'login_failed'
       )

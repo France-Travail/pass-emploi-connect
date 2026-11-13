@@ -138,5 +138,17 @@ export const configurationSchema = Joi.object({
   }).required(),
   oidc: Joi.object({
     acessTokenTtlSeconds: Joi.number()
-  })
+  }),
+  rateLimit: Joi.object({
+    actif: Joi.boolean(),
+    ip: Joi.object({
+      fenetreSecondes: Joi.number().integer().positive().optional(),
+      limite: Joi.number().integer().positive().optional(),
+      limiteToken: Joi.number().integer().positive().optional()
+    }).optional(),
+    creationInvite: Joi.object({
+      fenetreSecondes: Joi.number().integer().positive().optional(),
+      limite: Joi.number().integer().positive().optional()
+    }).optional()
+  }).optional()
 })

@@ -60,6 +60,15 @@ le client** (cookie, token), ou d'un index.
 | `access_token_lock:<accountId>` | STRING | 30 s | verrou de rafraîchissement du token IdP |
 | `grant_invite:<accountId>` | STRING → grantId | aucun | index invité → grant, pour la suppression |
 | `ContextStorage:<type>-<structure>-<clé>` | STRING | aucun | cache de config IdP, **global** (pas par utilisateur) |
+| `rate-limit:ip:<ip ou /64>` | STRING (compteur) | fenêtre de la limite ip | requêtes par IP, hors `/token`, découverte OIDC et JWKS |
+| `rate-limit:ip-token:<ip ou /64>` | STRING (compteur) | fenêtre de la limite ip | requêtes `/token` par IP, hors clients serveur api et web |
+| `rate-limit:creation-invite:global` | STRING (compteur) | fenêtre de création d'invités | plafond **global** de création d'invités |
+
+- Les clés `rate-limit:ip*` **contiennent une IP** (donnée personnelle, gardée
+  le temps de la fenêtre) ; une IPv6 y est ramenée à son préfixe /64.
+- Un flood distribué crée une clé par IP : des dizaines de milliers de
+  `rate-limit:ip:*` vivantes ralentissent d'autant le `KEYS *idAuth*` de la
+  suppression de compte.
 
 ## Ce qu'un utilisateur a dans Redis
 

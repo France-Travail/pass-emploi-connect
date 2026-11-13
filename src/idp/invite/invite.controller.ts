@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Res } from '@nestjs/common'
 import { Response } from 'express'
+import { CreationInvite } from '../../rate-limit/creation-invite.decorator'
 import { User } from '../../domain/user'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
@@ -13,6 +14,7 @@ export class InviteController {
   // d'autorisation externe vers laquelle rediriger. Le service termine
   // l'interaction et redirige lui-même vers returnTo.
   @Get('invite/connect/:interactionId')
+  @CreationInvite()
   async connect(
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
