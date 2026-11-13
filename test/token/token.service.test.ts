@@ -1,6 +1,9 @@
+import { randomUUID } from 'crypto'
+import { Redis } from 'ioredis'
 import sinon from 'sinon'
 import { DateService } from '../../src/utils/date.service'
 import { Account } from '../../src/domain/account'
+import { User } from '../../src/domain/user'
 import { RedisClient } from '../../src/redis/redis.client'
 import {
   TokenData,
@@ -122,6 +125,99 @@ describe('TokenService', () => {
         `access_token_lock:${Account.fromAccountToAccountId(unAccount())}`,
         'unLockId'
       )
+    })
+  })
+  describe('supprimerTokensIdp', () => {
+    it('supprime les tokens et le verrou de tous les comptes possibles du sub', async () => {
+      // When
+      await tokenService.supprimerTokensIdp(['sub-1'])
+
+      // Then
+      const cles: string[] = redisClient.deleteMany.firstCall.args[0]
+      const accountId = 'JEUNE|POLE_EMPLOI_AIJ|sub-1'
+      expect(cles).toEqual(
+        expect.arrayContaining([
+          `access_token:${accountId}`,
+          `refresh_token:${accountId}`,
+          `access_token_lock:${accountId}`
+        ])
+      )
+      expect(cles).toHaveLength(
+        Object.values(User.Type).length *
+          Object.values(User.Structure).length *
+          3
+      )
+    })
+
+    it('supprime les clés de tous les subs en un seul appel', async () => {
+      // When
+      await tokenService.supprimerTokensIdp(['sub-1', 'sub-2'])
+
+      // Then
+      sinon.assert.calledOnce(redisClient.deleteMany)
+      const cles: string[] = redisClient.deleteMany.firstCall.args[0]
+      expect(cles).toContain('refresh_token:CONSEILLER|MILO|sub-2')
+    })
+
+    describe('sur un vrai redis', () => {
+      let redis: Redis
+      let tokenServiceRedis: TokenService
+      const tokenData: TokenData = { token: 'tok', expiresIn: 3600 }
+
+      beforeEach(() => {
+        // eslint-disable-next-line no-process-env
+        redis = new Redis(process.env.REDIS_URL!, {
+          keyPrefix: `test-tokens-idp-${randomUUID()}:`
+        })
+        tokenServiceRedis = new TokenService(
+          new RedisClient(redis),
+          new DateService()
+        )
+      })
+
+      afterEach(async () => {
+        const prefixe = redis.options.keyPrefix!
+        const cles = await redis.keys(`${prefixe}*`)
+        if (cles.length > 0) {
+          await redis.del(...cles.map(cle => cle.slice(prefixe.length)))
+        }
+        await redis.quit()
+      })
+
+      it('ne laisse que les clés des autres subs', async () => {
+        // Given
+        const cible = unAccount({
+          sub: 'sub-cible',
+          type: User.Type.JEUNE,
+          structure: User.Structure.POLE_EMPLOI_AIJ
+        })
+        // KEYS *sub-cible* aurait aussi supprimé ce compte
+        const autre = unAccount({ sub: 'sub-cible-bis' })
+        for (const account of [cible, autre]) {
+          await tokenServiceRedis.setToken(account, TokenType.ACCESS, tokenData)
+          await tokenServiceRedis.setToken(
+            account,
+            TokenType.REFRESH,
+            tokenData
+          )
+          await tokenServiceRedis.setAccessTokenLock(account, 'lock')
+        }
+
+        // When
+        await tokenServiceRedis.supprimerTokensIdp(['sub-cible'])
+
+        // Then
+        const prefixe = redis.options.keyPrefix!
+        const restantes = (await redis.keys(`${prefixe}*`))
+          .map(cle => cle.slice(prefixe.length))
+          .sort()
+        const idAutre = Account.fromAccountToAccountId(autre)
+        expect(restantes).toEqual([
+          `access_token:${idAutre}`,
+          `access_token_lock:${idAutre}`,
+          `refresh_token:${idAutre}`
+        ])
+      })
     })
   })
 })

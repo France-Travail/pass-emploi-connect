@@ -60,23 +60,27 @@ describe('RedisClient', () => {
       )
     })
   })
-  describe('deletePattern', () => {
-    it('deletePattern', async () => {
+  describe('deleteMany', () => {
+    it('supprime toutes les clés en une commande', async () => {
       // Given
-      redis.keys.resolves(['oidc:ok', 'abc'])
       redis.del.resolves()
 
       // When
-      await redisClient.deletePattern('nimp')
+      await redisClient.deleteMany(['a:1', 'b:2'])
 
       // Then
       sinon.assert.calledOnceWithExactly(
-        redis.keys as sinon.SinonStub,
-        '*nimp*'
+        redis.del as sinon.SinonStub,
+        'a:1',
+        'b:2'
       )
-      sinon.assert.calledTwice(redis.del)
-      sinon.assert.calledWithExactly(redis.del as sinon.SinonStub, 'ok')
-      sinon.assert.calledWithExactly(redis.del as sinon.SinonStub, 'abc')
+    })
+    it("n'appelle pas redis sans clé", async () => {
+      // When
+      await redisClient.deleteMany([])
+
+      // Then
+      sinon.assert.notCalled(redis.del)
     })
   })
   describe('setWithExpiry', () => {

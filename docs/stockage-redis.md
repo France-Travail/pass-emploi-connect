@@ -99,7 +99,19 @@ flowchart LR
 | `/authorize` avec session | cookie `_session` | `Session`, `findAccount` | nouveau `AuthorizationCode` |
 | Token exchange (api) | JWT api | tokens IdP `:accountId` | tokens IdP si rafraîchis |
 | Logout (`/logout`) | cookie `_session` | `Session` | web : − grant du client et ses tokens ; app : rien (voir ci-dessous) |
-| Suppression de compte (`DELETE /accounts/:idAuth`) | `idAuth` seul | `grant_invite`, `KEYS *idAuth*` | − tokens IdP ; invité : − `Grant`, − `RefreshToken`, − index |
+| Suppression de compte (`DELETE /accounts/:idAuth`) | `idAuth` seul | `grant_invite` | − tokens IdP ; invité : − `Grant`, − `RefreshToken`, − index |
+| Révocation IdP par lot (`POST /accounts/revoquer-tokens-idp`) | `subs` (≤ 1000) | — | − tokens IdP |
+
+**Tokens IdP d'un sub** : l'api ne connaît pas le type ni la structure du
+compte, donc pas l'`accountId`. Connect supprime les clés de tous les
+`accountId` possibles (`User.Type` × `User.Structure` × 3 préfixes, soit 78
+clés par sub) en un seul `DEL`, sans parcourir le keyspace. Une clé écrite sous
+une structure retirée depuis de l'enum n'est pas couverte ; elle expire avec le
+token IdP.
+
+La révocation par lot (déconnexion des jeunes d'un dispositif) ne touche que
+les tokens IdP : `Grant`, `RefreshToken` et `Session` restent, mais le prochain
+token exchange échoue faute de token IdP.
 
 **Suppression de compte**, appelée par l'api (archivage, suppression, purge
 invités) : l'api ne transmet que le `sub`, alors qu'aucun objet `oidc-provider`
