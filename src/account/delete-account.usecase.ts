@@ -3,7 +3,7 @@ import * as APM from 'elastic-apm-node'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { OidcService } from '../oidc-provider/oidc.service'
-import { RedisClient } from '../redis/redis.client'
+import { TokenService } from '../token/token.service'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { AuthError } from '../utils/result/error'
@@ -18,7 +18,7 @@ export class DeleteAccountUsecase {
   protected apmService: APM.Agent
 
   constructor(
-    private readonly redisClient: RedisClient,
+    private readonly tokenService: TokenService,
     private readonly oidcService: OidcService
   ) {
     this.apmService = getAPMInstance()
@@ -39,7 +39,7 @@ export class DeleteAccountUsecase {
       )
 
       step = 'tokens_idp'
-      await this.redisClient.deletePattern(inputs.idAuth)
+      await this.tokenService.supprimerTokensIdp([inputs.idAuth])
 
       rootLogger.info(
         {
