@@ -69,9 +69,9 @@ describe('logger.module helpers', () => {
   })
 
   describe('customLogLevel', () => {
-    it('ne logue pas une réponse 429', () => {
+    it('ne logue pas une réponse 429 du rate limit', () => {
       // Given
-      const req = {} as any
+      const req = { refuseeParLeRateLimit: true } as any
       const res = { statusCode: 429 }
 
       // When
@@ -79,6 +79,10 @@ describe('logger.module helpers', () => {
 
       // Then
       expect(level).toEqual('silent')
+    })
+
+    it('logue en info une réponse 429 qui ne vient pas du rate limit', () => {
+      expect(customLogLevel({} as any, { statusCode: 429 })).toEqual('info')
     })
 
     it('logue en error les 5xx', () => {

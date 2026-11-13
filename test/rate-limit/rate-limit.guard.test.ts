@@ -2,9 +2,10 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { TerminusModule } from '@nestjs/terminus'
+import { Reflector } from '@nestjs/core'
 import { Test } from '@nestjs/testing'
 import { randomUUID } from 'crypto'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Redis from 'ioredis'
 import { createSandbox, SinonSpy } from 'sinon'
 import request from 'supertest'
@@ -19,7 +20,8 @@ import { OidcController } from '../../src/oidc-provider/oidc.controller'
 import { OidcService } from '../../src/oidc-provider/oidc.service'
 import {
   estUnPalierDeRefus,
-  RateLimitGuard
+  RateLimitGuard,
+  RequeteRefuseeParLeRateLimit
 } from '../../src/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '../../src/rate-limit/rate-limit.module'
 import { RedisInjectionToken } from '../../src/redis/redis.provider'
@@ -46,6 +48,7 @@ describe('RateLimitGuard', () => {
   const keyPrefix = `test-rate-limit-guard-${randomUUID()}:`
   const spies = createSandbox()
   let redis: Redis
+  let derniereRequete: Request & RequeteRefuseeParLeRateLimit
 
   async function creerApplication(
     rateLimit: Configuration['rateLimit']
@@ -90,6 +93,13 @@ describe('RateLimitGuard', () => {
       .compile()
 
     const app = testingModule.createNestApplication()
+    app.use(
+      (req: Request & { id?: string }, _res: Response, next: NextFunction) => {
+        req.id = 'id-requete'
+        derniereRequete = req
+        next()
+      }
+    )
     await app.init()
     return app
   }
@@ -217,6 +227,55 @@ describe('RateLimitGuard', () => {
         .getCalls()
         .find(call => call.args[1] === 'rate_limit_exceeded')
       expect(refus?.args[0].client).toEqual({ ip: '2001:db8:1:2:ffff::5' })
+    })
+
+    it('marque la requête refusée par le rate limit', async () => {
+      // Given
+      const ip = '10.1.0.14'
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_IDP)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+        expect(derniereRequete.refuseeParLeRateLimit).toBeUndefined()
+      }
+
+      // When
+      await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', ip)
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+
+      // Then
+      expect(derniereRequete.refuseeParLeRateLimit).toBe(true)
+    })
+
+    it('laisse passer la requête et logue une fois si le guard échoue', async () => {
+      // Given
+      spies.stub(Reflector.prototype, 'get').throws(new Error('skipIf cassé'))
+      const loggerError: SinonSpy = spies.spy(rootLogger, 'error')
+
+      // When - Then
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_IDP)
+          .set('x-real-ip', '10.1.0.15')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+      }
+      const echecs = loggerError
+        .getCalls()
+        .filter(call => call.args[1] === 'rate_limit_guard_failed')
+        .map(call => call.args[0])
+      expect(echecs).toEqual([
+        {
+          context: 'RateLimitGuard',
+          event: { action: 'rate_limit_guard_failed', outcome: 'failure' },
+          error: expect.objectContaining({
+            type: 'Error',
+            message: 'skipIf cassé'
+          })
+        }
+      ])
     })
 
     it('compte /token à part quand le quota ip est épuisé', async () => {
@@ -415,6 +474,7 @@ describe('RateLimitGuard', () => {
           event: { action: 'rate_limit_exceeded', outcome: 'failure' },
           labels: { rate_limit: 'ip', rate_limit_palier: '1' },
           url: { path: ROUTE_IDP },
+          http: { request: { id: 'id-requete' } },
           client: { ip }
         },
         {
@@ -422,6 +482,7 @@ describe('RateLimitGuard', () => {
           event: { action: 'rate_limit_exceeded', outcome: 'failure' },
           labels: { rate_limit: 'ip', rate_limit_palier: '10' },
           url: { path: ROUTE_IDP },
+          http: { request: { id: 'id-requete' } },
           client: { ip }
         }
       ])
@@ -449,7 +510,8 @@ describe('RateLimitGuard', () => {
           context: 'RateLimitGuard',
           event: { action: 'rate_limit_exceeded', outcome: 'failure' },
           labels: { rate_limit: 'creation-invite', rate_limit_palier: '1' },
-          url: { path: '/invite/connect/b' }
+          url: { path: '/invite/connect/b' },
+          http: { request: { id: 'id-requete' } }
         }
       ])
     })

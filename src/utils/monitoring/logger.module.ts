@@ -6,6 +6,7 @@ import { LoggerModule } from 'nestjs-pino'
 import pino, { LoggerOptions, Logger as PinoInstance } from 'pino'
 import { ReqId } from 'pino-http'
 import { v4 as uuidV4 } from 'uuid'
+import type { RequeteRefuseeParLeRateLimit } from '../../rate-limit/rate-limit.guard'
 import { getAPMInstance } from './apm.init'
 import { ContextKey, getContextValue } from './request-context'
 
@@ -216,11 +217,11 @@ export function toEcsError(error: unknown): Record<string, unknown> {
 
 // --- pino-http -----------------------------------------------------------
 export function customLogLevel(
-  _req: IncomingMessage,
+  req: IncomingMessage & RequeteRefuseeParLeRateLimit,
   res: { statusCode: number },
   err?: Error
 ): 'info' | 'error' | 'silent' {
-  if (res.statusCode === 429) return 'silent'
+  if (res.statusCode === 429 && req.refuseeParLeRateLimit) return 'silent'
   if (err || !res.statusCode || res.statusCode >= 500) return 'error'
   return 'info'
 }
