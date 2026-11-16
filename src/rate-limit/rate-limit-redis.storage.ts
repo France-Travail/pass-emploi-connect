@@ -1,18 +1,15 @@
-import { Injectable, Inject } from '@nestjs/common'
 import { ThrottlerStorage } from '@nestjs/throttler'
 import type { ThrottlerStorageRecord } from '@nestjs/throttler/dist/throttler-storage-record.interface'
 import { Redis } from 'ioredis'
-import { RedisInjectionToken } from '../redis/redis.provider'
 import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 
 const REDIS_TIMEOUT_MS = 200
 const LOG_THROTTLE_MS = 60000
 
-@Injectable()
 export class RateLimitRedisStorage implements ThrottlerStorage {
   private lastErrorLog = 0
 
-  constructor(@Inject(RedisInjectionToken) private readonly redis: Redis) {}
+  constructor(private readonly redis: Redis) {}
 
   async increment(
     key: string,

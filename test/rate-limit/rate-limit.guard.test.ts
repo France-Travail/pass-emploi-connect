@@ -24,7 +24,7 @@ import {
   RequeteRefuseeParLeRateLimit
 } from '../../src/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '../../src/rate-limit/rate-limit.module'
-import { RedisInjectionToken } from '../../src/redis/redis.provider'
+import { RATE_LIMIT_REDIS } from '../../src/rate-limit/rate-limit-redis.client'
 import { rootLogger } from '../../src/utils/monitoring/logger.module'
 import { emptySuccess, success } from '../../src/utils/result/result'
 import { stubClassSandbox } from '../test-utils/types'
@@ -42,6 +42,7 @@ const rateLimitDeTest = (
   creationInviteFenetreSecondes = 60
 ): Configuration['rateLimit'] => ({
   actif: true,
+  redisUrl: 'redis://inutilise-client-remplace-par-le-test',
   ip: { fenetreSecondes: 60, limite: 2, tokenActif: true, limiteToken: 3 },
   creationInvite: {
     fenetreSecondes: creationInviteFenetreSecondes,
@@ -93,7 +94,7 @@ describe('RateLimitGuard', () => {
     })
       .overrideProvider(ConfigService)
       .useValue(testConfig({ rateLimit }))
-      .overrideProvider(RedisInjectionToken)
+      .overrideProvider(RATE_LIMIT_REDIS)
       .useValue(redis)
       .compile()
 

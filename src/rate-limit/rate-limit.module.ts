@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
-import { RedisProvider } from '../redis/redis.provider'
+import Redis from 'ioredis'
+import { lireClientsServeur } from './client-serveur'
 import {
   lireRateLimitConfig,
   RATE_LIMIT_CONFIG,
   RateLimitConfig
 } from './rate-limit.config'
+import {
+  creerClientRedisRateLimit,
+  RATE_LIMIT_REDIS
+} from './rate-limit-redis.client'
 import { RateLimitRedisStorage } from './rate-limit-redis.storage'
-import { lireClientsServeur } from './client-serveur'
 import { creerThrottlers } from './rate-limit.throttlers'
 
 @Module({
@@ -19,10 +23,14 @@ import { creerThrottlers } from './rate-limit.throttlers'
       inject: [ConfigService],
       useFactory: lireRateLimitConfig
     },
-    RedisProvider,
-    RateLimitRedisStorage
+    {
+      provide: RATE_LIMIT_REDIS,
+      inject: [RATE_LIMIT_CONFIG],
+      useFactory: (config: RateLimitConfig | undefined): Redis | undefined =>
+        config && creerClientRedisRateLimit(config.redisUrl)
+    }
   ],
-  exports: [RATE_LIMIT_CONFIG, RateLimitRedisStorage]
+  exports: [RATE_LIMIT_CONFIG, RATE_LIMIT_REDIS]
 })
 class RateLimitConfigModule {}
 
@@ -31,17 +39,21 @@ class RateLimitConfigModule {}
     RateLimitConfigModule,
     ThrottlerModule.forRootAsync({
       imports: [RateLimitConfigModule, ConfigModule],
-      inject: [RATE_LIMIT_CONFIG, RateLimitRedisStorage, ConfigService],
+      inject: [RATE_LIMIT_CONFIG, RATE_LIMIT_REDIS, ConfigService],
       useFactory: (
         config: RateLimitConfig | undefined,
-        storage: RateLimitRedisStorage,
+        redis: Redis | undefined,
         configService: ConfigService
-      ) => ({
-        storage,
-        throttlers: config
-          ? creerThrottlers(config, lireClientsServeur(configService))
-          : []
-      })
+      ) =>
+        config && redis
+          ? {
+              storage: new RateLimitRedisStorage(redis),
+              throttlers: creerThrottlers(
+                config,
+                lireClientsServeur(configService)
+              )
+            }
+          : { throttlers: [] }
     })
   ],
   exports: [RateLimitConfigModule]

@@ -8,13 +8,13 @@
 connect est à la fois **client** des IdP externes et **serveur OIDC** de nos apps.
 Redis contient donc deux familles de tokens à ne pas confondre :
 
-| | Tokens IdP | Tokens connect |
-|---|---|---|
-| Émis par | i-milo, FT Connect, CD | connect (`oidc-provider`) |
-| Détenus par | connect | app, web |
-| Usage | appels aux API partenaires au nom de l'utilisateur (token exchange) | authentifier l'utilisateur auprès de l'api |
-| Code | `TokenService` | `RedisAdapter` |
-| Clé | `refresh_token:<accountId>` (snake_case) | `RefreshToken:<id>` (PascalCase) |
+|             | Tokens IdP                                                          | Tokens connect                             |
+| ----------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| Émis par    | i-milo, FT Connect, CD                                              | connect (`oidc-provider`)                  |
+| Détenus par | connect                                                             | app, web                                   |
+| Usage       | appels aux API partenaires au nom de l'utilisateur (token exchange) | authentifier l'utilisateur auprès de l'api |
+| Code        | `TokenService`                                                      | `RedisAdapter`                             |
+| Clé         | `refresh_token:<accountId>` (snake_case)                            | `RefreshToken:<id>` (PascalCase)           |
 
 Toutes les clés portent le préfixe `oidc:` (`keyPrefix` ioredis, `redis.provider.ts`).
 `accountId` = `TYPE|STRUCTURE|SUB`, ex. `JEUNE|MILO|e096fa16-…`, `JEUNE|INVITE|9e808de6-…`.
@@ -26,15 +26,15 @@ Toutes les clés portent le préfixe `oidc:` (`keyPrefix` ioredis, `redis.provid
 Identifiants aléatoires : on ne les retrouve **qu'à partir de ce que présente
 le client** (cookie, token), ou d'un index.
 
-| Clé | Type | TTL connecté | TTL invité | Trouvée à partir de |
-|---|---|---|---|---|
-| `Interaction:<uid>` | STRING | 1 h | 1 h | cookie `_interaction` |
-| `AuthorizationCode:<id>` | HASH | 60 s | 60 s | `code` du callback |
-| `Session:<jti>` | STRING | 42 j glissant | 42 j glissant | cookie `_session` |
-| `uid:<uid>` | STRING → jti | = Session | = Session | index interne `oidc-provider` |
-| `Grant:<grantId>` | STRING | 42 j | aucun | `grantId` (Session, RefreshToken, index) |
-| `grant:<grantId>` | LIST de clés | max des tokens | aucun | `grantId` |
-| `RefreshToken:<id>` | HASH | 42 j | aucun | `refresh_token` présenté |
+| Clé                      | Type         | TTL connecté   | TTL invité    | Trouvée à partir de                      |
+| ------------------------ | ------------ | -------------- | ------------- | ---------------------------------------- |
+| `Interaction:<uid>`      | STRING       | 1 h            | 1 h           | cookie `_interaction`                    |
+| `AuthorizationCode:<id>` | HASH         | 60 s           | 60 s          | `code` du callback                       |
+| `Session:<jti>`          | STRING       | 42 j glissant  | 42 j glissant | cookie `_session`                        |
+| `uid:<uid>`              | STRING → jti | = Session      | = Session     | index interne `oidc-provider`            |
+| `Grant:<grantId>`        | STRING       | 42 j           | aucun         | `grantId` (Session, RefreshToken, index) |
+| `grant:<grantId>`        | LIST de clés | max des tokens | aucun         | `grantId`                                |
+| `RefreshToken:<id>`      | HASH         | 42 j           | aucun         | `refresh_token` présenté                 |
 
 - **Access token et ID token ne sont pas stockés** : JWT signés, vérifiés par
   signature (`accessTokenFormat: 'jwt'`). Un access token émis reste valide
@@ -53,22 +53,29 @@ le client** (cookie, token), ou d'un index.
 
 ### Clés propres à connect (`RedisClient`)
 
-| Clé | Type | TTL | Rôle |
-|---|---|---|---|
-| `access_token:<accountId>` | STRING | expiration IdP | token IdP |
-| `refresh_token:<accountId>` | STRING | expiration IdP | token IdP |
-| `access_token_lock:<accountId>` | STRING | 30 s | verrou de rafraîchissement du token IdP |
-| `grant_invite:<accountId>` | STRING → grantId | aucun | index invité → grant, pour la suppression |
-| `ContextStorage:<type>-<structure>-<clé>` | STRING | aucun | cache de config IdP, **global** (pas par utilisateur) |
-| `rate-limit:ip:<ip ou /64>` | STRING (compteur) | fenêtre de la limite ip | requêtes par IP, hors `/token`, découverte OIDC, JWKS et logout |
-| `rate-limit:ip-token:<ip ou /64>` | STRING (compteur) | fenêtre de la limite ip | requêtes `/token` par IP, hors clients serveur api et web |
-| `rate-limit:creation-invite:global` | STRING (compteur) | fenêtre de création d'invités | plafond **global** de création d'invités |
+| Clé                                       | Type             | TTL            | Rôle                                                  |
+| ----------------------------------------- | ---------------- | -------------- | ----------------------------------------------------- |
+| `access_token:<accountId>`                | STRING           | expiration IdP | token IdP                                             |
+| `refresh_token:<accountId>`               | STRING           | expiration IdP | token IdP                                             |
+| `access_token_lock:<accountId>`           | STRING           | 30 s           | verrou de rafraîchissement du token IdP               |
+| `grant_invite:<accountId>`                | STRING → grantId | aucun          | index invité → grant, pour la suppression             |
+| `ContextStorage:<type>-<structure>-<clé>` | STRING           | aucun          | cache de config IdP, **global** (pas par utilisateur) |
 
-- Les clés `rate-limit:ip*` **contiennent une IP** (donnée personnelle, gardée
-  le temps de la fenêtre) ; une IPv6 y est ramenée à son préfixe /64.
-- Un flood distribué crée une clé par IP : des dizaines de milliers de
-  `rate-limit:ip:*` vivantes ralentissent d'autant le `KEYS *idAuth*` de la
-  suppression de compte.
+### Redis des quotas (séparé)
+
+Les compteurs du rate limit vivent dans un **autre Redis** (`RATE_LIMIT_REDIS_URL`),
+partageable avec pass-emploi-api : préfixe `connect:` au lieu de `oidc:`. Ils ne
+polluent pas le Redis principal ; une panne de ce Redis laisse tout passer
+(fail-open) sans empêcher connect de démarrer.
+
+| Clé                                 | Type              | TTL                           | Rôle                                                            |
+| ----------------------------------- | ----------------- | ----------------------------- | --------------------------------------------------------------- |
+| `rate-limit:ip:<ip ou /64>`         | STRING (compteur) | fenêtre de la limite ip       | requêtes par IP, hors `/token`, découverte OIDC, JWKS et logout |
+| `rate-limit:ip-token:<ip ou /64>`   | STRING (compteur) | fenêtre de la limite ip       | requêtes `/token` par IP, hors clients serveur api et web       |
+| `rate-limit:creation-invite:global` | STRING (compteur) | fenêtre de création d'invités | plafond **global** de création d'invités                        |
+
+Les clés `rate-limit:ip*` **contiennent une IP** (donnée personnelle, gardée le
+temps de la fenêtre) ; une IPv6 y est ramenée à son préfixe /64.
 
 ## Ce qu'un utilisateur a dans Redis
 
@@ -91,24 +98,24 @@ flowchart LR
     IDP[access_token / refresh_token<br/>:accountId<br/>connecté seulement]
 ```
 
-| | Connecté (MiLo, FT, CD) | Invité |
-|---|---|---|
-| Session + `uid` | oui, 42 j glissant | oui, 42 j glissant |
-| Grant + liste + RefreshToken | oui, 42 j | oui, **sans TTL** |
-| Tokens IdP + lock | oui | non (pas d'IdP) |
-| `grant_invite` | non | oui, sans TTL |
+|                              | Connecté (MiLo, FT, CD) | Invité             |
+| ---------------------------- | ----------------------- | ------------------ |
+| Session + `uid`              | oui, 42 j glissant      | oui, 42 j glissant |
+| Grant + liste + RefreshToken | oui, 42 j               | oui, **sans TTL**  |
+| Tokens IdP + lock            | oui                     | non (pas d'IdP)    |
+| `grant_invite`               | non                     | oui, sans TTL      |
 
 ## Cas d'utilisation
 
-| Cas | Ce que présente le client | Lecture | Écriture / suppression |
-|---|---|---|---|
-| Login (callback IdP) | cookie `_interaction` | `Interaction` | + tokens IdP, + `Grant`, + `Session`, + `AuthorizationCode` (+ `grant_invite` si invité) |
-| Échange du code | `code` + PKCE | `AuthorizationCode` | code `consumed`, + `RefreshToken` |
-| Refresh | `refresh_token` | `RefreshToken`, `Grant`, `findAccount` (api) | — (pas de rotation) |
-| `/authorize` avec session | cookie `_session` | `Session`, `findAccount` | nouveau `AuthorizationCode` |
-| Token exchange (api) | JWT api | tokens IdP `:accountId` | tokens IdP si rafraîchis |
-| Logout (`/logout`) | cookie `_session` | `Session` | web : − grant du client et ses tokens ; app : rien (voir ci-dessous) |
-| Suppression de compte (`DELETE /accounts/:idAuth`) | `idAuth` seul | `grant_invite`, `KEYS *idAuth*` | − tokens IdP ; invité : − `Grant`, − `RefreshToken`, − index |
+| Cas                                                | Ce que présente le client | Lecture                                      | Écriture / suppression                                                                   |
+| -------------------------------------------------- | ------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Login (callback IdP)                               | cookie `_interaction`     | `Interaction`                                | + tokens IdP, + `Grant`, + `Session`, + `AuthorizationCode` (+ `grant_invite` si invité) |
+| Échange du code                                    | `code` + PKCE             | `AuthorizationCode`                          | code `consumed`, + `RefreshToken`                                                        |
+| Refresh                                            | `refresh_token`           | `RefreshToken`, `Grant`, `findAccount` (api) | — (pas de rotation)                                                                      |
+| `/authorize` avec session                          | cookie `_session`         | `Session`, `findAccount`                     | nouveau `AuthorizationCode`                                                              |
+| Token exchange (api)                               | JWT api                   | tokens IdP `:accountId`                      | tokens IdP si rafraîchis                                                                 |
+| Logout (`/logout`)                                 | cookie `_session`         | `Session`                                    | web : − grant du client et ses tokens ; app : rien (voir ci-dessous)                     |
+| Suppression de compte (`DELETE /accounts/:idAuth`) | `idAuth` seul             | `grant_invite`, `KEYS *idAuth*`              | − tokens IdP ; invité : − `Grant`, − `RefreshToken`, − index                             |
 
 **Suppression de compte**, appelée par l'api (archivage, suppression, purge
 invités) : l'api ne transmet que le `sub`, alors qu'aucun objet `oidc-provider`

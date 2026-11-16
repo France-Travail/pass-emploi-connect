@@ -34,6 +34,7 @@ export interface Configuration {
   idps: Idp
   rateLimit?: {
     actif?: boolean
+    redisUrl?: string
     ip?: {
       fenetreSecondes?: number
       limite?: number
@@ -233,6 +234,7 @@ export default () => {
     },
     rateLimit: {
       actif: process.env.RATE_LIMIT_ACTIF === 'true',
+      redisUrl: process.env.RATE_LIMIT_REDIS_URL || undefined,
       ip: {
         fenetreSecondes: entierOuUndefined(
           process.env.RATE_LIMIT_IP_FENETRE_SECONDES

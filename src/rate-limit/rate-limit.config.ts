@@ -5,6 +5,7 @@ import { rootLogger } from '../utils/monitoring/logger.module'
 export const RATE_LIMIT_CONFIG = 'RateLimitConfig'
 
 export interface RateLimitConfig {
+  redisUrl: string
   ip: { fenetreMs: number; limite: number; limiteToken?: number }
   creationInvite: { fenetreMs: number; limite: number }
 }
@@ -28,7 +29,10 @@ export function lireRateLimitConfig(
       rateLimit.creationInvite?.fenetreSecondes,
     RATE_LIMIT_CREATION_INVITE_LIMITE: rateLimit.creationInvite?.limite
   }
-  const variablesInvalides = Object.entries(variables)
+  const variablesInvalides = Object.entries({
+    ...variables,
+    RATE_LIMIT_REDIS_URL: rateLimit.redisUrl
+  })
     .filter(([_nom, valeur]) => valeur === undefined)
     .map(([nom]) => nom)
 
@@ -62,6 +66,7 @@ export function lireRateLimitConfig(
 
   const seuils = variables as Record<keyof typeof variables, number>
   return {
+    redisUrl: rateLimit.redisUrl!,
     ip: {
       fenetreMs: seuils.RATE_LIMIT_IP_FENETRE_SECONDES * 1000,
       limite: seuils.RATE_LIMIT_IP_LIMITE,

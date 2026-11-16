@@ -4,6 +4,8 @@ import { lireRateLimitConfig } from '../../src/rate-limit/rate-limit.config'
 import { rootLogger } from '../../src/utils/monitoring/logger.module'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
+const URL_REDIS_QUOTAS = 'redis://:secret@quotas:6379'
+
 describe('lireRateLimitConfig', () => {
   let loggerStub: sinon.SinonStub
 
@@ -50,6 +52,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: {
           fenetreSecondes: 60,
           limite: 100,
@@ -82,7 +85,11 @@ describe('lireRateLimitConfig', () => {
     // Given
     const loggerInfo = sinon.stub(rootLogger, 'info')
     const configService = new ConfigService({
-      rateLimit: { actif: true, ip: { fenetreSecondes: 60 } }
+      rateLimit: {
+        actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
+        ip: { fenetreSecondes: 60 }
+      }
     })
 
     // When
@@ -96,6 +103,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: {
           fenetreSecondes: 60,
           limite: 100,
@@ -109,6 +117,7 @@ describe('lireRateLimitConfig', () => {
     const result = lireRateLimitConfig(configService)
 
     expect(result).toEqual({
+      redisUrl: URL_REDIS_QUOTAS,
       ip: { fenetreMs: 60000, limite: 100, limiteToken: 50 },
       creationInvite: { fenetreMs: 120000, limite: 10 }
     })
@@ -119,6 +128,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limiteToken: 50 },
         creationInvite: { fenetreSecondes: 60, limite: 10 }
       }
@@ -141,6 +151,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { limite: 100, limiteToken: 50 },
         creationInvite: { fenetreSecondes: 60 }
       }
@@ -160,6 +171,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limite: undefined, limiteToken: 50 },
         creationInvite: { fenetreSecondes: 60, limite: 10 }
       }
@@ -175,6 +187,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limite: undefined, limiteToken: 50 },
         creationInvite: { fenetreSecondes: 60, limite: 10 }
       }
@@ -190,6 +203,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limite: 100, limiteToken: 50 },
         creationInvite: { fenetreSecondes: 60 }
       }
@@ -205,6 +219,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limite: 100, tokenActif: true },
         creationInvite: { fenetreSecondes: 60, limite: 10 }
       }
@@ -222,6 +237,7 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
+        redisUrl: URL_REDIS_QUOTAS,
         ip: { fenetreSecondes: 60, limite: 100 },
         creationInvite: { fenetreSecondes: 120, limite: 10 }
       }
@@ -232,6 +248,7 @@ describe('lireRateLimitConfig', () => {
 
     // Then
     expect(result).toEqual({
+      redisUrl: URL_REDIS_QUOTAS,
       ip: { fenetreMs: 60000, limite: 100 },
       creationInvite: { fenetreMs: 120000, limite: 10 }
     })
@@ -248,5 +265,23 @@ describe('lireRateLimitConfig', () => {
       },
       'rate_limit_activated'
     )
+  })
+
+  it('renvoie undefined et logue si RATE_LIMIT_REDIS_URL manque, sans repli sur le Redis principal', () => {
+    const configService = new ConfigService({
+      redis: { url: 'redis://principal:6379' },
+      rateLimit: {
+        actif: true,
+        ip: { fenetreSecondes: 60, limite: 100 },
+        creationInvite: { fenetreSecondes: 60, limite: 10 }
+      }
+    })
+
+    const result = lireRateLimitConfig(configService)
+
+    expect(result).toBeUndefined()
+    expect(loggerStub.firstCall.args[0].labels).toEqual({
+      rate_limit_variables_invalides: 'RATE_LIMIT_REDIS_URL'
+    })
   })
 })
