@@ -15,7 +15,7 @@ import { rootLogger, toEcsError } from '../utils/monitoring/logger.module'
 import { RATE_LIMIT_CONFIG, RateLimitConfig } from './rate-limit.config'
 import { nomDuThrottler } from './rate-limit.throttlers'
 
-const THROTTLERS_PAR_IP = new Set(['ip', 'ip-token'])
+const THROTTLERS_PAR_IP = new Set(['ip', 'ip-token', 'creation-invite-ip'])
 const INTERVALLE_LOG_ECHEC_MS = 60000
 
 export interface RequeteRefuseeParLeRateLimit {
@@ -49,7 +49,8 @@ export class RateLimitGuard extends ThrottlerGuard {
       return
     }
     // La lib trie les throttlers par ttl croissant, en place : sans l'ordre de déclaration,
-    // creation-invite passerait avant ip et un flood refusé par ip consommerait le plafond global.
+    // creation-invite passerait avant ip et creation-invite-ip, et un flood refusé par
+    // eux consommerait le plafond global.
     const declares = [
       ...(Array.isArray(this.options) ? this.options : this.options.throttlers)
     ]

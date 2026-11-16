@@ -150,7 +150,8 @@ export const configurationSchema = Joi.object({
     }).optional(),
     creationInvite: Joi.object({
       fenetreSecondes: Joi.number().integer().positive().optional(),
-      limite: Joi.number().integer().positive().optional()
+      limite: Joi.number().integer().positive().optional(),
+      limiteIp: Joi.number().integer().positive().optional()
     }).optional()
   }).optional()
 })

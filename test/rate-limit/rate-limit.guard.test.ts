@@ -39,14 +39,16 @@ const ROUTE_LOGOUT = '/auth/realms/pass-emploi/protocol/openid-connect/logout'
 
 const rateLimitDeTest = (
   creationInviteLimite: number,
-  creationInviteFenetreSecondes = 60
+  creationInviteFenetreSecondes = 60,
+  creationInviteLimiteIp = 100
 ): Configuration['rateLimit'] => ({
   actif: true,
   redisUrl: 'redis://inutilise-client-remplace-par-le-test',
   ip: { fenetreSecondes: 60, limite: 2, tokenActif: true, limiteToken: 3 },
   creationInvite: {
     fenetreSecondes: creationInviteFenetreSecondes,
-    limite: creationInviteLimite
+    limite: creationInviteLimite,
+    limiteIp: creationInviteLimiteIp
   }
 })
 
@@ -643,6 +645,67 @@ describe('RateLimitGuard', () => {
         .get('/invite/connect/b')
         .set('x-real-ip', '10.5.0.2')
         .expect(HttpStatus.OK)
+    })
+  })
+
+  describe("avec une limite de création d'invités par IP plus basse que la limite ip", () => {
+    let app: INestApplication
+
+    beforeAll(async () => {
+      app = await creerApplication(rateLimitDeTest(2, 60, 1))
+    })
+
+    afterAll(async () => {
+      await app.close()
+    })
+
+    it('une IP refusée par sa limite de création ne consomme pas le plafond global', async () => {
+      // Given
+      const ipA = '10.6.0.1'
+      await request(app.getHttpServer())
+        .get('/invite/connect/a')
+        .set('x-real-ip', ipA)
+        .expect(HttpStatus.OK)
+      await request(app.getHttpServer())
+        .get('/invite/connect/flood')
+        .set('x-real-ip', ipA)
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
+
+      // When - Then
+      await request(app.getHttpServer())
+        .get('/invite/connect/b')
+        .set('x-real-ip', '10.6.0.2')
+        .expect(HttpStatus.OK)
+    })
+
+    it("logue le refus de création par IP avec l'IP client", async () => {
+      // Given
+      const ip = '10.6.0.3'
+      const loggerInfo: SinonSpy = spies.spy(rootLogger, 'info')
+      await request(app.getHttpServer())
+        .get('/invite/connect/a')
+        .set('x-real-ip', ip)
+
+      // When
+      await request(app.getHttpServer())
+        .get('/invite/connect/b')
+        .set('x-real-ip', ip)
+
+      // Then
+      const lignesRefus = loggerInfo
+        .getCalls()
+        .filter(call => call.args[1] === 'rate_limit_exceeded')
+        .map(call => call.args[0])
+      expect(lignesRefus).toEqual([
+        {
+          context: 'RateLimitGuard',
+          event: { action: 'rate_limit_exceeded', outcome: 'failure' },
+          labels: { rate_limit: 'creation-invite-ip', rate_limit_palier: '1' },
+          url: { path: '/invite/connect/b' },
+          http: { request: { id: 'id-requete' } },
+          client: { ip }
+        }
+      ])
     })
   })
 

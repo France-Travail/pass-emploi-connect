@@ -100,6 +100,15 @@ export function creerThrottlers(
     },
     ...throttlerIpToken,
     {
+      name: 'creation-invite-ip',
+      ttl: config.creationInvite.fenetreMs,
+      limit: config.creationInvite.limiteIp,
+      skipIf: context => !estUneCreationInvite(context),
+      getTracker: ipDuClient,
+      generateKey: cleDuThrottler,
+      setHeaders: false
+    },
+    {
       name: 'creation-invite',
       ttl: config.creationInvite.fenetreMs,
       limit: config.creationInvite.limite,

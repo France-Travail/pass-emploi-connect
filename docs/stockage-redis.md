@@ -68,13 +68,14 @@ partageable avec pass-emploi-api : préfixe `connect:` au lieu de `oidc:`. Ils n
 polluent pas le Redis principal ; une panne de ce Redis laisse tout passer
 (fail-open) sans empêcher connect de démarrer.
 
-| Clé                                 | Type              | TTL                           | Rôle                                                            |
-| ----------------------------------- | ----------------- | ----------------------------- | --------------------------------------------------------------- |
-| `rate-limit:ip:<ip ou /64>`         | STRING (compteur) | fenêtre de la limite ip       | requêtes par IP, hors `/token`, découverte OIDC, JWKS et logout |
-| `rate-limit:ip-token:<ip ou /64>`   | STRING (compteur) | fenêtre de la limite ip       | requêtes `/token` par IP, hors clients serveur api et web       |
-| `rate-limit:creation-invite:global` | STRING (compteur) | fenêtre de création d'invités | plafond **global** de création d'invités                        |
+| Clé                                         | Type              | TTL                           | Rôle                                                            |
+| ------------------------------------------- | ----------------- | ----------------------------- | --------------------------------------------------------------- |
+| `rate-limit:ip:<ip ou /64>`                 | STRING (compteur) | fenêtre de la limite ip       | requêtes par IP, hors `/token`, découverte OIDC, JWKS et logout |
+| `rate-limit:ip-token:<ip ou /64>`           | STRING (compteur) | fenêtre de la limite ip       | requêtes `/token` par IP, hors clients serveur api et web       |
+| `rate-limit:creation-invite-ip:<ip ou /64>` | STRING (compteur) | fenêtre de création d'invités | créations d'invités par IP, évaluée avant le plafond global     |
+| `rate-limit:creation-invite:global`         | STRING (compteur) | fenêtre de création d'invités | plafond **global** de création d'invités                        |
 
-Les clés `rate-limit:ip*` **contiennent une IP** (donnée personnelle, gardée le
+Les clés `rate-limit:ip*` et `rate-limit:creation-invite-ip:*` **contiennent une IP** (donnée personnelle, gardée le
 temps de la fenêtre) ; une IPv6 y est ramenée à son préfixe /64.
 
 ## Ce qu'un utilisateur a dans Redis

@@ -44,6 +44,7 @@ export interface Configuration {
     creationInvite?: {
       fenetreSecondes?: number
       limite?: number
+      limiteIp?: number
     }
   }
   [key: string]: unknown
@@ -247,7 +248,12 @@ export default () => {
         fenetreSecondes: entierOuUndefined(
           process.env.RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES
         ),
-        limite: entierOuUndefined(process.env.RATE_LIMIT_CREATION_INVITE_LIMITE)
+        limite: entierOuUndefined(
+          process.env.RATE_LIMIT_CREATION_INVITE_LIMITE
+        ),
+        limiteIp: entierOuUndefined(
+          process.env.RATE_LIMIT_CREATION_INVITE_IP_LIMITE
+        )
       }
     }
   }

@@ -7,7 +7,7 @@ export const RATE_LIMIT_CONFIG = 'RateLimitConfig'
 export interface RateLimitConfig {
   redisUrl: string
   ip: { fenetreMs: number; limite: number; limiteToken?: number }
-  creationInvite: { fenetreMs: number; limite: number }
+  creationInvite: { fenetreMs: number; limite: number; limiteIp: number }
 }
 
 export function lireRateLimitConfig(
@@ -27,7 +27,8 @@ export function lireRateLimitConfig(
     }),
     RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES:
       rateLimit.creationInvite?.fenetreSecondes,
-    RATE_LIMIT_CREATION_INVITE_LIMITE: rateLimit.creationInvite?.limite
+    RATE_LIMIT_CREATION_INVITE_LIMITE: rateLimit.creationInvite?.limite,
+    RATE_LIMIT_CREATION_INVITE_IP_LIMITE: rateLimit.creationInvite?.limiteIp
   }
   const variablesInvalides = Object.entries({
     ...variables,
@@ -74,7 +75,8 @@ export function lireRateLimitConfig(
     },
     creationInvite: {
       fenetreMs: seuils.RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES * 1000,
-      limite: seuils.RATE_LIMIT_CREATION_INVITE_LIMITE
+      limite: seuils.RATE_LIMIT_CREATION_INVITE_LIMITE,
+      limiteIp: seuils.RATE_LIMIT_CREATION_INVITE_IP_LIMITE
     }
   }
 }
