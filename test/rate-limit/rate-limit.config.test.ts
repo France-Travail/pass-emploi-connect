@@ -50,7 +50,12 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
-        ip: { fenetreSecondes: 60, limite: 100, limiteToken: 50 },
+        ip: {
+          fenetreSecondes: 60,
+          limite: 100,
+          tokenActif: true,
+          limiteToken: 50
+        },
         creationInvite: { fenetreSecondes: 120, limite: 10 }
       }
     })
@@ -66,7 +71,7 @@ describe('lireRateLimitConfig', () => {
         event: { action: 'rate_limit_activated', outcome: 'success' },
         labels: {
           rate_limit_seuils:
-            'RATE_LIMIT_IP_FENETRE_SECONDES=60,RATE_LIMIT_IP_LIMITE=100,RATE_LIMIT_IP_TOKEN_LIMITE=50,RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES=120,RATE_LIMIT_CREATION_INVITE_LIMITE=10'
+            'RATE_LIMIT_IP_FENETRE_SECONDES=60,RATE_LIMIT_IP_LIMITE=100,RATE_LIMIT_IP_TOKEN_LIMITE=50,RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES=120,RATE_LIMIT_CREATION_INVITE_LIMITE=10,RATE_LIMIT_IP_TOKEN_ACTIF=true'
         }
       },
       'rate_limit_activated'
@@ -91,7 +96,12 @@ describe('lireRateLimitConfig', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
-        ip: { fenetreSecondes: 60, limite: 100, limiteToken: 50 },
+        ip: {
+          fenetreSecondes: 60,
+          limite: 100,
+          tokenActif: true,
+          limiteToken: 50
+        },
         creationInvite: { fenetreSecondes: 120, limite: 10 }
       }
     })
@@ -191,11 +201,11 @@ describe('lireRateLimitConfig', () => {
     expect(loggerStub.calledOnce).toBe(true)
   })
 
-  it('renvoie undefined si limiteToken manque', () => {
+  it('renvoie undefined si ip-token est active sans limiteToken', () => {
     const configService = new ConfigService({
       rateLimit: {
         actif: true,
-        ip: { fenetreSecondes: 60, limite: 100 },
+        ip: { fenetreSecondes: 60, limite: 100, tokenActif: true },
         creationInvite: { fenetreSecondes: 60, limite: 10 }
       }
     })
@@ -204,5 +214,31 @@ describe('lireRateLimitConfig', () => {
 
     expect(result).toBeUndefined()
     expect(loggerStub.calledOnce).toBe(true)
+  })
+
+  it("laisse ip-token inactive et n'exige pas sa limite sans RATE_LIMIT_IP_TOKEN_ACTIF", () => {
+    // Given
+    const loggerInfo = sinon.stub(rootLogger, 'info')
+    const configService = new ConfigService({
+      rateLimit: {
+        actif: true,
+        ip: { fenetreSecondes: 60, limite: 100 },
+        creationInvite: { fenetreSecondes: 120, limite: 10 }
+      }
+    })
+
+    // When
+    const result = lireRateLimitConfig(configService)
+
+    // Then
+    expect(result).toEqual({
+      ip: { fenetreMs: 60000, limite: 100 },
+      creationInvite: { fenetreMs: 120000, limite: 10 }
+    })
+    expect(loggerStub.called).toBe(false)
+    expect(loggerInfo.firstCall.args[0].labels).toEqual({
+      rate_limit_seuils:
+        'RATE_LIMIT_IP_FENETRE_SECONDES=60,RATE_LIMIT_IP_LIMITE=100,RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES=120,RATE_LIMIT_CREATION_INVITE_LIMITE=10,RATE_LIMIT_IP_TOKEN_ACTIF=false'
+    })
   })
 })

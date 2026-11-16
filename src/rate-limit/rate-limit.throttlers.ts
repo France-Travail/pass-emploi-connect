@@ -59,6 +59,26 @@ export function creerThrottlers(
   config: RateLimitConfig,
   clientsServeur: IdentifiantsClient[]
 ): ThrottlerOptions[] {
+  const throttlerIpToken: ThrottlerOptions[] =
+    config.ip.limiteToken === undefined
+      ? []
+      : [
+          {
+            name: 'ip-token',
+            ttl: config.ip.fenetreMs,
+            limit: config.ip.limiteToken,
+            skipIf: context =>
+              !estUneRequeteToken(context) ||
+              estUnClientServeurAuthentifie(
+                context.switchToHttp().getRequest<Request>(),
+                clientsServeur
+              ),
+            getTracker: ipDuClient,
+            generateKey: cleDuThrottler,
+            setHeaders: false
+          }
+        ]
+
   return [
     {
       name: 'ip',
@@ -70,20 +90,7 @@ export function creerThrottlers(
       generateKey: cleDuThrottler,
       setHeaders: false
     },
-    {
-      name: 'ip-token',
-      ttl: config.ip.fenetreMs,
-      limit: config.ip.limiteToken,
-      skipIf: context =>
-        !estUneRequeteToken(context) ||
-        estUnClientServeurAuthentifie(
-          context.switchToHttp().getRequest<Request>(),
-          clientsServeur
-        ),
-      getTracker: ipDuClient,
-      generateKey: cleDuThrottler,
-      setHeaders: false
-    },
+    ...throttlerIpToken,
     {
       name: 'creation-invite',
       ttl: config.creationInvite.fenetreMs,

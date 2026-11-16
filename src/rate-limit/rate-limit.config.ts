@@ -5,7 +5,7 @@ import { rootLogger } from '../utils/monitoring/logger.module'
 export const RATE_LIMIT_CONFIG = 'RateLimitConfig'
 
 export interface RateLimitConfig {
-  ip: { fenetreMs: number; limite: number; limiteToken: number }
+  ip: { fenetreMs: number; limite: number; limiteToken?: number }
   creationInvite: { fenetreMs: number; limite: number }
 }
 
@@ -17,10 +17,13 @@ export function lireRateLimitConfig(
     return undefined
   }
 
+  const ipTokenActif = rateLimit.ip?.tokenActif === true
   const variables = {
     RATE_LIMIT_IP_FENETRE_SECONDES: rateLimit.ip?.fenetreSecondes,
     RATE_LIMIT_IP_LIMITE: rateLimit.ip?.limite,
-    RATE_LIMIT_IP_TOKEN_LIMITE: rateLimit.ip?.limiteToken,
+    ...(ipTokenActif && {
+      RATE_LIMIT_IP_TOKEN_LIMITE: rateLimit.ip?.limiteToken
+    }),
     RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES:
       rateLimit.creationInvite?.fenetreSecondes,
     RATE_LIMIT_CREATION_INVITE_LIMITE: rateLimit.creationInvite?.limite
@@ -46,9 +49,12 @@ export function lireRateLimitConfig(
       context: 'RateLimitConfig',
       event: { action: 'rate_limit_activated', outcome: 'success' },
       labels: {
-        rate_limit_seuils: Object.entries(variables)
-          .map(([nom, valeur]) => `${nom}=${valeur}`)
-          .join(',')
+        rate_limit_seuils: [
+          ...Object.entries(variables).map(
+            ([nom, valeur]) => `${nom}=${valeur}`
+          ),
+          `RATE_LIMIT_IP_TOKEN_ACTIF=${ipTokenActif}`
+        ].join(',')
       }
     },
     'rate_limit_activated'
@@ -59,7 +65,7 @@ export function lireRateLimitConfig(
     ip: {
       fenetreMs: seuils.RATE_LIMIT_IP_FENETRE_SECONDES * 1000,
       limite: seuils.RATE_LIMIT_IP_LIMITE,
-      limiteToken: seuils.RATE_LIMIT_IP_TOKEN_LIMITE
+      ...(ipTokenActif && { limiteToken: seuils.RATE_LIMIT_IP_TOKEN_LIMITE })
     },
     creationInvite: {
       fenetreMs: seuils.RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES * 1000,

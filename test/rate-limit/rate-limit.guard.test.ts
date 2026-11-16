@@ -41,7 +41,7 @@ const rateLimitDeTest = (
   creationInviteFenetreSecondes = 60
 ): Configuration['rateLimit'] => ({
   actif: true,
-  ip: { fenetreSecondes: 60, limite: 2, limiteToken: 3 },
+  ip: { fenetreSecondes: 60, limite: 2, tokenActif: true, limiteToken: 3 },
   creationInvite: {
     fenetreSecondes: creationInviteFenetreSecondes,
     limite: creationInviteLimite
@@ -617,6 +617,45 @@ describe('RateLimitGuard', () => {
         .get('/invite/connect/b')
         .set('x-real-ip', '10.5.0.2')
         .expect(HttpStatus.OK)
+    })
+  })
+
+  describe('sans RATE_LIMIT_IP_TOKEN_ACTIF', () => {
+    let app: INestApplication
+
+    beforeAll(async () => {
+      const rateLimit = rateLimitDeTest(1)
+      app = await creerApplication({
+        ...rateLimit,
+        ip: { fenetreSecondes: 60, limite: 2 }
+      })
+    })
+
+    afterAll(async () => {
+      await app.close()
+    })
+
+    it('ne limite pas /token et garde la limite ip', async () => {
+      // Given
+      const ip = '10.6.0.1'
+
+      // When - Then
+      for (let i = 0; i < 5; i++) {
+        await request(app.getHttpServer())
+          .post(ROUTE_TOKEN)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+      }
+      for (let i = 0; i < 2; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_IDP)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+      }
+      await request(app.getHttpServer())
+        .get(ROUTE_IDP)
+        .set('x-real-ip', ip)
+        .expect(HttpStatus.TOO_MANY_REQUESTS)
     })
   })
 

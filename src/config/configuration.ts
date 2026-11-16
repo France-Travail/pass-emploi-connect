@@ -37,6 +37,7 @@ export interface Configuration {
     ip?: {
       fenetreSecondes?: number
       limite?: number
+      tokenActif?: boolean
       limiteToken?: number
     }
     creationInvite?: {
@@ -237,6 +238,7 @@ export default () => {
           process.env.RATE_LIMIT_IP_FENETRE_SECONDES
         ),
         limite: entierOuUndefined(process.env.RATE_LIMIT_IP_LIMITE),
+        tokenActif: process.env.RATE_LIMIT_IP_TOKEN_ACTIF === 'true',
         limiteToken: entierOuUndefined(process.env.RATE_LIMIT_IP_TOKEN_LIMITE)
       },
       creationInvite: {

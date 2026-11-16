@@ -144,6 +144,7 @@ export const configurationSchema = Joi.object({
     ip: Joi.object({
       fenetreSecondes: Joi.number().integer().positive().optional(),
       limite: Joi.number().integer().positive().optional(),
+      tokenActif: Joi.boolean(),
       limiteToken: Joi.number().integer().positive().optional()
     }).optional(),
     creationInvite: Joi.object({
