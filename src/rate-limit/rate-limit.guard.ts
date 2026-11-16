@@ -71,11 +71,11 @@ export class RateLimitGuard extends ThrottlerGuard {
     }
   }
 
-  protected async shouldSkip(_context: ExecutionContext): Promise<boolean> {
-    return this.config === undefined
+  protected shouldSkip(_context: ExecutionContext): Promise<boolean> {
+    return Promise.resolve(this.config === undefined)
   }
 
-  protected async throwThrottlingException(
+  protected throwThrottlingException(
     context: ExecutionContext,
     detail: ThrottlerLimitDetail
   ): Promise<void> {
@@ -104,7 +104,7 @@ export class RateLimitGuard extends ThrottlerGuard {
 
     req.refuseeParLeRateLimit = true
     res.header('Retry-After', String(detail.timeToBlockExpire))
-    throw new ThrottlerException()
+    return Promise.reject(new ThrottlerException())
   }
 
   private loguerEchec(erreur: unknown): void {

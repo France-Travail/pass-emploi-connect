@@ -73,7 +73,7 @@ export async function revoquerAcces(
     sessions: sessions.length,
     tokensIdp: tokensIdp.length,
     clesSupprimees,
-    clesIllisibles: clesIllisibles.sort(parOrdreAlphabetique)
+    clesIllisibles: [...clesIllisibles].sort(parOrdreAlphabetique)
   }
 }
 

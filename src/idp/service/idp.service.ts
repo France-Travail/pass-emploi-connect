@@ -370,22 +370,7 @@ export abstract class IdpService {
       )
       return emptySuccess()
     } catch (e) {
-      const { error, captureApm } = erreurDeLogin(codeErreur, e)
-      if (captureApm) {
-        this.apmService.captureError(
-          e instanceof Error ? e : new Error(String(e))
-        )
-      }
-      rootLogger.error(
-        {
-          context: this.idpName,
-          event: { action: 'login_failed', outcome: 'failure' },
-          labels: { idp: this.idpLabel },
-          login: { step: codeErreur },
-          error
-        },
-        'login_failed'
-      )
+      this.signalerEchecDeLogin(codeErreur, e)
 
       if (codeErreur === 'SessionNotFound') {
         // L'interaction est perdue (cookie _interaction absent/expiré), mais la session SSO
@@ -399,6 +384,25 @@ export abstract class IdpService {
       }
       return failure(new AuthError(codeErreur))
     }
+  }
+
+  private signalerEchecDeLogin(codeErreur: string, e: unknown): void {
+    const { error, captureApm } = erreurDeLogin(codeErreur, e)
+    if (captureApm) {
+      this.apmService.captureError(
+        e instanceof Error ? e : new Error(String(e))
+      )
+    }
+    rootLogger.error(
+      {
+        context: this.idpName,
+        event: { action: 'login_failed', outcome: 'failure' },
+        labels: { idp: this.idpLabel },
+        login: { step: codeErreur },
+        error
+      },
+      'login_failed'
+    )
   }
 
   protected async resoudreStructureNonAccompagne(

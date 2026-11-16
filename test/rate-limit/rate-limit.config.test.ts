@@ -236,9 +236,17 @@ describe('lireRateLimitConfig', () => {
       creationInvite: { fenetreMs: 120000, limite: 10 }
     })
     expect(loggerStub.called).toBe(false)
-    expect(loggerInfo.firstCall.args[0].labels).toEqual({
-      rate_limit_seuils:
-        'RATE_LIMIT_IP_FENETRE_SECONDES=60,RATE_LIMIT_IP_LIMITE=100,RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES=120,RATE_LIMIT_CREATION_INVITE_LIMITE=10,RATE_LIMIT_IP_TOKEN_ACTIF=false'
-    })
+    sinon.assert.calledOnceWithExactly(
+      loggerInfo,
+      {
+        context: 'RateLimitConfig',
+        event: { action: 'rate_limit_activated', outcome: 'success' },
+        labels: {
+          rate_limit_seuils:
+            'RATE_LIMIT_IP_FENETRE_SECONDES=60,RATE_LIMIT_IP_LIMITE=100,RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES=120,RATE_LIMIT_CREATION_INVITE_LIMITE=10,RATE_LIMIT_IP_TOKEN_ACTIF=false'
+        }
+      },
+      'rate_limit_activated'
+    )
   })
 })
