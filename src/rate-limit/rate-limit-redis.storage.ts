@@ -9,7 +9,9 @@ const LOG_THROTTLE_MS = 60000
 export class RateLimitRedisStorage implements ThrottlerStorage {
   private lastErrorLog = 0
 
-  constructor(private readonly redis: Redis) {}
+  constructor(private readonly redis: Redis) {
+    this.redis.on('error', error => this.logError(error))
+  }
 
   async increment(
     key: string,

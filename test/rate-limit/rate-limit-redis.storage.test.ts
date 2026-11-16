@@ -2,6 +2,7 @@ import Redis from 'ioredis'
 import sinon from 'sinon'
 import { randomUUID } from 'crypto'
 import { vi } from 'vitest'
+import { creerClientRedisRateLimit } from '../../src/rate-limit/rate-limit-redis.client'
 import { RateLimitRedisStorage } from '../../src/rate-limit/rate-limit-redis.storage'
 import { rootLogger } from '../../src/utils/monitoring/logger.module'
 import { stubClass, StubbedClass } from '../test-utils'
@@ -247,6 +248,35 @@ describe('RateLimitRedisStorage', () => {
 
       // Then
       expect(vi.getTimerCount()).toBe(0)
+    })
+  })
+
+  describe('échec de connexion', () => {
+    afterEach(() => {
+      sinon.restore()
+    })
+
+    it("logue la cause de l'échec de connexion", async () => {
+      // Given
+      const errorStub = sinon.stub(rootLogger, 'error')
+      const redis = creerClientRedisRateLimit('redis://127.0.0.1:1')
+      const storage = new RateLimitRedisStorage(redis)
+      await new Promise(resolve => redis.once('error', resolve))
+
+      // When
+      const result = await storage.increment('key', 1000, 10, 0, 'test')
+
+      // Then
+      expect(result.isBlocked).toBe(false)
+      const premierLog = errorStub.firstCall.args[0] as {
+        event: { action: string }
+        error: { message: string }
+      }
+      expect(premierLog.event.action).toBe('rate_limit_storage_failed')
+      expect(premierLog.error.message).toContain('ECONNREFUSED')
+
+      // Cleanup
+      redis.disconnect()
     })
   })
 
