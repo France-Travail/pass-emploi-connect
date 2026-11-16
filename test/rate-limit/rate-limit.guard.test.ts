@@ -35,6 +35,7 @@ const ROUTE_TOKEN = '/auth/realms/pass-emploi/protocol/openid-connect/token'
 const ROUTE_DECOUVERTE =
   '/auth/realms/pass-emploi/.well-known/openid-configuration'
 const ROUTE_JWKS = '/auth/realms/pass-emploi/protocol/openid-connect/certs'
+const ROUTE_LOGOUT = '/auth/realms/pass-emploi/protocol/openid-connect/logout'
 
 const rateLimitDeTest = (
   creationInviteLimite: number,
@@ -210,6 +211,30 @@ describe('RateLimitGuard', () => {
         .get(ROUTE_IDP)
         .set('x-real-ip', ip)
         .expect(HttpStatus.TOO_MANY_REQUESTS)
+    })
+
+    it('ne limite jamais le logout, même quand le quota ip est épuisé', async () => {
+      // Given
+      const ip = '10.1.0.20'
+      for (let i = 0; i < 3; i++) {
+        await request(app.getHttpServer()).get(ROUTE_IDP).set('x-real-ip', ip)
+      }
+
+      // When - Then
+      for (let i = 0; i < 3; i++) {
+        await request(app.getHttpServer())
+          .get(ROUTE_LOGOUT)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+        await request(app.getHttpServer())
+          .post(`${ROUTE_LOGOUT}/confirm`)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+        await request(app.getHttpServer())
+          .get(`${ROUTE_LOGOUT}/success`)
+          .set('x-real-ip', ip)
+          .expect(HttpStatus.OK)
+      }
     })
 
     it('compte ensemble deux IPv6 du même /64 et logue la vraie IP', async () => {

@@ -15,6 +15,8 @@ const CHEMINS_STATIQUES = [
   '/protocol/openid-connect/certs'
 ]
 
+const LOGOUT = /\/protocol\/openid-connect\/logout(\/(confirm|success))?$/
+
 const reflector = new Reflector()
 
 function estUneRequeteToken(context: ExecutionContext): boolean {
@@ -27,6 +29,10 @@ function estUneRequeteToken(context: ExecutionContext): boolean {
 function estUneRequeteStatique(context: ExecutionContext): boolean {
   const chemin = context.switchToHttp().getRequest<Request>().path
   return CHEMINS_STATIQUES.some(statique => chemin.endsWith(statique))
+}
+
+function estUnLogout(context: ExecutionContext): boolean {
+  return LOGOUT.test(context.switchToHttp().getRequest<Request>().path)
 }
 
 function estUneCreationInvite(context: ExecutionContext): boolean {
@@ -85,7 +91,9 @@ export function creerThrottlers(
       ttl: config.ip.fenetreMs,
       limit: config.ip.limite,
       skipIf: context =>
-        estUneRequeteToken(context) || estUneRequeteStatique(context),
+        estUneRequeteToken(context) ||
+        estUneRequeteStatique(context) ||
+        estUnLogout(context),
       getTracker: ipDuClient,
       generateKey: cleDuThrottler,
       setHeaders: false
