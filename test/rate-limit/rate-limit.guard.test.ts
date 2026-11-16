@@ -10,6 +10,7 @@ import Redis from 'ioredis'
 import { createSandbox, SinonSpy } from 'sinon'
 import request from 'supertest'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
+import { RevoquerTokensIdpUsecase } from '../../src/account/revoquer-tokens-idp.usecase'
 import { AppController } from '../../src/app.controller'
 import { Configuration } from '../../src/config/configuration'
 import { InviteController } from '../../src/idp/invite/invite.controller'
@@ -68,6 +69,11 @@ describe('RateLimitGuard', () => {
     inviteService.connect.resolves(emptySuccess())
     const deleteAccountUsecase = stubClassSandbox(DeleteAccountUsecase, sandbox)
     deleteAccountUsecase.execute.resolves(emptySuccess())
+    const revoquerTokensIdpUsecase = stubClassSandbox(
+      RevoquerTokensIdpUsecase,
+      sandbox
+    )
+    revoquerTokensIdpUsecase.execute.resolves(emptySuccess())
 
     const testingModule = await Test.createTestingModule({
       imports: [ConfigModule, TerminusModule, RateLimitModule],
@@ -76,6 +82,10 @@ describe('RateLimitGuard', () => {
         { provide: MiloJeuneService, useValue: miloJeuneService },
         { provide: InviteService, useValue: inviteService },
         { provide: DeleteAccountUsecase, useValue: deleteAccountUsecase },
+        {
+          provide: RevoquerTokensIdpUsecase,
+          useValue: revoquerTokensIdpUsecase
+        },
         {
           provide: OidcService,
           useValue: {
@@ -467,7 +477,7 @@ describe('RateLimitGuard', () => {
         .expect(HttpStatus.TOO_MANY_REQUESTS)
     })
 
-    it('ne limite jamais /health, / ni la suppression de compte', async () => {
+    it('ne limite jamais /health, /, la suppression de compte ni la révocation par lot', async () => {
       // Given
       const ip = '10.1.0.6'
 
@@ -484,6 +494,13 @@ describe('RateLimitGuard', () => {
         await request(app.getHttpServer())
           .delete('/accounts/acc')
           .set({ 'x-real-ip': ip, 'X-API-KEY': 'pass-emploi-back' })
+          .expect(HttpStatus.NO_CONTENT)
+        // Le job de déconnexion par dispositif l'appelle une fois par lot,
+        // toujours depuis l'IP de l'api.
+        await request(app.getHttpServer())
+          .post('/accounts/revoquer-tokens-idp')
+          .set({ 'x-real-ip': ip, 'X-API-KEY': 'pass-emploi-back' })
+          .send({ subs: ['sub-1'] })
           .expect(HttpStatus.NO_CONTENT)
       }
     })

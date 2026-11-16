@@ -7,6 +7,7 @@ import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
+import { RevoquerTokensIdpUsecase } from '../../src/account/revoquer-tokens-idp.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { AppController } from '../../src/app.controller'
 import { Configuration } from '../../src/config/configuration'
@@ -244,6 +245,10 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: DeleteAccountUsecase,
       useValue: stubClassSandbox(DeleteAccountUsecase, sandbox)
+    },
+    {
+      provide: RevoquerTokensIdpUsecase,
+      useValue: stubClassSandbox(RevoquerTokensIdpUsecase, sandbox)
     }
   ]
 }

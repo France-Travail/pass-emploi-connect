@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import * as APM from 'elastic-apm-node'
 import { Account } from '../domain/account'
+import { User } from '../domain/user'
 import { RedisClient } from '../redis/redis.client'
 import { DateService } from '../utils/date.service'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
@@ -21,6 +22,10 @@ type SavedTokenData = {
   expiresAt: number
   scope?: string
 }
+
+const TOUS_LES_TYPES_UTILISATEUR = Object.values(User.Type)
+const TOUTES_LES_STRUCTURES = Object.values(User.Structure)
+const TOUS_LES_TYPES_DE_TOKEN = Object.values(TokenType)
 
 @Injectable()
 export class TokenService {
@@ -100,6 +105,19 @@ export class TokenService {
     await this.redisClient.releaseLock(lockKey, lockId)
   }
 
+  // Seul le sub est connu de l'appelant : on supprime les clés de tous les
+  // accountId possibles plutôt que de chercher les clés existantes (KEYS).
+  async supprimerTokensIdp(subs: string[]): Promise<void> {
+    // Chaque sub peut exister sous n'importe quel couple type × structure
+    const comptesPossibles = subs.flatMap(tousLesComptesPossibles)
+
+    // Chaque compte a ses tokens IdP (access, refresh) et son verrou
+    const clesASupprimer = comptesPossibles.flatMap(clesTokensIdp)
+
+    // Un seul DEL pour tout le lot : Redis ignore les clés absentes
+    await this.redisClient.deleteMany(clesASupprimer)
+  }
+
   private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
     return {
       token: tokenData.token,
@@ -128,4 +146,18 @@ export class TokenService {
 
 function generateAccessTokenLockKey(account: Account): string {
   return `access_token_lock:${Account.fromAccountToAccountId(account)}`
+}
+
+function tousLesComptesPossibles(sub: string): Account[] {
+  return TOUS_LES_TYPES_UTILISATEUR.flatMap(type =>
+    TOUTES_LES_STRUCTURES.map(structure => ({ sub, type, structure }))
+  )
+}
+
+function clesTokensIdp(account: Account): string[] {
+  const accountId = Account.fromAccountToAccountId(account)
+  const clesTokens = TOUS_LES_TYPES_DE_TOKEN.map(
+    typeDeToken => `${typeDeToken}:${accountId}`
+  )
+  return [...clesTokens, generateAccessTokenLockKey(account)]
 }
