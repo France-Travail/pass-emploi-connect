@@ -17,6 +17,7 @@ import { nomDuThrottler } from './rate-limit.throttlers'
 
 const THROTTLERS_PAR_IP = new Set(['ip', 'ip-token', 'creation-invite-ip'])
 const INTERVALLE_LOG_ECHEC_MS = 60000
+const MESSAGE_REFUS = 'Trop de requêtes, réessayez dans quelques instants.'
 
 export interface RequeteRefuseeParLeRateLimit {
   refuseeParLeRateLimit?: boolean
@@ -105,7 +106,7 @@ export class RateLimitGuard extends ThrottlerGuard {
 
     req.refuseeParLeRateLimit = true
     res.header('Retry-After', String(detail.timeToBlockExpire))
-    return Promise.reject(new ThrottlerException())
+    return Promise.reject(new ThrottlerException(MESSAGE_REFUS))
   }
 
   private loguerEchec(erreur: unknown): void {

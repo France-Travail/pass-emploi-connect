@@ -159,6 +159,9 @@ describe('RateLimitGuard', () => {
 
       // Then
       expect(response.status).toBe(HttpStatus.TOO_MANY_REQUESTS)
+      expect(response.body.message).toBe(
+        'Trop de requêtes, réessayez dans quelques instants.'
+      )
       const retryAfter = Number(response.headers['retry-after'])
       expect(retryAfter).toBeGreaterThan(0)
       expect(retryAfter).toBeLessThanOrEqual(60)
