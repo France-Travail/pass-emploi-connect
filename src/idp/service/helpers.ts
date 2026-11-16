@@ -3,6 +3,7 @@ import { ClientMetadata, IssuerMetadata } from 'openid-client'
 import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
+import { toEcsError } from '../../utils/monitoring/logger.module'
 
 export async function generateNewGrantId(
   configService: ConfigService,
@@ -115,4 +116,16 @@ export function createIdpClientConfig(idp: IdpConfig): ClientMetadata {
     scope: idp.scopes,
     token_endpoint_auth_method: 'client_secret_post'
   }
+}
+
+export function erreurDeLogin(
+  codeErreur: string,
+  e: unknown
+): { error: Record<string, unknown>; captureApm: boolean } {
+  const error = toEcsError(e)
+  if (codeErreur === 'SessionNotFound') {
+    const { stack_trace: _stackTrace, ...sansStackTrace } = error
+    return { error: sansStackTrace, captureApm: false }
+  }
+  return { error, captureApm: true }
 }

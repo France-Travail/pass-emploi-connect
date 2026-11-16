@@ -32,6 +32,21 @@ type Idp = Record<IdpConfigIdentifier, IdpConfig>
 export interface Configuration {
   clients: Client
   idps: Idp
+  rateLimit?: {
+    actif?: boolean
+    redisUrl?: string
+    ip?: {
+      fenetreSecondes?: number
+      limite?: number
+      tokenActif?: boolean
+      limiteToken?: number
+    }
+    creationInvite?: {
+      fenetreSecondes?: number
+      limite?: number
+      limiteIp?: number
+    }
+  }
   [key: string]: unknown
 }
 
@@ -46,6 +61,13 @@ const IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 const IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 const OIDC_ACCESS_TOKEN_TTL_SECONDS = 60 * 30
+
+function entierOuUndefined(valeur?: string): number | undefined {
+  if (!valeur) return undefined
+  const parsed = Number(valeur)
+  if (!Number.isInteger(parsed) || parsed <= 0) return undefined
+  return parsed
+}
 
 export default () => {
   const configuration: Configuration = {
@@ -210,6 +232,29 @@ export default () => {
       acessTokenTtlSeconds:
         Number(process.env.OIDC_ACCESS_TOKEN_TTL_SECONDS) ||
         OIDC_ACCESS_TOKEN_TTL_SECONDS
+    },
+    rateLimit: {
+      actif: process.env.RATE_LIMIT_ACTIF === 'true',
+      redisUrl: process.env.RATE_LIMIT_REDIS_URL || undefined,
+      ip: {
+        fenetreSecondes: entierOuUndefined(
+          process.env.RATE_LIMIT_IP_FENETRE_SECONDES
+        ),
+        limite: entierOuUndefined(process.env.RATE_LIMIT_IP_LIMITE),
+        tokenActif: process.env.RATE_LIMIT_IP_TOKEN_ACTIF === 'true',
+        limiteToken: entierOuUndefined(process.env.RATE_LIMIT_IP_TOKEN_LIMITE)
+      },
+      creationInvite: {
+        fenetreSecondes: entierOuUndefined(
+          process.env.RATE_LIMIT_CREATION_INVITE_FENETRE_SECONDES
+        ),
+        limite: entierOuUndefined(
+          process.env.RATE_LIMIT_CREATION_INVITE_LIMITE
+        ),
+        limiteIp: entierOuUndefined(
+          process.env.RATE_LIMIT_CREATION_INVITE_IP_LIMITE
+        )
+      }
     }
   }
 

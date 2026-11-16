@@ -6,6 +6,7 @@ import { LoggerModule } from 'nestjs-pino'
 import pino, { LoggerOptions, Logger as PinoInstance } from 'pino'
 import { ReqId } from 'pino-http'
 import { v4 as uuidV4 } from 'uuid'
+import type { RequeteRefuseeParLeRateLimit } from '../../rate-limit/rate-limit.guard'
 import { getAPMInstance } from './apm.init'
 import { ContextKey, getContextValue } from './request-context'
 
@@ -215,6 +216,16 @@ export function toEcsError(error: unknown): Record<string, unknown> {
 }
 
 // --- pino-http -----------------------------------------------------------
+export function customLogLevel(
+  req: IncomingMessage & RequeteRefuseeParLeRateLimit,
+  res: { statusCode: number },
+  err?: Error
+): 'info' | 'error' | 'silent' {
+  if (res.statusCode === 429 && req.refuseeParLeRateLimit) return 'silent'
+  if (err || !res.statusCode || res.statusCode >= 500) return 'error'
+  return 'info'
+}
+
 const pinoHttpOptions = {
   logger: rootLogger,
   autoLogging: {
@@ -223,14 +234,7 @@ const pinoHttpOptions = {
   },
   genReqId: (request: Request): ReqId =>
     (request.headers['x-request-id'] as string | undefined) ?? uuidV4(),
-  customLogLevel: (
-    _req: IncomingMessage,
-    res: { statusCode: number },
-    err?: Error
-  ): 'info' | 'error' => {
-    if (err || !res.statusCode || res.statusCode >= 500) return 'error'
-    return 'info'
-  },
+  customLogLevel,
   customSuccessMessage: (): string => 'request_completed',
   customErrorMessage: (): string => 'request_failed',
   customSuccessObject: (

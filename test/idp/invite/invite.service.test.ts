@@ -14,6 +14,8 @@ import {
   success
 } from '../../../src/utils/result/result'
 import { RequestContext } from '../../../src/utils/monitoring/request-context'
+import { rootLogger } from '../../../src/utils/monitoring/logger.module'
+import { getAPMInstance } from '../../../src/utils/monitoring/apm.init'
 import { StubbedClass, stubClass } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
 
@@ -23,6 +25,7 @@ describe('InviteService', () => {
   let passEmploiAPIClient: StubbedClass<PassEmploiAPIClient>
   let response: Response
   const configService = testConfig()
+  let errorSpy: sinon.SinonSpy
 
   const interactionId = 'une-interaction'
   // L'invité n'a ni family_name ni email : les claims sont absents, pas vides.
@@ -69,6 +72,17 @@ describe('InviteService', () => {
     ;(
       inviteService as unknown as { requestContext: RequestContext }
     ).requestContext = new RequestContext()
+  })
+
+  afterEach(() => {
+    if (errorSpy) {
+      errorSpy.restore()
+    }
+    const apmInstance = getAPMInstance()
+    const captureErrorStub = apmInstance.captureError as sinon.SinonStub
+    if (captureErrorStub) {
+      captureErrorStub.resetHistory()
+    }
   })
 
   describe('quand le mode app jeune est désactivé', () => {
@@ -272,6 +286,47 @@ describe('InviteService', () => {
       // Then
       expect(isFailure(result)).toBe(true)
       expect(oidcService.finishInteraction.notCalled).toBe(true)
+    })
+
+    it('logue SessionNotFound sans stack trace ni capture APM', async () => {
+      // Given
+      oidcService.findInteraction.resolves(undefined)
+      errorSpy = sinon.spy(rootLogger, 'error')
+      const apmInstance = getAPMInstance()
+      const captureErrorStub = apmInstance.captureError as sinon.SinonStub
+
+      // When
+      await inviteService.connect(interactionId, response)
+
+      // Then
+      sinon.assert.calledOnce(errorSpy)
+      const loggedError = errorSpy.firstCall.args[0] as Record<string, unknown>
+      expect(loggedError.error).toBeDefined()
+      const error = loggedError.error as Record<string, unknown>
+      expect(error.type).toBeDefined()
+      expect(error.message).toBeDefined()
+      expect(error.stack_trace).toBeUndefined()
+      sinon.assert.notCalled(captureErrorStub)
+    })
+
+    it('garde la stack trace des autres échecs', async () => {
+      // Given
+      oidcService.findInteraction.resolves(uneInteraction())
+      passEmploiAPIClient.putUtilisateurInvite.rejects(new Error('API error'))
+      errorSpy = sinon.spy(rootLogger, 'error')
+      const apmInstance = getAPMInstance()
+      const captureErrorStub = apmInstance.captureError as sinon.SinonStub
+
+      // When
+      await inviteService.connect(interactionId, response)
+
+      // Then
+      sinon.assert.calledOnce(errorSpy)
+      const loggedError = errorSpy.firstCall.args[0] as Record<string, unknown>
+      expect(loggedError.error).toBeDefined()
+      const error = loggedError.error as Record<string, unknown>
+      expect(error.stack_trace).toBeDefined()
+      sinon.assert.called(captureErrorStub)
     })
   })
 })
