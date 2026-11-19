@@ -17,6 +17,8 @@ export interface StatutFT {
   estDemandeurEmploi: boolean
 }
 
+const TIMEOUT_STATUT_MS = 10000
+
 @Injectable()
 export class FrancetravailAPIClient extends ExternalApiClient {
   private readonly apiUrl: string
@@ -64,7 +66,8 @@ export class FrancetravailAPIClient extends ExternalApiClient {
         {
           headers: {
             Authorization: `Bearer ${accessTokenJeune}`
-          }
+          },
+          timeout: TIMEOUT_STATUT_MS
         }
       )
 
